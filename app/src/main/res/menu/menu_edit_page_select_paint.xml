@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single" >
+        <item
+            android:id="@+id/action_menu_paint_eraser"
+            android:checkable="true"
+            android:icon="@drawable/ic_erase_black_24dp"
+            android:title="@string/action_menu_paint_eraser"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/action_menu_paint_pen"
+            android:checkable="true"
+            android:checked="true"
+            android:icon="@drawable/menu_item_paint_pen_checked"
+            android:title="@string/action_menu_paint_pen"
+            app:showAsAction="ifRoom" />
+    </group>
+    <item
+        android:id="@+id/action_menu_paint_delete"
+        android:icon="@drawable/ic_delete_forever_black_24dp"
+        android:title="@string/action_menu_image_delete"
+        app:showAsAction="ifRoom" />
+</menu>

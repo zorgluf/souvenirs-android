@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/edit_title_edit_album"
+        app:actionViewClass="fr.nuage.souvenirs.view.ActionAlbumEditNameView"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:title="@string/edit_menu"
+        app:showAsAction="always|collapseActionView" />
+    <item
+        android:id="@+id/add_page_edit_album"
+        android:icon="@drawable/ic_note_add_page_black_24dp"
+        android:title="@string/action_menu_add_page"
+        app:showAsAction="always|collapseActionView" />
+    <item
+        android:id="@+id/display_column_edit_album"
+        android:icon="@drawable/ic_view_column_black_24dp"
+        android:title="@string/action_menu_display_column"
+        app:showAsAction="always|collapseActionView" />
+</menu>

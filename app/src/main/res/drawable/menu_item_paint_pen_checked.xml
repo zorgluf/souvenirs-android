@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <stroke android:width="2dp" android:color="@color/black"/>
+            <corners android:radius="5dp" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_brush_black_24dp" />
+</layer-list>

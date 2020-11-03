@@ -1,0 +1,49 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorAccent">@color/colorSecondary</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColorPrimary">@color/textDefault</item>
+        <item name="android:textColorSecondary">@color/textDefault</item>
+        <item name="android:textColor">@color/textDefault</item>
+        <item name="actionModeBackground">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/textDefault</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" >
+        <item name="android:textColorPrimary">@color/textDefault</item>
+        <item name="android:textColorSecondary">@color/textDefault</item>
+        <item name="android:textColor">@color/textDefault</item>
+        <item name="android:actionMenuTextColor">@color/textDefault</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light">
+        <item name="android:colorBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.AlbumTextDefault" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="AppTheme.AddPageDivider">
+        <item name="android:background">@color/greyDivider</item>
+    </style>
+    
+    <style name="AppTheme.button.text.icon" parent="Widget.MaterialComponents.Button">
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:minWidth">0dp</item>
+    </style>
+
+</resources>

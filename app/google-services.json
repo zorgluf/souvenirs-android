@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "667732581385",
+    "firebase_url": "https://souvenirs-e4a85.firebaseio.com",
+    "project_id": "souvenirs-e4a85",
+    "storage_bucket": "souvenirs-e4a85.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667732581385:android:73d58c6e86b8ea0c2bacd8",
+        "android_client_info": {
+          "package_name": "fr.nuage.souvenirs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "667732581385-gp760ci07cs9fmqi6d486m642lclsbcm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR9w6vwfuuhJad2VVUDm99R189HjVxAv0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "667732581385-gp760ci07cs9fmqi6d486m642lclsbcm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

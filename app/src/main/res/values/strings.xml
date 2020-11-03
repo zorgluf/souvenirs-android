@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">Souvenirs</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+
+    <!-- Example settings for Data & Sync -->
+
+    <!-- Example settings for Notifications -->
+
+    <string name="albums_path">Path to albums</string>
+    <string name="dialog_create_album_msg">Give the name of your new album</string>
+    <string name="icon_edit_album">Edit album</string>
+    <string name="add_page_title">Select a page pattern…</string>
+    <string name="export_to_pdf_menu">To PDF</string>
+    <string name="change_text_edit_dialog">OK</string>
+    <string name="action_menu_image_delete">delete</string>
+    <string name="action_menu_image_import">Import</string>
+    <string name="channel_name">souvenir</string>
+    <string name="channel_description">notification channel for souvenir application</string>
+    <string name="notification_pdf_creation_title">Building PDF</string>
+    <string name="notification_pdf_creation_text_end">PDF is ready</string>
+    <string name="edit_menu">Edit</string>
+    <string name="text_element_hint">Insert your text here...</string>
+    <string name="add_page_in_album_ask">Select the target album :</string>
+    <string name="delete_album">Delete album</string>
+    <string name="delete_album_message">Do you really want to delete the album ?</string>
+    <string name="pdf_export_toast">PDF export started. See notification bar to view progress status.</string>
+    <string name="pick_resolution">Select PDF resolution</string>
+    <string name="pref_nextcloud_url">Nextcloud server URL</string>
+    <string name="pref_nextcloud_login">Nextcloud username</string>
+    <string name="pref_nextcloud_passwd">Nextcloud password</string>
+    <string name="pref_nextcloud">Nextcloud parameters</string>
+    <string name="notification_upload_to_nextcloud">Upload to nextcloud</string>
+    <string name="notification_upload_to_nextcloud_end">Upload to nextcloud finished !</string>
+    <string name="upload_to_nextcloud_menu">ToNextcloud</string>
+    <string name="nextcloud_prefs_empty">Please configure your nextcloud access in settings.</string>
+    <string name="nextcloud_notification_create_dir">Create root album dir on nextcloud server.</string>
+    <string name="nextcloud_notification_com_err">Error on communication with nextcloud server.</string>
+    <string name="nextcloud_notification_dir_creation_err">Error on album directory creation on nextcloud server.</string>
+    <string name="nextcloud_notification_io_err">IO Error on album files.</string>
+    <string name="nextcloud_notification_list_files">Listing files on nextcloud server...</string>
+    <string name="nextcloud_notification_delete_file">Deleting nextcloud file</string>
+    <string name="nextcloud_notification_upload_file">Upload file</string>
+    <string name="nextcloud_notification_upload_dir">Create directory</string>
+    <string name="action_menu_image_switch">Switch image</string>
+    <string name="nextcloud_notification_share_err">Error on public share creation.</string>
+    <string name="nextcloud_notification_share_url">"Sharing album "</string>
+    <string name="nextcloud_notification_tap_share">Tap to share album url.</string>
+    <string name="dialog_nc_upload_msg">Do you want to upload this album ?</string>
+    <string name="action_menu_add_page">Add</string>
+    <string name="action_menu_display_column">Column</string>
+    <string name="edit_page_title">Edit page</string>
+    <string name="add_image">Add image</string>
+    <string name="edit_page_add_text">Add text</string>
+    <string name="edit_page_change_style">Change style</string>
+    <string name="style_none">No pre-defined style found</string>
+    <string name="action_menu_image_ratio">Ratio</string>
+    <string name="action_menu_image_move_toprevious">Move to previous page</string>
+    <string name="action_menu_image_move_tonext">Move to next page</string>
+    <string name="action_menu_image_setasalbum">Set as album image</string>
+    <string name="ask_write_perm_toast">Application need write permission to generate pdf file. Please give this permission and retry PDF export.</string>
+    <string name="pref_nextcloud_enable">Enable Nextcloud Sync</string>
+    <string name="pref_nextcloud_wifi">Only enabled on Wifi</string>
+    <string name="nextcloud_notification_tap_retry">Tap to retry.</string>
+    <string name="sync_create_local_album">Create local album</string>
+    <string name="sync_to_nextcloud">Sync album %1$s to Nextcloud server</string>
+    <string name="sync_create_remote_album">Create Nextcloud album</string>
+    <string name="nextcloud_notification_err">Error with Nextcloud communications.</string>
+    <string name="nextcloud_notification_finish_ok">Nextcloud album sync finished !</string>
+    <string name="sync_album_info_to_nc">Sync local album info to nextcloud</string>
+    <string name="sync_album_info_to_local">Sync album\'s info from nextcloud</string>
+    <string name="sync_fetch_remote_album">Fetching Nextcloud album</string>
+    <string name="sync_album_del_local_page">Delete local page %1$s</string>
+    <string name="sync_album_remote_update_page">Update nextcloud page %1$s</string>
+    <string name="sync_album_create_remote_page">Create nextcloud page %1$s</string>
+    <string name="sync_album_del_remote_page">Delete nextcloud page %1$s</string>
+    <string name="sync_album_clean">Clean nextcloud album</string>
+    <string name="sync_album_local_update_page">Update local page %1$s</string>
+    <string name="sync_album_create_local_page">Create local page %1$s</string>
+    <string name="share_via_nextcloud_menu">Share</string>
+    <string name="dialog_delete_album_share_confirm">Do you want to delete public share of the album \"%1$s\" ?</string>
+    <string name="delete_share_failure">Error on share deletion.</string>
+    <string name="launch_sync">Syncing album %1$s to Nextcloud.</string>
+    <string name="edit_page_draw">Draw</string>
+    <string name="action_menu_paint_pen">Pen</string>
+    <string name="action_menu_paint_eraser">Eraser</string>
+    <string name="color_picker_title">Pick a color</string>
+    <string name="sync_album_change_local_page_pos">"Change page position of %1$s"</string>
+    <string name="sync_album_change_remote_page_pos">Change remote position of page %1$s</string>
+</resources>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/nav_album_list">
+
+    <fragment
+        android:id="@+id/nav_album_list"
+        android:name="fr.nuage.souvenirs.view.AlbumListFragment"
+        tools:layout="@layout/fragment_album_list">
+        <action
+            android:id="@+id/action_nav_album_list_to_nav_album_show"
+            app:destination="@id/nav_album_show"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right" />
+        <action
+            android:id="@+id/action_nav_album_list_to_nav_album_edit"
+            app:destination="@id/nav_album_edit"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_album_show"
+        android:name="fr.nuage.souvenirs.view.ShowAlbumFragment">
+        <argument
+            android:name="albumPath"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_nav_album_show_to_album_edit"
+            app:destination="@id/nav_album_edit"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_album_edit"
+        android:name="fr.nuage.souvenirs.view.EditAlbumFragment"
+        tools:layout="@layout/activity_edit_album" >
+        <argument
+            android:name="albumPath"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_nav_album_edit_to_editPageFragment"
+            app:destination="@id/nav_page_edit"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right" />
+        <argument
+            android:name="pageFocusId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_page_edit"
+        android:name="fr.nuage.souvenirs.view.EditPageFragment"
+        android:label="EditPageFragment" >
+        <argument
+            android:name="albumPath"
+            app:argType="string" />
+        <argument
+            android:name="pageId"
+            app:argType="string" />
+    </fragment>
+</navigation>

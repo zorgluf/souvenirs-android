@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/editText_textElement"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="14"
+        android:focusableInTouchMode="true"
+        android:importantForAutofill="auto"
+        android:inputType="text|textMultiLine|textCapSentences|textAutoCorrect"
+        app:layout_constraintEnd_toStartOf="@+id/button_validate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_validate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_text_edit_dialog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        style="@style/AppTheme.button.text.icon"
+        app:icon="@drawable/ic_delete_forever_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_validate" />
+</androidx.constraintlayout.widget.ConstraintLayout>

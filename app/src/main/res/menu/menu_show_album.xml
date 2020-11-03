@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/edit_album_show"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:title="@string/icon_edit_album"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/share_via_nextcloud"
+        android:icon="@drawable/ic_share_black_24dp"
+        android:title="@string/share_via_nextcloud_menu"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/export_to_pdf"
+        android:icon="@drawable/ic_picture_as_pdf_black_24dp"
+        android:title="@string/export_to_pdf_menu"
+        app:showAsAction="collapseActionView" />
+</menu>

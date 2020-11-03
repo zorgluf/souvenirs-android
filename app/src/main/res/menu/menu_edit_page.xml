@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/edit_page_add_image"
+        android:icon="@drawable/ic_add_image"
+        android:title="@string/add_image"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/edit_page_add_text"
+        android:icon="@drawable/ic_text_fields_black_24dp"
+        android:title="@string/edit_page_add_text"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/edit_page_draw"
+        android:icon="@drawable/ic_brush_black_24dp"
+        android:title="@string/edit_page_draw"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/edit_page_change_style"
+        android:icon="@drawable/ic_view_compact_black_24dp"
+        android:title="@string/edit_page_change_style"
+        app:showAsAction="ifRoom" />
+</menu>

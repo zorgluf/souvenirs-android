@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:drawable="@drawable/ic_nextcloud_logo">
+        <target
+            android:name="line"
+            android:animation="@animator/nextcloud_sync_color" />
+</animated-vector>

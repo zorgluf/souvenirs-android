@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="album_page_min">150dp</dimen>
+    <dimen name="selected_strokewidth">3dp</dimen>
+    <dimen name="selected_circle_ctl">20dp</dimen>
+    <dimen name="hovered_strokewidth">2dp</dimen>
+</resources>

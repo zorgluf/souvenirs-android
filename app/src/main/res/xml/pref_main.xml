@@ -1,0 +1,39 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <EditTextPreference
+        android:defaultValue="Default value"
+        android:key="albums_path"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/albums_path" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="nextcloud_enabled"
+        android:title="@string/pref_nextcloud_enable" />
+    <PreferenceCategory
+        android:key="nextcloud_cat"
+        android:title="@string/pref_nextcloud">
+
+        <EditTextPreference
+            android:key="nextcloud_url"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_nextcloud_url" />
+        <EditTextPreference
+            android:key="nextcloud_login"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_nextcloud_login" />
+        <EditTextPreference
+            android:inputType="textPassword"
+            android:key="nextcloud_passwd"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_nextcloud_passwd" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="nextcloud_wifionly"
+            android:title="@string/pref_nextcloud_wifi" />
+    </PreferenceCategory>
+</PreferenceScreen>

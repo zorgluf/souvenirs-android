@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="resolution_array">
+        <item>Medium (for screen)</item>
+        <item>High (for printing)</item>
+    </string-array>
+    <array name="nc_upload_options">
+        <item>@string/nc_upload_option_share</item>
+    </array>
+    <string name="nc_upload_option_share">Share album</string>
+</resources>

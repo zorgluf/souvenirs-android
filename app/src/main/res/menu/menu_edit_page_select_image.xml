@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/action_menu_image_ratio"
+        android:icon="@drawable/ic_image_aspect_ratio_black_24dp"
+        android:title="@string/action_menu_image_ratio"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_menu_image_delete"
+        android:icon="@drawable/ic_delete_forever_black_24dp"
+        android:title="@string/action_menu_image_delete"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_menu_image_move_toprevious"
+        android:title="@string/action_menu_image_move_toprevious"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_menu_image_move_tonext"
+        android:title="@string/action_menu_image_move_tonext"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_menu_image_setasalbum"
+        android:title="@string/action_menu_image_setasalbum"
+        app:showAsAction="never" />
+</menu>

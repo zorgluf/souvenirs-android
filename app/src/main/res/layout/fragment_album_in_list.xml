@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View"/>
+        <import type="fr.nuage.souvenirs.viewmodel.AlbumViewModel"/>
+        <import type="fr.nuage.souvenirs.viewmodel.utils.NCUtils"/>
+        <variable name="album" type="fr.nuage.souvenirs.viewmodel.AlbumViewModel"/>
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/mtrl_card_spacing"
+        android:layout_marginTop="@dimen/mtrl_card_spacing"
+        android:stateListAnimator="@animator/lift_on_touch"
+        android:clickable="true"
+        android:layout_marginRight="@dimen/mtrl_card_spacing"
+        android:id="@+id/album_card">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/albumLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white">
+
+        <ImageView
+            android:id="@+id/imageView11"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.2"
+            android:scaleType="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@{album.ldHasAlbum ? album.ldAlbumImage : null}"
+            tools:srcCompat="@drawable/ic_image_black_24dp" />
+
+        <TextView
+            android:id="@+id/albumName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:tag='@{album.id}'
+            android:text='@{album.name}'
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="test" />
+
+        <TextView
+            android:id="@+id/albumDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@{album.ldDate}"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/albumName"
+            tools:text="Date" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editInAlbumListButton"
+            style="@style/AppTheme.button.text.icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:tag='@{album.id}'
+            android:visibility="@{(album.ldHasAlbum &amp;&amp; (album.ldNCState != AlbumViewModel.NC_STATE_SYNC_IN_PROGRESS)) ? View.VISIBLE : View.GONE }"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/delButton"
+            app:layout_constraintTop_toBottomOf="@id/albumName"
+            app:icon="@drawable/ic_edit_black_24dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/delButton"
+            style="@style/AppTheme.button.text.icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="@{(album.ldHasAlbum &amp;&amp; (album.ldNCState != AlbumViewModel.NC_STATE_SYNC_IN_PROGRESS)) ? View.VISIBLE : View.GONE }"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/albumName"
+            app:icon="@drawable/ic_delete_forever_black_24dp" />
+
+        <ImageView
+            android:id="@+id/albumNextcloud"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="@{(!NCUtils.isNCEnable || (album.ldNCState == AlbumViewModel.NC_STATE_UNKNOWN)) ? View.GONE : View.VISIBLE }"
+            android:clickable="true"
+            android:onClick="@{() -> album.launchSync()}"
+            app:layout_constraintDimensionRatio="h,1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@{(album.ldNCState == AlbumViewModel.NC_STATE_SYNC_IN_PROGRESS) ? @drawable/nextcloud_sync_progress : (album.ldNCState == AlbumViewModel.NC_STATE_SYNC) ? @drawable/ic_nextcloud_logo : (album.ldNCState == AlbumViewModel.NC_STATE_NOSYNC) ? @drawable/ic_nextcloud_logo_red : (album.ldNCState == AlbumViewModel.NC_STATE_ERROR) ? @drawable/ic_warning_red_24dp : @drawable/ic_nextcloud_logo_barre }" />
+
+        <ImageView
+            android:id="@+id/SharedImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="@{NCUtils.isNCEnable ? (album.ldIsShared ? View.VISIBLE : View.GONE) : View.GONE }"
+            app:layout_constraintEnd_toStartOf="@+id/albumNextcloud"
+            app:layout_constraintTop_toTopOf="@+id/imageView11"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_public_black_24dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>
