@@ -24,8 +24,8 @@ android {
         applicationId "fr.nuage.souvenirs"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "souvenirs-$versionName")
     }
