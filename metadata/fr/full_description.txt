@@ -1,0 +1,2 @@
+Réalise tes albums photos, ajout du texte ou des annotations manuscrites.
+Partage tes albums sur un serveur Nextcloud.

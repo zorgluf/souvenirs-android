@@ -1,0 +1,1 @@
+Make photo albums, add text and handwritten annotations. Upload them on Nextcloud server and share with friends/family.
