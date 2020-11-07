@@ -5,12 +5,7 @@ import android.content.Context;
 
 import com.bumptech.glide.request.target.ViewTarget;
 
-import org.acra.ACRA;
-import org.acra.annotation.AcraCore;
-import org.acra.annotation.AcraMailSender;
 
-@AcraCore(buildConfigClass = BuildConfig.class)
-@AcraMailSender(mailTo = "zorgluf@gmail.com")
 public class App extends Application {
     @Override public void onCreate() {
         super.onCreate();
@@ -20,8 +15,5 @@ public class App extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-
-        // The following line triggers the initialization of ACRA
-        ACRA.init(this);
     }
 }

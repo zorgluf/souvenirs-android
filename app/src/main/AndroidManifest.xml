@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme">
         <service
             android:name=".SyncService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
