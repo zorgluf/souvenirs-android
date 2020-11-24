@@ -2,9 +2,18 @@ package fr.nuage.souvenirs.model.nc;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
@@ -23,7 +32,6 @@ public abstract class ElementNC {
     private Integer right;
     private Integer top;
     private Integer bottom;
-    protected PageNC pageParent;
     private UUID id;
 
     public ElementNC() {
@@ -40,10 +48,6 @@ public abstract class ElementNC {
         this.bottom = bottom;
         this.ldBottom.postValue(this.bottom);
         setId(UUID.randomUUID());
-    }
-
-    public void setPageParent(PageNC p) {
-        pageParent = p;
     }
 
     abstract public JSONObject completeToJSON(JSONObject json) throws JSONException;
@@ -76,7 +80,6 @@ public abstract class ElementNC {
         } catch (Exception ex) {
             e = new UnknownElementNC();
         }
-        e.setPageParent(page);
         if (jsonObject.has("id")) {
             e.setId(UUID.fromString(jsonObject.getString("id")));
         }
@@ -88,8 +91,24 @@ public abstract class ElementNC {
         return e;
     }
 
+    public void load(APIProvider.ElementResp elementResp) {
+        setLeft(elementResp.left);
+        setRight(elementResp.right);
+        setTop(elementResp.top);
+        setBottom(elementResp.bottom);
+        setId(elementResp.id);
+    }
 
-    public MutableLiveData<Integer> getLiveDataLeft() { return ldLeft; }
+    public APIProvider.ElementResp generateElementResp() {
+        APIProvider.ElementResp elementResp = new APIProvider.ElementResp();
+        elementResp.left = getLeft();
+        elementResp.right = getRight();
+        elementResp.top = getTop();
+        elementResp.bottom = getBottom();
+        elementResp.id = getId();
+        elementResp.className = getClass().getSimpleName().replaceAll("^(.+)NC","$1");
+        return elementResp;
+    }
 
     public void setLeft(int left) {
         this.left = left;
@@ -97,17 +116,11 @@ public abstract class ElementNC {
         onChange();
     }
 
-
-    public MutableLiveData<Integer> getLiveDataRight() { return ldRight; }
-
     public void setRight(int right) {
         this.right = right;
         this.ldRight.postValue(this.right);
         onChange();
     }
-
-
-    public MutableLiveData<Integer> getLiveDataTop() { return ldTop; }
 
     public void setTop(int top) {
         this.top = top;
@@ -115,15 +128,11 @@ public abstract class ElementNC {
         onChange();
     }
 
-    public MutableLiveData<Integer> getLiveDataBottom() { return ldBottom; }
-
     public void setBottom(int bottom) {
         this.bottom = bottom;
         this.ldBottom.postValue(this.bottom);
         onChange();
     }
-
-    public MutableLiveData<UUID> getLiveDataId() { return ldId; }
 
     public void setId(UUID id) {
         this.id = id;
@@ -141,9 +150,7 @@ public abstract class ElementNC {
     }
 
     public void onChange() {
-        if (pageParent != null) {
-            pageParent.onChange();
-        }
+
     }
 
     public Integer getLeft() {
@@ -160,10 +167,6 @@ public abstract class ElementNC {
 
     public Integer getBottom() {
         return bottom;
-    }
-
-    public void delete() {
-        pageParent.delElement(this);
     }
 
 }

@@ -27,9 +27,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static final String ALBUMS_PATH = "albums_path";
     public static final String NEXTCLOUD_ENABLED = "nextcloud_enabled";
-    public static final String NEXTCLOUD_URL = "nextcloud_url";
-    public static final String NEXTCLOUD_LOGIN = "nextcloud_login";
-    public static final String NEXTCLOUD_PASSWD = "nextcloud_passwd";
     public static final String NEXTCLOUD_WIFIONLY = "nextcloud_wifionly";
 
     @Override

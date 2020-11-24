@@ -2,6 +2,9 @@ package fr.nuage.souvenirs.model.nc;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -93,6 +96,23 @@ public class ImageElementNC extends ElementNC {
         if (jsonObject.has("transformType")) {
             setTransformType(jsonObject.getInt("transformType"));
         }
+    }
+
+    @Override
+    public void load(APIProvider.ElementResp elementResp) {
+        super.load(elementResp);
+        setImagePath(elementResp.imagePath);
+        setMimeType(elementResp.mimeType);
+        setTransformType(elementResp.transformType);
+    }
+
+    @Override
+    public APIProvider.ElementResp generateElementResp() {
+        APIProvider.ElementResp elementResp = super.generateElementResp();
+        elementResp.imagePath = getImagePath();
+        elementResp.mimeType = getMimeType();
+        elementResp.transformType = getTransformType();
+        return elementResp;
     }
 
     public String getImagePath() {

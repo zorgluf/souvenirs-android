@@ -5,13 +5,10 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.owncloud.android.lib.common.OwnCloudClient;
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-
-import fr.nuage.souvenirs.viewmodel.utils.NCGetAlbumList;
 
 public class AlbumsNC {
 
@@ -20,21 +17,18 @@ public class AlbumsNC {
     public static final int STATE_ERROR = 2;
 
     private static AlbumsNC albums;
-    private OwnCloudClient ncClient;
     private MutableLiveData<ArrayList<AlbumNC>> ldAlbumList = new MutableLiveData<ArrayList<AlbumNC>>();
     private ArrayList<AlbumNC> albumList = new ArrayList<>();
     private int state;
     private MutableLiveData<Integer> ldState = new MutableLiveData<>();
 
-    private AlbumsNC(OwnCloudClient ncClient) {
-        this.ncClient = ncClient;
+    private AlbumsNC() {
         setState(STATE_NOT_LOADED);
-        //updateAlbumList();
     }
 
-    public static AlbumsNC getInstance(OwnCloudClient ncClient) {
+    public static AlbumsNC getInstance() {
         if (albums == null) {
-            albums = new AlbumsNC(ncClient);
+            albums = new AlbumsNC();
         }
         return albums;
     }
@@ -44,20 +38,25 @@ public class AlbumsNC {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                RemoteOperationResult result = new NCGetAlbumList().execute(ncClient);
-                if (!result.isSuccess()) {
-                    Log.i(getClass().getName(),"Error on fetching nextcloud album list.");
+                List<String> albumIds = null;
+                try {
+                    albumIds = APIProvider.getApi().getAlbums().execute().body();
+                    if (albumIds == null) {
+                        throw new IOException("Network error.");
+                    }
+                } catch (IOException e) {
+                    Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
                     setState(STATE_ERROR);
                     return;
                 }
                 setState(STATE_OK);
                 ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
-                for (Object albumId: result.getData()) {
-                    try {
-                        AlbumNC albumNC = new AlbumNC(ncClient,(UUID) albumId);
-                        albumNC.load();
+                for (String albumId: albumIds) {
+                    AlbumNC albumNC = new AlbumNC(UUID.fromString(albumId));
+                    if (albumNC.load()) {
+                        albumNC.setState(AlbumNC.STATE_OK);
                         newAlbumList.add(albumNC);
-                    } catch (Exception e) {
+                    } else {
                         Log.w(getClass().getName(),"Wrong album id "+albumId);
                     }
                 }

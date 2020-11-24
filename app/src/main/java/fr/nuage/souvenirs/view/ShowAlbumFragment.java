@@ -163,7 +163,7 @@ public class ShowAlbumFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_show_album, menu);
-        if ((!NCUtils.isNCSets(getContext())) || (!albumVM.hasNCAlbum())) {
+        if (!albumVM.hasNCAlbum()) {
             MenuItem shareMenu = menu.findItem(R.id.share_via_nextcloud);
             shareMenu.setVisible(false);
         }

@@ -4,88 +4,36 @@ import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.resources.files.DownloadFileRemoteOperation;
-import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation;
+import com.google.gson.annotations.Expose;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import fr.nuage.souvenirs.model.Album;
+import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.Page;
-import fr.nuage.souvenirs.viewmodel.utils.FixedDownloadFileRemoteOperation;
-import fr.nuage.souvenirs.viewmodel.utils.NCGetAssetProbe;
-import fr.nuage.souvenirs.viewmodel.utils.NCPostPage;
 
 public class PageNC {
 
     private MutableLiveData<ArrayList<ElementNC>> ldElementsList = new MutableLiveData<ArrayList<ElementNC>>();
-    private ArrayList<ElementNC> elementsList;
-    private AlbumNC albumParent;
+    private ArrayList<ElementNC> elements;
     private UUID id;
     private Date lastEditDate;
-
 
     public PageNC() {
         setElements(new ArrayList<>());
     }
 
-    public void setAlbumParent(AlbumNC a) {
-        albumParent = a;
-    }
-
-    public AlbumNC getAlbum() {
-        return albumParent;
-    }
-
     public void setElements(ArrayList<ElementNC> ee) {
-        elementsList = ee;
-        ldElementsList.postValue(elementsList);
-        onChange();
-    }
-
-    public void addElement(ElementNC e) {
-        ArrayList<ElementNC> tmp = getElements();
-        e.setPageParent(this);
-        tmp.add(e);
-        setElements(tmp);
-    }
-
-    public void addElements(ArrayList<ElementNC> ee) {
-        ArrayList<ElementNC> tmp = getElements();
-        for (ElementNC e : ee) {
-            e.setPageParent(this);
-        }
-        tmp.addAll(ee);
-        setElements(tmp);
-    }
-
-    public void delElement(ElementNC element) {
-        if (getElements().contains(element)) {
-            ArrayList<ElementNC> tmp = getElements();
-            tmp.remove(element);
-            setElements(tmp);
-        }
-    }
-
-    public ImageElementNC createImageElement() {
-        ImageElementNC imageElement = new ImageElementNC();
-        addElement(imageElement);
-        return imageElement;
-    }
-
-    public TextElementNC createTextElement() {
-        TextElementNC textElement = new TextElementNC();
-        addElement(textElement);
-        return textElement;
+        elements = ee;
+        ldElementsList.postValue(elements);
     }
 
     public JSONObject toJSON() {
@@ -93,7 +41,7 @@ public class PageNC {
         try {
             json.put("id",getId().toString());
             JSONArray elements = new JSONArray();
-            for( ElementNC p: elementsList ) {
+            for( ElementNC p: this.elements) {
                 elements.put(p.toJSON());
             }
             json.put("elements",elements);
@@ -107,12 +55,6 @@ public class PageNC {
         return json;
     }
 
-    public static PageNC fromJSON(JSONObject jsonObject, AlbumNC album) throws JSONException {
-        PageNC p = new PageNC();
-        p.setAlbumParent(album);
-        p.fromJSON(jsonObject);
-        return p;
-    }
 
     public void fromJSON(JSONObject jsonObject) throws JSONException {
         if (jsonObject.has("id")) {
@@ -137,11 +79,43 @@ public class PageNC {
         }
     }
 
+    public void load(APIProvider.PageResp pageResp) {
+        id = pageResp.id;
+        setLastEditDate(pageResp.lastEditDate);
+        if (pageResp.elements != null) {
+            ArrayList<ElementNC> elementNCArrayList = new ArrayList<>();
+            for (APIProvider.ElementResp elementResp : pageResp.elements) {
+                String elementClass = elementResp.className.replaceAll("^(.+\\.)?([^\\.]+)$","$2NC");
+                ElementNC elementNC;
+                try {
+                    Class<?> clazz = Class.forName(ElementNC.class.getPackage().getName()+"."+elementClass);
+                    elementNC = (ElementNC) clazz.newInstance();
+                } catch (Exception ex) {
+                    elementNC = new UnknownElementNC();
+                }
+                elementNC.load(elementResp);
+                elementNCArrayList.add(elementNC);
+            }
+            setElements(elementNCArrayList);
+        }
+    }
+
+    public APIProvider.PageResp generatePageResp() {
+        APIProvider.PageResp pageResp = new APIProvider.PageResp();
+        pageResp.id = getId();
+        pageResp.lastEditDate = getLastEditDate();
+        pageResp.elements = new ArrayList<>();
+        for (ElementNC elementNC: getElements()) {
+            pageResp.elements.add(elementNC.generateElementResp());
+        }
+        return pageResp;
+    }
+
     public ArrayList<ElementNC> getElements() {
-        if (elementsList == null) {
+        if (elements == null) {
             setElements(new ArrayList<ElementNC>());
         }
-        return elementsList;
+        return elements;
     }
 
     public MutableLiveData<ArrayList<ElementNC>>  getLiveDataElements() {
@@ -155,22 +129,11 @@ public class PageNC {
         return id;
     }
 
-    public void delete() {
-        albumParent.delPage(this);
-    }
-
     public void clear() {
         //clear all persistent data on page before deletion
         for (ElementNC e : getElements()) {
             e.clear();
         }
-    }
-
-    public void onChange() {
-        if (albumParent != null) {
-            albumParent.onChange();
-        }
-        setLastEditDate(new Date());
     }
 
 
@@ -203,24 +166,6 @@ public class PageNC {
         return true;
     }
 
-    /*
-    !sync method
-     */
-    public boolean save(String localAlbumPath) {
-        if (!pushAssets(localAlbumPath,getAlbum()))  {
-            return false;
-        }
-
-        //save page content
-        RemoteOperationResult postPageResult = new NCPostPage(getAlbum(),this).execute(getAlbum().getNcClient());
-        if (postPageResult.isSuccess()) {
-            Log.d(getClass().getName(),String.format("Page %1$s uploaded.",getId().toString()));
-            return true;
-        } else {
-            Log.i(getClass().getName(),String.format("Error in page %1$s upload.",getId().toString()));
-            return false;
-        }
-    }
 
     public boolean pushAssets(String localAlbumPath, AlbumNC  albumNC) {
         //push images

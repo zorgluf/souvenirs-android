@@ -7,34 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.owncloud.android.lib.common.OwnCloudClient;
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.resources.files.UploadFileRemoteOperation;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.Page;
-import fr.nuage.souvenirs.viewmodel.utils.FixedDownloadFileRemoteOperation;
-import fr.nuage.souvenirs.viewmodel.utils.NCCleanAlbum;
-import fr.nuage.souvenirs.viewmodel.utils.NCCreateAlbum;
-import fr.nuage.souvenirs.viewmodel.utils.NCCreatePage;
-import fr.nuage.souvenirs.viewmodel.utils.NCDeletePage;
-import fr.nuage.souvenirs.viewmodel.utils.NCDeleteShare;
-import fr.nuage.souvenirs.viewmodel.utils.NCGetAlbum;
-import fr.nuage.souvenirs.viewmodel.utils.NCGetAssetProbe;
-import fr.nuage.souvenirs.viewmodel.utils.NCMovePage;
-import fr.nuage.souvenirs.viewmodel.utils.NCPostAlbum;
 
 public class AlbumNC {
     
@@ -42,7 +21,6 @@ public class AlbumNC {
     public static final int STATE_OK = 1;
     public static final int STATE_ERROR = 2;
 
-    private OwnCloudClient ncClient;
     private UUID id;
     private String name;
     private MutableLiveData<String> ldName = new MutableLiveData<String>();
@@ -60,8 +38,8 @@ public class AlbumNC {
     private int state;
     private MutableLiveData<Integer> ldState = new MutableLiveData<>();
 
-    public AlbumNC(OwnCloudClient ncClient, @NonNull UUID id) {
-        this.ncClient = ncClient;
+
+    public AlbumNC(@NonNull UUID id) {
         this.id = id;
         setState(STATE_NOT_LOADED);
     }
@@ -69,38 +47,22 @@ public class AlbumNC {
 
     /**
      * create album in NC. not on ui thread.
-     * @param ncClient
      * @param id
      * @return
      */
-    public static AlbumNC create(OwnCloudClient ncClient , @NonNull UUID id) {
-        AlbumNC albumNC = new AlbumNC(ncClient,id);
-        RemoteOperationResult result = new NCCreateAlbum(albumNC).execute(ncClient);
-        if (!result.isSuccess()) {
-            albumNC.setState(STATE_ERROR);
+    public static AlbumNC create(@NonNull UUID id) {
+        APIProvider.AlbumResp albumResp;
+        //create on remote
+        try {
+            albumResp = APIProvider.getApi().createAlbum(id.toString()).execute().body();
+        } catch (IOException e) {
             Log.i(AlbumNC.class.getName(),"Error on nextcloud album creation "+id.toString());
             return null;
         }
+        AlbumNC albumNC = new AlbumNC(albumResp.id);
+        albumNC.load(albumResp);
         albumNC.setState(STATE_OK);
         return albumNC;
-    }
-
-    public void load() {
-        AlbumNC that = this;
-        //make async web api requests
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                RemoteOperationResult result = new NCGetAlbum(that).execute(ncClient);
-                if (!result.isSuccess()) {
-                    Log.i(getClass().getName(),"Error on fetching nextcloud album "+id.toString());
-                    setState(STATE_ERROR);
-                    return;
-                } else {
-                    setState(STATE_OK);
-                }
-            }
-        }).start();
     }
 
     public UUID getId() {
@@ -151,77 +113,11 @@ public class AlbumNC {
         this.pages = pages;
     }
 
-    public void loadFromJson(JSONObject albumJSON) {
-        try {
-            if (albumJSON.has("name")) {
-                    setName(albumJSON.getString("name"));
-            }
-            if (albumJSON.has("date")) {
-                try {
-                    setDate(new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).parse(albumJSON.getString("date")));
-                } catch (ParseException e) {
-                    Log.w(getClass().getName(),"Error in parsing date in json",e);
-                }
-            }
-            if (albumJSON.has("lastEditDate")) {
-                try {
-                    setLastEditDate(new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).parse(albumJSON.getString("lastEditDate")));
-                } catch (ParseException e) {
-                    Log.w(getClass().getName(),"Error in parsing date in json",e);
-                }
-            }
-            if (albumJSON.has("pages")) {
-                ArrayList<PageNC> pages = new ArrayList<>();
-                Object jsonPage = albumJSON.get("pages");
-                if (jsonPage instanceof JSONArray) {
-                    for (int i=0;i<((JSONArray)jsonPage).length();i++) {
-                        PageNC p = PageNC.fromJSON((JSONObject)((JSONArray)jsonPage).get(i),this);
-                        pages.add(p);
-                    }
-                }
-                setPages(pages);
-            }
-            if (albumJSON.has("pagesLastEditDate")) {
-                try {
-                    setPagesLastEditDate(new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).parse(albumJSON.getString("pagesLastEditDate")));
-                } catch (ParseException e) {
-                    Log.w(getClass().getName(),"Error in parsing date in json",e);
-                }
-            }
-            if (albumJSON.has("albumImage")) {
-                setAlbumImage(albumJSON.getString("albumImage"));
-            }
-            if (albumJSON.has("isShared")) {
-                setIsShared(albumJSON.getBoolean("isShared"));
-            } else {
-                setIsShared(false);
-            }
-            if (albumJSON.has("shareToken")) {
-                shareToken = albumJSON.getString("shareToken");
-            }
-        } catch (JSONException e) {
-            Log.i(getClass().getName(),e.toString(),e);
-        }
-    }
-
-    private void setIsShared(boolean isShared) {
+    public void setIsShared(boolean isShared) {
         this.isShared = isShared;
         ldIsShared.postValue(isShared);
     }
 
-    public JSONObject toJSONInfos() {
-        JSONObject out = new JSONObject();
-        try {
-            if (name != null) { out.put("name",name);  }
-            if (date != null) { out.put("date", new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(date)); }
-            if (getLastEditDate() != null) { out.put("lastEditDate", new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(getLastEditDate())); }
-            if (getPagesLastEditDate() != null) { out.put("pagesLastEditDate", new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(getPagesLastEditDate())); }
-            if (albumImage != null) { out.put("albumImage", albumImage); }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(),"Error in toJSON function.",e);
-        }
-        return out;
-    }
 
     public Date getLastEditDate() {
         return lastEditDate;
@@ -248,32 +144,47 @@ public class AlbumNC {
      sync method
      */
     public boolean save() {
-        RemoteOperationResult result = new NCPostAlbum(this).execute(ncClient);
-        if (!result.isSuccess()) {
+        try {
+            APIProvider.AlbumResp albumResp = new APIProvider.AlbumResp();
+            albumResp.id = getId();
+            albumResp.albumImage = getAlbumImage();
+            albumResp.date = getDate();
+            albumResp.isShared = isShared;
+            albumResp.lastEditDate = getLastEditDate();
+            albumResp.name = getName();
+            albumResp.shareToken = shareToken;
+            albumResp.pagesLastEditDate = getPagesLastEditDate();
+            String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                return true;
+            } else {
+                throw new IOException("Error on post modifications on album");
+            }
+        } catch (IOException e) {
             Log.i(getClass().getName(),"Error on posting nextcloud album "+id.toString());
             setState(STATE_ERROR);
             return false;
         }
-        return true;
     }
 
     public LiveData<Date> getLdPageLastEditDate() {
         return ldPageLastEditDate;
     }
 
-    public void onChange() {
-    }
-
     public boolean delPage(PageNC pageNC) {
-        RemoteOperationResult result = new NCDeletePage(this,pageNC).execute(getNcClient());
-        if (result.isSuccess()) {
-            //update local object
-            ArrayList<PageNC> tmp = pages;
-            tmp.remove(pageNC);
-            pageNC.clear();
-            setPages(tmp);
-            return true;
-        } else {
+        try {
+            String result = APIProvider.getApi().deletePage(getId().toString(),pageNC.getId().toString()).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                //update local object
+                ArrayList<PageNC> tmp = pages;
+                tmp.remove(pageNC);
+                pageNC.clear();
+                setPages(tmp);
+                return true;
+            } else {
+                throw new IOException("Error in delete page");
+            }
+        } catch (IOException e) {
             Log.i(getClass().getName(),"Error on deleting nextcloud page in album "+id.toString());
             setState(STATE_ERROR);
             return false;
@@ -297,18 +208,18 @@ public class AlbumNC {
         return pages;
     }
 
-    public OwnCloudClient getNcClient() {
-        return ncClient;
-    }
-
     public boolean createPage(PageNC pageNC, int index, String localAlbumPath) {
         if (!pageNC.pushAssets(localAlbumPath,this)) {
             return false;
         }
-        RemoteOperationResult result = new NCCreatePage(this,pageNC,index).execute(getNcClient());
-        if (result.isSuccess()) {
-            return true;
-        } else {
+        try {
+            String result = APIProvider.getApi().createPage(getId().toString(),index,pageNC.generatePageResp()).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                return true;
+            } else {
+                throw new IOException("Create page error");
+            }
+        } catch (IOException e) {
             Log.i(getClass().getName(),"Error on creating nextcloud page in album "+id.toString());
             setState(STATE_ERROR);
             return false;
@@ -316,10 +227,14 @@ public class AlbumNC {
     }
 
     public boolean clean() {
-        RemoteOperationResult result = new NCCleanAlbum(this).execute(getNcClient());
-        if (result.isSuccess()) {
-            return true;
-        } else {
+        try {
+            String result = APIProvider.getApi().cleanAlbum(getId().toString()).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                return true;
+            } else {
+                throw new IOException("Error on clean");
+            }
+        } catch (IOException e) {
             Log.i(getClass().getName(),"Error on cleaning nextcloud album "+id.toString());
             setState(STATE_ERROR);
             return false;
@@ -336,34 +251,35 @@ public class AlbumNC {
 
     public boolean pushAsset(String localAlbumPath, String assetPath) {
         //probe asset
-        RemoteOperationResult result = new NCGetAssetProbe(this,assetPath).execute(getNcClient());
-        if (result.isSuccess()) {
+        APIProvider.AssetProbeResult result = null;
+        try {
+            result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
+        } catch (IOException e) {
+            Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath),e);
+            setState(STATE_ERROR);
+            return false;
+        }
+        assert result != null;
+        if (result.status.equals("ok")) {
             Log.d(getClass().getName(),String.format("Asset %1$s already present.",assetPath));
         } else {
             Log.d(getClass().getName(),String.format("Asset %1$s not present.",assetPath));
-            if (result.getSingleData() != null) {
-                //get path to push asset
-                String path = (String)result.getSingleData();
-                if (path.equals("")) {
-                    Log.i(getClass().getName(),"Nextcloud response incomplete");
-                    setState(STATE_ERROR);
-                    return false;
-                }
-                //get local asset file path
-                String localPath = new File(localAlbumPath,assetPath).getPath();
-                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(localPath));
-                //push asset
-                String modTimestamp = ((Long)(new File(localPath).lastModified()/1000)).toString();
-                RemoteOperationResult fileUploadResult = new UploadFileRemoteOperation(localPath, path, mimeType,modTimestamp).execute(getNcClient());
-                if (fileUploadResult.isSuccess()) {
-                    Log.d(getClass().getName(),String.format("Asset %1$s uploaded.",assetPath));
-                } else {
-                    Log.i(getClass().getName(),String.format("Error in upload of asset %1$s",assetPath));
-                    setState(STATE_ERROR);
-                    return false;
-                }
+            //get path to push asset
+            String path = result.path;
+            if (path.equals("")) {
+                Log.i(getClass().getName(),"Nextcloud response incomplete");
+                setState(STATE_ERROR);
+                return false;
+            }
+            //get local asset file path
+            String localPath = new File(localAlbumPath,assetPath).getPath();
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(localPath));
+            //push asset
+            String modTimestamp = ((Long)(new File(localPath).lastModified()/1000)).toString();
+            if (Utils.uploadFile(path,localPath)) {
+                Log.d(getClass().getName(),String.format("Asset %1$s uploaded.",assetPath));
             } else {
-                Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath));
+                Log.i(getClass().getName(),String.format("Error in upload of asset %1$s",assetPath));
                 setState(STATE_ERROR);
                 return false;
             }
@@ -374,15 +290,23 @@ public class AlbumNC {
     public boolean pullAsset(String localAlbumPath, String assetPath) {
         //test if asset does not exist locally
         if (! new File(localAlbumPath,assetPath).exists()) {
-            RemoteOperationResult result = new NCGetAssetProbe(this, assetPath).execute(getNcClient());
-            if (result.isSuccess()) {
-                String fullAssetPath = (String) result.getSingleData();
+            //probe asset
+            APIProvider.AssetProbeResult result = null;
+            try {
+                result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
+            } catch (IOException e) {
+                Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath),e);
+                setState(STATE_ERROR);
+                return false;
+            }
+            assert result != null;
+            if (result.status.equals("ok")) {
+                String fullAssetPath = result.path;
                 Log.d(getClass().getName(), String.format("Asset %1$s already at %2$s.", assetPath, fullAssetPath));
                 if (!fullAssetPath.equals("")) {
                     //pull file
                     String destLocalPath = new File(localAlbumPath, Album.DATA_DIR).getPath();
-                    RemoteOperationResult fileDownload = new FixedDownloadFileRemoteOperation(fullAssetPath, destLocalPath).execute(getNcClient());
-                    if (fileDownload.isSuccess()) {
+                    if (Utils.downloadFile(fullAssetPath,destLocalPath)) {
                         Log.d(getClass().getName(), String.format("Asset %1$s downloaded.", assetPath));
                     } else {
                         Log.i(getClass().getName(), String.format("Error in download of asset %1$s", assetPath));
@@ -414,12 +338,16 @@ public class AlbumNC {
      */
     public boolean deleteShare() {
         if (isShared && (shareToken != null)) {
-            RemoteOperationResult result = new NCDeleteShare(shareToken).execute(getNcClient());
-            if (result.isSuccess()) {
-                setIsShared(false);
-                setShareToken(null);
-                return true;
-            } else {
+            try {
+                String result = APIProvider.getApi().deleteShare(shareToken).execute().body();
+                if ((result != null) && (result.equals("OK"))) {
+                    setIsShared(false);
+                    setShareToken(null);
+                    return true;
+                } else {
+                    throw new IOException("Wrong result on deleteshare");
+                }
+            } catch (IOException e) {
                 setState(STATE_ERROR);
                 return false;
             }
@@ -436,29 +364,97 @@ public class AlbumNC {
     }
 
 
-    private void setState(int state) {
+    public void setState(int state) {
         this.state = state;
         ldState.postValue(state);
     }
 
     public boolean movePage(PageNC pageNC, int pos) {
-        RemoteOperationResult result = new NCMovePage(this,pageNC,pos).execute(getNcClient());
-        if (result.isSuccess()) {
-            //update local page list
-            ArrayList<PageNC> tmp = pages;
-            int old_pos = getIndex(pageNC);
-            PageNC tmpPage = tmp.get(old_pos);
-            tmp.remove(old_pos);
-            if (old_pos > pos) {
-                tmp.add(pos,tmpPage);
+        try {
+            String result = APIProvider.getApi().movePage(getId().toString(),pageNC.getId().toString(),pos).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                //update local page list
+                ArrayList<PageNC> tmp = pages;
+                int old_pos = getIndex(pageNC);
+                PageNC tmpPage = tmp.get(old_pos);
+                tmp.remove(old_pos);
+                if (old_pos > pos) {
+                    tmp.add(pos,tmpPage);
+                } else {
+                    tmp.add(pos-1,tmpPage);
+                }
+                setPages(tmp);
+                return true;
             } else {
-                tmp.add(pos-1,tmpPage);
+                throw new IOException("Error on move page");
             }
-            setPages(tmp);
-            return true;
-        } else {
-            Log.i(getClass().getName(),"Error on moving nextcloud page in album "+id.toString());
+        } catch (IOException e) {
+            Log.i(getClass().getName(),"Error on moving nextcloud page in album "+id.toString(),e);
             setState(STATE_ERROR);
+            return false;
+        }
+    }
+
+    public boolean load() {
+        return load(false);
+    }
+
+    public boolean load(APIProvider.AlbumResp albumResp) {
+        //import fields from album POJO
+        setName(albumResp.name);
+        setDate(albumResp.date);
+        setLastEditDate(albumResp.lastEditDate);
+        setAlbumImage(albumResp.albumImage);
+        setPagesLastEditDate(albumResp.pagesLastEditDate);
+        setIsShared(albumResp.isShared);
+        setShareToken(albumResp.shareToken);
+        if (albumResp.pages != null) {
+            ArrayList<PageNC> pageNCArrayList = new ArrayList<>();
+            for (APIProvider.PageResp page : albumResp.pages) {
+                PageNC pageNC = new PageNC();
+                pageNC.load(page);
+                pageNCArrayList.add(pageNC);
+            }
+            setPages(pageNCArrayList);
+        }
+        return true;
+    }
+
+    public boolean load(boolean full) {
+        //reload album from nextcloud
+        APIProvider.AlbumResp albumResp;
+        try {
+            if (full) {
+                albumResp = APIProvider.getApi().getAlbumFull(id.toString()).execute().body();
+            } else {
+                albumResp = APIProvider.getApi().getAlbum(id.toString()).execute().body();
+            }
+        } catch (IOException e) {
+            Log.w(getClass().getName(),"Unable to load album from nextcloud.",e);
+            return false;
+        }
+        if (albumResp == null) {
+            return false;
+        }
+        return load(albumResp);
+    }
+
+    public boolean pushPage(PageNC remotePage, String albumPath) {
+        if (!remotePage.pushAssets(albumPath,this))  {
+            return false;
+        }
+
+        //save page content
+        try {
+            String result = APIProvider.getApi().modifyPage(getId().toString(),remotePage.getId().toString(),remotePage.generatePageResp()).execute().body();
+            if ((result != null) && (result.equals("OK"))) {
+                Log.d(getClass().getName(),String.format("Page %1$s uploaded.",getId().toString()));
+                return true;
+            } else {
+                throw new IOException("Error in page upload");
+            }
+        } catch (IOException e) {
+            Log.i(getClass().getName(),String.format("Error in page %1$s upload.",getId().toString()));
             return false;
         }
     }

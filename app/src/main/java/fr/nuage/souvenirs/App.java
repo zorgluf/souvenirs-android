@@ -10,6 +10,7 @@ public class App extends Application {
     @Override public void onCreate() {
         super.onCreate();
         ViewTarget.setTagId(R.id.glide_tag);
+
     }
 
     @Override

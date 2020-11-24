@@ -18,8 +18,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import fr.nuage.souvenirs.SettingsActivity;
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.Albums;
+import fr.nuage.souvenirs.model.nc.APIProvider;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.AlbumsNC;
+import fr.nuage.souvenirs.model.nc.NCAPI;
 import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class AlbumListViewModel extends AndroidViewModel {
@@ -42,7 +44,8 @@ public class AlbumListViewModel extends AndroidViewModel {
         //load NC albums
         NCUtils.getIsNCEnable().observeForever(aBoolean -> {
             if (aBoolean) {
-                albumsNC = AlbumsNC.getInstance(NCUtils.getNCClient(getApplication()));
+                APIProvider.init(getApplication().getApplicationContext());
+                albumsNC = AlbumsNC.getInstance();
                 albumList.addSource(albumsNC.getLiveDataAlbumList(), albumsNC -> updateAlbumList());
                 albumsNCStateObserver = state -> {
                     for (AlbumViewModel albumViewModel: albumViewModels) {

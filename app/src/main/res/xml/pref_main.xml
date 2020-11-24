@@ -17,22 +17,6 @@
         android:key="nextcloud_cat"
         android:title="@string/pref_nextcloud">
 
-        <EditTextPreference
-            android:key="nextcloud_url"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/pref_nextcloud_url" />
-        <EditTextPreference
-            android:key="nextcloud_login"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/pref_nextcloud_login" />
-        <EditTextPreference
-            android:inputType="textPassword"
-            android:key="nextcloud_passwd"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/pref_nextcloud_passwd" />
         <SwitchPreference
             android:defaultValue="true"
             android:key="nextcloud_wifionly"

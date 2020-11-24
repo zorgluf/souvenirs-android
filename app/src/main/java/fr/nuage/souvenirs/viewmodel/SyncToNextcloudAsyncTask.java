@@ -8,9 +8,6 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.owncloud.android.lib.common.OwnCloudClient;
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +20,6 @@ import fr.nuage.souvenirs.model.Page;
 import fr.nuage.souvenirs.model.Utils;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.PageNC;
-import fr.nuage.souvenirs.viewmodel.utils.NCGetAlbumFull;
 import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> {
@@ -55,8 +51,6 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
         if (isCancelled()) {
             return RESULT_CANCEL;
         }
-        //initalize nextcloud communication
-        OwnCloudClient nClient = NCUtils.getNCClient(context);
         Album album = albumVM.getAlbum();
         AlbumNC albumNC = albumVM.getAlbumNC();
         Boolean localNewerThanNC = null;
@@ -78,7 +72,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
             Log.d("SYNC",notificationMsg);
             publishProgress(0);
             //create album
-            albumNC = AlbumNC.create(nClient,albumVM.getId());
+            albumNC = AlbumNC.create(albumVM.getId());
             if (albumNC == null) {
                 return RESULT_NC_ERR;
             }
@@ -90,8 +84,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
         notificationMsg = context.getString(R.string.sync_fetch_remote_album);
         Log.d("SYNC",notificationMsg);
         publishProgress(0);
-        RemoteOperationResult result = new NCGetAlbumFull(albumNC).execute(nClient);
-        if (!result.isSuccess()) {
+        if (!albumNC.load(true)) {
             return RESULT_NC_ERR;
         }
 
@@ -183,7 +176,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                         Log.d("SYNC",notificationMsg);
                         publishProgress(0);
                         remotePage.update(page);
-                        if (!remotePage.save(album.getAlbumPath())) {
+                        if (!albumNC.pushPage(remotePage,album.getAlbumPath())) {
                             return RESULT_NC_ERR;
                         }
                     }
@@ -202,6 +195,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
 
             //delete remote pages if needed
             if ((albumNC.getPagesLastEditDate() != null) && (album.getPagesLastSyncDate()!= null)) {
+
                 for (PageNC pageNC : (List<PageNC>)albumNC.getPages().clone()) {
                     if ((pageNC.getLastEditDate()==null) ||
                             ((pageNC.getLastEditDate().before(album.getPagesLastSyncDate()))  //no mod after last sync

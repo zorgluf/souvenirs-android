@@ -52,7 +52,6 @@ public class AlbumListActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_album_list);
 
         NavController navController = Navigation.findNavController(this,R.id.main_navhost);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         NavigationUI.setupWithNavController(toolbar,navController);

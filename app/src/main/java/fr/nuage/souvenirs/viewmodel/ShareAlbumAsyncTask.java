@@ -8,15 +8,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
+import java.io.IOException;
 
-import fr.nuage.souvenirs.AlbumListActivity;
 import fr.nuage.souvenirs.R;
-import fr.nuage.souvenirs.viewmodel.utils.NCCreateShare;
-import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
+import fr.nuage.souvenirs.model.nc.APIProvider;
 
 public class ShareAlbumAsyncTask extends AsyncTask<Void, Integer, Integer> {
 
@@ -35,16 +31,19 @@ public class ShareAlbumAsyncTask extends AsyncTask<Void, Integer, Integer> {
     protected Integer doInBackground(Void... voids) {
 
         //call to share album
-        RemoteOperationResult result = new NCCreateShare(albumViewModel.getId().toString()).execute(NCUtils.getNCClient(context));
-        if (result.isSuccess()) {
-            String share_url = (String)(result.getData().get(0));
-            //create intent to share url
-            Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType("text/plain");
-            i.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.nextcloud_notification_share_url)+" "+albumViewModel.getName().getValue());
-            i.putExtra(Intent.EXTRA_TEXT, share_url);
-            context.startActivity(i);
-        } else {
+        try {
+            String share_url = APIProvider.getApi().createShare(albumViewModel.getId().toString()).execute().body();
+            if (share_url != null) {
+                //create intent to share url
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.nextcloud_notification_share_url)+" "+albumViewModel.getName().getValue());
+                i.putExtra(Intent.EXTRA_TEXT, share_url);
+                context.startActivity(i);
+            } else {
+                throw new IOException("Null token");
+            }
+        } catch (IOException e) {
             return RESULT_ERR;
         }
         return RESULT_OK;

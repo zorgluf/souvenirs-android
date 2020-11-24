@@ -1,6 +1,9 @@
 package fr.nuage.souvenirs.model.nc;
 
 import androidx.lifecycle.MutableLiveData;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.gson.annotations.Expose;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +38,19 @@ public class TextElementNC extends ElementNC {
     @Override
     public void completeFromJSON(JSONObject jsonObject) throws JSONException {
         setText(jsonObject.getString("text"));
+    }
+
+    @Override
+    public void load(APIProvider.ElementResp elementResp) {
+        super.load(elementResp);
+        setText(elementResp.text);
+    }
+
+    @Override
+    public APIProvider.ElementResp generateElementResp() {
+        APIProvider.ElementResp elementResp = super.generateElementResp();
+        elementResp.text = getText();
+        return elementResp;
     }
 
     public String getText() {
