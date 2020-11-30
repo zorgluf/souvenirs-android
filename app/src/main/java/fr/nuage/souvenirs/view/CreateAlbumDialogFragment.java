@@ -1,14 +1,15 @@
 package fr.nuage.souvenirs.view;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.navigation.Navigation;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.Album;
@@ -17,8 +18,8 @@ import fr.nuage.souvenirs.model.Albums;
 public class CreateAlbumDialogFragment extends DialogFragment {
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getActivity(),R.style.AppTheme_MaterialDialog_Alert);
         final EditText albumEditText = new EditText(getActivity());
         albumEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         albumEditText.setSingleLine();

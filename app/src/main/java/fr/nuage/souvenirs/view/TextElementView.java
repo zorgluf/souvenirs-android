@@ -20,7 +20,7 @@ public class TextElementView extends AppCompatTextView {
 
         contourPaint = new Paint();
         contourPaint.setAntiAlias(true);
-        contourPaint.setColor(getResources().getColor(R.color.colorPrimaryDark));
+        contourPaint.setColor(getResources().getColor(R.color.primaryDarkColor));
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
 

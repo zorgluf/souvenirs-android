@@ -2,18 +2,25 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorAccent">@color/colorSecondary</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textSize">20sp</item>
-        <item name="android:textColorPrimary">@color/textDefault</item>
-        <item name="android:textColorSecondary">@color/textDefault</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
         <item name="android:textColor">@color/textDefault</item>
-        <item name="actionModeBackground">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/textDefault</item>
+        <item name="actionModeBackground">@color/primaryLightColor</item>
+        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <item name="colorOnSecondary">@color/secondaryTextColor</item>
+    </style>
+
+    <style name="AppTheme.MaterialDialog.Alert" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="buttonBarButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <item name="colorOnSecondary">@color/secondaryTextColor</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -22,28 +29,28 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" >
-        <item name="android:textColorPrimary">@color/textDefault</item>
-        <item name="android:textColorSecondary">@color/textDefault</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="android:textColorSecondary">@color/secondaryTextColor</item>
         <item name="android:textColor">@color/textDefault</item>
         <item name="android:actionMenuTextColor">@color/textDefault</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light">
-        <item name="android:colorBackground">@color/colorPrimary</item>
+        <item name="android:colorBackground">@color/primaryColor</item>
     </style>
 
     <style name="AppTheme.AlbumTextDefault" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="AppTheme.AddPageDivider">
-        <item name="android:background">@color/greyDivider</item>
-    </style>
-    
     <style name="AppTheme.button.text.icon" parent="Widget.MaterialComponents.Button">
         <item name="iconPadding">0dp</item>
         <item name="iconGravity">textStart</item>
         <item name="android:minWidth">0dp</item>
+    </style>
+
+    <style name="AppTheme.button.text" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/secondaryColor</item>
     </style>
 
 </resources>

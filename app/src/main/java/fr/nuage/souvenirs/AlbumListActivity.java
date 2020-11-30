@@ -84,9 +84,9 @@ public class AlbumListActivity extends AppCompatActivity  {
             params.setBehavior(null);
         } else {
             AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbarlayout);
-            appBarLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            appBarLayout.setBackgroundColor(getResources().getColor(R.color.primaryColor));
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            toolbar.setBackgroundColor(getResources().getColor(R.color.primaryColor));
             NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_navhost);
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) navHostFragment.getView().getLayoutParams();
             params.setBehavior(new AppBarLayout.ScrollingViewBehavior(this, null));

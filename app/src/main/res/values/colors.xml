@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#eefbff</color>
-    <color name="colorPrimaryDark">#79e3ff</color>
-    <color name="colorSecondary">#c9c9c9</color>
-    <color name="greyDivider">#999999</color>
+    <color name="primaryColor">#e2f6ff</color>
+    <color name="primaryLightColor">#ffffff</color>
+    <color name="primaryDarkColor">#b0c3cc</color>
+    <color name="secondaryColor">#81d4fa</color>
+    <color name="secondaryLightColor">#b6ffff</color>
+    <color name="secondaryDarkColor">#4ba3c7</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#000000</color>
+
     <color name="textDefault">#595959</color>
     <color name="background">#fffefb</color>
     <color name="black">#000000</color>
