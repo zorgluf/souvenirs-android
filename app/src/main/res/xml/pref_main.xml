@@ -1,4 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
 
@@ -22,4 +23,10 @@
             android:key="nextcloud_wifionly"
             android:title="@string/pref_nextcloud_wifi" />
     </PreferenceCategory>
+    <EditTextPreference
+        android:key="nextcloud_version"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_version"
+        app:enabled="false" />
 </PreferenceScreen>

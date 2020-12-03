@@ -28,6 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static final String ALBUMS_PATH = "albums_path";
     public static final String NEXTCLOUD_ENABLED = "nextcloud_enabled";
     public static final String NEXTCLOUD_WIFIONLY = "nextcloud_wifionly";
+    public static final String NEXTCLOUD_VERSION = "nextcloud_version";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,16 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 return true;
             });
+            //get current SSO account
+            try {
+                SingleSignOnAccount ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getContext());
+                findPreference(NEXTCLOUD_ENABLED).setSummary(ssoAccount.name);
+            } catch (NextcloudFilesAppAccountNotFoundException | NoCurrentAccountSelectedException e) {
+            }
+
+
+            //display version
+            findPreference(NEXTCLOUD_VERSION).setSummary(BuildConfig.VERSION_NAME);
         }
 
         @Override
