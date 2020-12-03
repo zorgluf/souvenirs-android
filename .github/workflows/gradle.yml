@@ -30,3 +30,15 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
+    - name: Compute apk name
+      run: echo "ASSET_NAME=souvenirs-${GITHUB_REF:1}-release-unsigned.apk" >> $GITHUB_ENV
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./app/build/outputs/apk/release/${{ env.ASSET_NAME }}
+        asset_name: ${{ env.ASSET_NAME }}
+        asset_content_type: application/vnd.android.package-archive
