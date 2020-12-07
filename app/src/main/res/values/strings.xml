@@ -64,7 +64,7 @@
     <string name="action_menu_image_setasalbum">Set as album image</string>
     <string name="ask_write_perm_toast">Application need write permission to generate pdf file. Please give this permission and retry PDF export.</string>
     <string name="pref_nextcloud_enable">Enable Nextcloud Sync</string>
-    <string name="pref_nextcloud_wifi">Only enabled on Wifi</string>
+    <string name="pref_nextcloud_wifi">Enable Nextcloud sync only on Wifi</string>
     <string name="nextcloud_notification_tap_retry">Tap to retry.</string>
     <string name="sync_create_local_album">Create local album</string>
     <string name="sync_to_nextcloud">Sync album %1$s to Nextcloud server</string>

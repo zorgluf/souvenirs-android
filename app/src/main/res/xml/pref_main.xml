@@ -14,15 +14,12 @@
         android:key="nextcloud_enabled"
         tools:summary="Account name"
         android:title="@string/pref_nextcloud_enable" />
-    <PreferenceCategory
-        android:key="nextcloud_cat"
-        android:title="@string/pref_nextcloud">
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="nextcloud_wifionly"
-            android:title="@string/pref_nextcloud_wifi" />
-    </PreferenceCategory>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="nextcloud_wifionly"
+        android:title="@string/pref_nextcloud_wifi" />
+
     <EditTextPreference
         android:key="nextcloud_version"
         android:selectAllOnFocus="true"

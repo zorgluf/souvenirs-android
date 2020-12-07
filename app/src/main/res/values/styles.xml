@@ -13,7 +13,13 @@
         <item name="actionModeBackground">@color/primaryLightColor</item>
         <item name="colorOnPrimary">@color/primaryTextColor</item>
         <item name="colorOnSecondary">@color/secondaryTextColor</item>
+        <item name="preferenceTheme">@style/AppTheme.preference</item>
     </style>
+
+    <style name="AppTheme.preference" parent="PreferenceThemeOverlay">
+        <item name="alertDialogTheme">@style/AppTheme.MaterialDialog.Alert</item>
+    </style>
+
 
     <style name="AppTheme.MaterialDialog.Alert" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="buttonBarButtonStyle">@style/Widget.MaterialComponents.Button</item>
