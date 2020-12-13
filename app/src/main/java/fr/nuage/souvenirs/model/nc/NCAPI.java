@@ -27,6 +27,9 @@ public interface NCAPI {
         @PUT("album/{id}")
         Call<APIProvider.AlbumResp> createAlbum(@Path("id") String id);
 
+        @DELETE("album/{id}")
+        Call<String> deleteAlbum(@Path("id") String id);
+
         @POST("album/{id}")
         Call<String> modifyAlbum(@Path("id") String id, @Body APIProvider.AlbumResp albumResp);
 

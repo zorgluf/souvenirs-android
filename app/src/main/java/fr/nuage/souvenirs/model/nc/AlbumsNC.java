@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AlbumsNC {
 
     public static final int STATE_NOT_LOADED = 0;
@@ -99,5 +103,20 @@ public class AlbumsNC {
     private void setState(int state) {
         this.state = state;
         ldState.postValue(state);
+    }
+
+    public void deleteAlbum(AlbumNC albumNC) {
+        APIProvider.getApi().deleteAlbum(albumNC.getId().toString()).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.body().equals("OK")) {
+                    updateAlbumList();
+                }
+            }
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
     }
 }

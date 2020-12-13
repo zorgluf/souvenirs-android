@@ -14,6 +14,7 @@
         <item name="colorOnPrimary">@color/primaryTextColor</item>
         <item name="colorOnSecondary">@color/secondaryTextColor</item>
         <item name="preferenceTheme">@style/AppTheme.preference</item>
+        <item name="alertDialogTheme">@style/AppTheme.MaterialDialog.Alert</item>
     </style>
 
     <style name="AppTheme.preference" parent="PreferenceThemeOverlay">

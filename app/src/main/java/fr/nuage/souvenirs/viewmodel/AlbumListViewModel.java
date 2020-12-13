@@ -175,4 +175,11 @@ public class AlbumListViewModel extends AndroidViewModel {
             albumsNC.updateAlbumList();
         }
     }
+
+    public void deleteAlbum(AlbumViewModel album) {
+        if (album.hasNCAlbum()) {
+            albumsNC.deleteAlbum(album.getAlbumNC());
+        }
+        deleteLocalAlbum(album);
+    }
 }

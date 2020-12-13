@@ -1,8 +1,6 @@
 package fr.nuage.souvenirs.view;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -137,14 +136,21 @@ public class AlbumListFragment extends Fragment implements AlbumsRecyclerViewAda
             Navigation.findNavController(getView()).navigate(action);
         } else if (delSelected) {
             new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.delete_album)
-                    .setMessage(getString(R.string.delete_album_message)+" : "+album.getName().getValue())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
+                    .setTitle(getResources().getString(R.string.delete_album) + " \"" + album.getName().getValue() + "\"")
+                    .setIcon(R.drawable.ic_baseline_warning_24)
+                    .setSingleChoiceItems(new CharSequence[]{getResources().getString(R.string.delete_album_local),
+                                getResources().getString(R.string.delete_album_remote)},0,null)
+                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                        int selection = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+                        if (selection == 0) {
                             albumsVM.deleteLocalAlbum(album);
-                        }})
-                    .setNegativeButton(android.R.string.no, null).create().show();
+                        } else {
+                            albumsVM.deleteAlbum(album);
+                        }
+
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .create().show();
         } else {
             AlbumListFragmentDirections.ActionNavAlbumListToNavAlbumShow action = AlbumListFragmentDirections.actionNavAlbumListToNavAlbumShow(album.getAlbumPath());
             Navigation.findNavController(getView()).navigate(action);

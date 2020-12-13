@@ -82,4 +82,11 @@
     <string name="action_menu_paint_pen">Stylo</string>
     <string name="action_menu_paint_eraser">Gomme</string>
     <string name="color_picker_title">Sélectionnez une couleur</string>
+    <string name="sync_album_change_local_page_pos">Change la position de la page %1$s</string>
+    <string name="sync_album_change_remote_page_pos">Change la position de la page distante %1$s</string>
+    <string name="pref_nextcloud_account">Nom du compte Nextcloud</string>
+    <string name="title_activity_settings2">Paramètres</string>
+    <string name="pref_version">Version de l\'application Souvenirs</string>
+    <string name="delete_album_local">Supprimer l\'album local</string>
+    <string name="delete_album_remote">Supprimer l\'album local et distant</string>
 </resources>
