@@ -105,6 +105,7 @@ public class APIProvider {
         String albumImage;
         boolean isShared;
         String shareToken;
+        String defaultStyle;
         List<PageResp> pages;
     }
 

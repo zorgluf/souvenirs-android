@@ -15,6 +15,8 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
 
+import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
+
 public class AlbumNC {
     
     public static final int STATE_NOT_LOADED = 0;
@@ -37,6 +39,7 @@ public class AlbumNC {
     private String shareToken;
     private int state;
     private MutableLiveData<Integer> ldState = new MutableLiveData<>();
+    private String defaultStyle;
 
 
     public AlbumNC(@NonNull UUID id) {
@@ -154,6 +157,7 @@ public class AlbumNC {
             albumResp.name = getName();
             albumResp.shareToken = shareToken;
             albumResp.pagesLastEditDate = getPagesLastEditDate();
+            albumResp.defaultStyle = getDefaultStyle();
             String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
             if ((result != null) && (result.equals("OK"))) {
                 return true;
@@ -165,6 +169,10 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
+    }
+
+    private String getDefaultStyle() {
+        return defaultStyle;
     }
 
     public LiveData<Date> getLdPageLastEditDate() {
@@ -408,6 +416,7 @@ public class AlbumNC {
         setPagesLastEditDate(albumResp.pagesLastEditDate);
         setIsShared(albumResp.isShared);
         setShareToken(albumResp.shareToken);
+        setDefaultStyle(albumResp.defaultStyle);
         if (albumResp.pages != null) {
             ArrayList<PageNC> pageNCArrayList = new ArrayList<>();
             for (APIProvider.PageResp page : albumResp.pages) {
@@ -418,6 +427,14 @@ public class AlbumNC {
             setPages(pageNCArrayList);
         }
         return true;
+    }
+
+    public void setDefaultStyle(String defaultStyle) {
+        if (defaultStyle == null) {
+            this.defaultStyle = STYLE_FREE;
+        } else {
+            this.defaultStyle = defaultStyle;
+        }
     }
 
     public boolean load(boolean full) {
