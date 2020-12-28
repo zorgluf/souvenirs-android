@@ -1,0 +1,5 @@
+Change : migrate nextcloud account to Android SSO (need Nextcloud File app on device)
+Change : huge refactoring of nextcloud souvenir API : clearer, simpler. Need nextcloud souvenir app 0.4+
+New feature : delete remote album from app
+Fix : colors for android material styles (so you can see the dialog buttons)
+Fix : show app version in settings
