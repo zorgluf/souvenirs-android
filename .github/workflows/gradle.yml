@@ -26,12 +26,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${GITHUB_REF##*/}
+        release_name: Release ${GITHUB_REF##*/}
         draft: false
         prerelease: false
     - name: Compute apk name
-      run: echo "ASSET_NAME=souvenirs-${GITHUB_REF:1}-release-unsigned.apk" >> $GITHUB_ENV
+      run: echo "ASSET_NAME=souvenirs-${GITHUB_REF##*/v}-release-unsigned.apk" >> $GITHUB_ENV
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
