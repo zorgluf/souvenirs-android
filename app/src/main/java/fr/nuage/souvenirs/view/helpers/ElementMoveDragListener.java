@@ -151,11 +151,12 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     @Override
     public boolean onLongClick(View view) {
         if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
+            return false;
         } else {
             ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
             view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+            return true;
         }
-        return true;
     }
 
     @Override
@@ -167,6 +168,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
             }
             if (elVM.getClass().equals(TextElementViewModel.class)) {
                 elVM.setSelected(true);
+                EditTextElementDialogFragment.newInstance((TextElementViewModel) elVM).show(((AppCompatActivity)(view.getContext())).getSupportFragmentManager(),"");
              }
         }
     }

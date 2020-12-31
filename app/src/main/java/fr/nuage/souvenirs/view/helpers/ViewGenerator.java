@@ -3,6 +3,7 @@ package fr.nuage.souvenirs.view.helpers;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -160,9 +161,6 @@ generate view based on paintElementViewModel
         TextView textView = new TextElementView(parentViewGroup.getContext());
         textView.setId(View.generateViewId());
         textView.setClickable(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            textView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
-        }
         textView.setHint(R.string.text_element_hint);
         //add to parent
         parentViewGroup.addView(textView);
@@ -178,7 +176,17 @@ generate view based on paintElementViewModel
         set.connect(textView.getId(),ConstraintSet.BOTTOM,ConstraintSet.PARENT_ID,ConstraintSet.BOTTOM,0);
         set.applyTo(parentViewGroup);
         //define observables for data binding
-        textElementViewModel.getText().observe(lifecycleOwner, s -> textView.setText(s));
+        textElementViewModel.getText().observe(lifecycleOwner, s -> {
+            textView.setText(s);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if ( (s==null) || (s.equals("")) ) {
+                    textView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+                } else {
+                    textView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+                }
+            }
+        });
         Observer<Integer> observer = integer -> {
             if ((textElementViewModel.getRight().getValue() != null) && (textElementViewModel.getLeft().getValue() != null)
                     && (textElementViewModel.getTop().getValue() != null) && (textElementViewModel.getBottom().getValue() != null)) {
