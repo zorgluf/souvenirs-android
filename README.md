@@ -9,7 +9,7 @@ Upload them on Nextcloud server and share with friends/family.
 
 Install the [Souvenir application](https://github.com/zorgluf/souvenirs-nextcloud) on your Nextcloud serveur.
 
-You will need the Nextcloud android client installed and configured on your phone. Then go to the parameters of the Souvenirs app and configure your Nextcloud account.
+You will need the Nextcloud android client installed and configured on your phone. Then go to the parameters of the Souvenirs app and select your Nextcloud account.
 
 ## Found it useful ?
 
