@@ -1,1 +1,8 @@
 Make photo albums, add text and handwritten annotations. Upload them on Nextcloud server and share with friends/family.
+
+To upload an album to a Nextcloud instance, you will need:
+
+* the Nextcloud <a href='https://github.com/zorgluf/souvenirs-nextcloud'>Souvenir application</a> installed on the instance
+* the <a href='https://github.com/nextcloud/android'>Nextcloud Android client</a> installed and configured on your Android device with at least one working account. Synchronisation with your Nextcloud account is done via this app on your device : on Souvenirs app, go to settings and select your Nextcloud account.
+
+
