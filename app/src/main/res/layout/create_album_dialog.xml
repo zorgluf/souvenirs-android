@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/editTextAlbumName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/layout_text_hint_album_name"
+        android:inputType="textCapSentences"
+        android:singleLine="true" />
+
+    <RadioGroup
+        android:id="@+id/createAlbumRadioGroupStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/radioButtonTileStyle">
+
+        <RadioButton
+            android:id="@+id/radioButtonTileStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="TILE"
+            android:text="@string/layout_radio_style_tile" />
+
+        <RadioButton
+            android:id="@+id/radioButtonFreeStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="FREE"
+            android:text="@string/layout_radio_style_free" />
+
+    </RadioGroup>
+</LinearLayout>

@@ -3,7 +3,10 @@ package fr.nuage.souvenirs.view;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
@@ -20,17 +23,19 @@ public class CreateAlbumDialogFragment extends DialogFragment {
     @Override
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getActivity(),R.style.AppTheme_MaterialDialog_Alert);
-        final EditText albumEditText = new EditText(getActivity());
-        albumEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        albumEditText.setSingleLine();
+        View createLayout = getLayoutInflater().inflate(R.layout.create_album_dialog,null);
+        EditText albumEditText = createLayout.findViewById(R.id.editTextAlbumName);
+        RadioGroup styleRadioGroup = createLayout.findViewById(R.id.createAlbumRadioGroupStyle);
         builder.setTitle(R.string.dialog_create_album_msg)
-                .setView(albumEditText)
+                .setView(createLayout)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String albumName = albumEditText.getText().toString();
+                        RadioButton selectedStyle = createLayout.findViewById(styleRadioGroup.getCheckedRadioButtonId());
                         Album newAlbum = Albums.getInstance().createAlbum();
                         newAlbum.setName(albumName);
+                        newAlbum.setDefaultStyle((String)selectedStyle.getTag());
                         //open album in edit mode
                         AlbumListFragmentDirections.ActionNavAlbumListToNavAlbumEdit action = AlbumListFragmentDirections.actionNavAlbumListToNavAlbumEdit(newAlbum.getAlbumPath(),null);
                         Navigation.findNavController(getActivity(),R.id.main_navhost).navigate(action);
