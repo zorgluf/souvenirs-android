@@ -218,6 +218,15 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
                 return true;
             }
         });
+        //set listener to change style
+        MenuItem changeAlbumStyle = menu.findItem(R.id.change_style_edit_album);
+        changeAlbumStyle.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                new SelectAlbumStyleDialogFragment(albumVM).show(getParentFragmentManager(),"");
+                return true;
+            }
+        });
     }
 
     @Override

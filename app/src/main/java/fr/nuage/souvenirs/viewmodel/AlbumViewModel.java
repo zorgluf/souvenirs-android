@@ -404,4 +404,12 @@ public class AlbumViewModel extends AndroidViewModel {
     public boolean getSyncInProgress() {
         return syncInProgress;
     }
+
+    public void setDefaultStyle(String style) {
+        album.setDefaultStyle(style);
+    }
+
+    public String getDefaultStyle() {
+        return album.getDefaultStyle();
+    }
 }

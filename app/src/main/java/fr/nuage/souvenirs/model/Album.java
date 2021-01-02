@@ -122,7 +122,7 @@ public class Album {
         return json;
     }
 
-    private String getDefaultStyle() {
+    public String getDefaultStyle() {
         return defaultStyle;
     }
 
