@@ -148,7 +148,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         //save page
         lastOperationPage = p;
         //launch select style dialog
-        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this);
+        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1,albumVM.getDefaultStyle());
         dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE);
     }
 

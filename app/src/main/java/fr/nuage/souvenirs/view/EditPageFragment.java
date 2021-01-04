@@ -31,7 +31,9 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
+import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
 import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
@@ -50,6 +52,7 @@ public class EditPageFragment extends Fragment  {
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
     private PageViewModel pageVM;
+    private AlbumViewModel albumVM;
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
 
@@ -62,7 +65,7 @@ public class EditPageFragment extends Fragment  {
         String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
 
         //load view model
-        AlbumViewModel albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
+        albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
         pageVM = albumVM.getPage(UUID.fromString(pageId));
         //set focus on that page
         albumVM.setFocusPage(pageVM);
@@ -223,9 +226,12 @@ public class EditPageFragment extends Fragment  {
         //set logic to change style
         MenuItem changeStyle = menu.findItem(R.id.edit_page_change_style);
         changeStyle.setOnMenuItemClickListener(menuItem -> {
-            SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> PageBuilder.applyStyle(style,pageVM.getPage());
+            SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> {
+                PageBuilder pageBuilder = (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+                pageBuilder.applyStyle(style,pageVM.getPage());
+            };
             //launch select style dialog
-            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText());
+            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText(),albumVM.getDefaultStyle());
             dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
             return true;
         });

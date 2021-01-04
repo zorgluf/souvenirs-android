@@ -27,6 +27,7 @@ import fr.nuage.souvenirs.SyncService;
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.Page;
 import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.AlbumsNC;
 
@@ -349,7 +350,8 @@ public class AlbumViewModel extends AndroidViewModel {
 
     public void switchStyle(PageViewModel page, int style) {
         //create new pages
-        PageBuilder.switchStyle(style,this,page.getPage());
+        PageBuilder pageBuilder = (getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        pageBuilder.switchStyle(style,this,page.getPage());
         //deleteLocalAlbum old pages
         album.delPage(getPosition(page));
     }

@@ -22,7 +22,7 @@ import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 
 public class PageBuilder {
 
-    public static final Object[][][] PAGE_STYLE_MAP = {
+    private final Object[][][] PAGE_STYLE_MAP = {
             {
                 //PAGE_STYLE_TXT
                     { "txt", 5, 5, 95, 95 }
@@ -150,7 +150,11 @@ public class PageBuilder {
 
     };
 
-    public static int getNbImages(int style) {
+    public Object[][][] getPageStyleMap() {
+        return PAGE_STYLE_MAP;
+    }
+
+    private int getNbImages(int style) {
         int nb = 0;
         for (int i=0;i<PAGE_STYLE_MAP[style].length;i++) {
             if (PAGE_STYLE_MAP[style][i][0].equals("img")) {
@@ -160,7 +164,7 @@ public class PageBuilder {
         return nb;
     }
 
-    public static int getNbTxt(int style) {
+    private int getNbTxt(int style) {
         int nb = 0;
         for (int i=0;i<PAGE_STYLE_MAP[style].length;i++) {
             if (PAGE_STYLE_MAP[style][i][0].equals("txt")) {
@@ -170,15 +174,15 @@ public class PageBuilder {
         return nb;
     }
 
-    public static boolean isConsumingImage(int styleIndex) {
+    private boolean isConsumingImage(int styleIndex) {
         return (getNbImages(styleIndex) > 0);
     }
 
-    public static boolean isConsumingTxt(int styleIndex) {
+    private boolean isConsumingTxt(int styleIndex) {
         return (getNbTxt(styleIndex) > 0);
     }
 
-    public static View genPreview(int style, ViewGroup parentView, LayoutInflater inflater) {
+    public View genPreview(int style, ViewGroup parentView, LayoutInflater inflater) {
         ConstraintLayout pageView = (ConstraintLayout) inflater.inflate(R.layout.page_preview,null);
         ConstraintSet cs = new ConstraintSet();
         cs.clone(pageView);
@@ -226,13 +230,13 @@ public class PageBuilder {
         return input;
     }
 
-    public static void create(int style, AlbumViewModel albumVM, ArrayList<Uri> images, ArrayList<String> texts) {
+    public void create(int style, AlbumViewModel albumVM, ArrayList<Uri> images, ArrayList<String> texts) {
         create(style,albumVM,albumVM.getPages().getValue().size(),images,texts);
     }
 
     /* create one page and import all image/text on the page, take default style
      */
-    public static void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
+    public void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
         Page p = albumVM.createPage(position);
         if (images != null) {
             for (Uri uri: images) {
@@ -253,7 +257,7 @@ public class PageBuilder {
 
     /* create as much as wanted pages with style and text/images provided
      */
-    public static void create(int style, AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
+    public void create(int style, AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
         if (texts == null) {
             texts = new ArrayList<String>();
         }
@@ -289,7 +293,7 @@ public class PageBuilder {
         }
     }
 
-    public static void switchStyle(int style, AlbumViewModel albumVM, Page page) {
+    public void switchStyle(int style, AlbumViewModel albumVM, Page page) {
         //extract texts and images
         ArrayList<String> texts = new ArrayList<String>();
         ArrayList<Uri> images = new ArrayList<Uri>();
@@ -309,7 +313,7 @@ public class PageBuilder {
     /*
     Apply style in place in page
      */
-    public static void applyStyle(int style, Page page) {
+    public void applyStyle(int style, Page page) {
         //seperate txt and im elements
         ArrayList<ImageElement> imageElementArrayList = new ArrayList<>();
         ArrayList<TextElement> textElementArrayList = new ArrayList<>();
@@ -352,9 +356,10 @@ public class PageBuilder {
         }
     }
 
-
-    public static void applyDefaultStyle(Page page) {
-        //select default style
+    /*
+    return -1 if no default style found
+     */
+    public int getDefaultStyle(Page page) {
         int defStyle=-1;
         for (int i=0;i<PAGE_STYLE_MAP.length;i++) {
             if (getNbTxt(i) == page.getNbTxt()) {
@@ -364,6 +369,13 @@ public class PageBuilder {
                 }
             }
         }
+        return defStyle;
+    }
+
+
+    public void applyDefaultStyle(Page page) {
+        //select default style
+        int defStyle = getDefaultStyle(page);
         if (defStyle == -1) {
             //if no default, grid style
             int columns=(int)Math.ceil(Math.sqrt((double)page.getElements().size()));
@@ -380,4 +392,13 @@ public class PageBuilder {
         }
     }
 
+    public boolean isStyleFitted(int style, int imageNb, int textNb) {
+        if ((imageNb != -1) && (getNbImages(style) != imageNb)) {
+            return false;
+        }
+        if ((textNb != -1) && (getNbTxt(style) != textNb)) {
+            return false;
+        }
+        return true;
+    }
 }
