@@ -129,6 +129,9 @@ public class APIProvider {
         @SerializedName("mime")
         String mimeType;
         int transformType;
+        int zoom;
+        int offsetX;
+        int offsetY;
         //for textelement
         String text;
     }

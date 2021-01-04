@@ -18,11 +18,13 @@ public class ImageElementNC extends ElementNC {
 
     public static final int FIT = 0;
     public static final int CENTERCROP = 1;
+    public static final int ZOOM_OFFSET = 2;
 
-    private MutableLiveData<String> ldImagePath = new MutableLiveData<String>();
-    private MutableLiveData<Integer> ldTransformType = new MutableLiveData<>();
     private String imagePath;
     private String mimeType;
+    private int zoom = 100;
+    private int offsetX = 0;
+    private int offsetY = 0;
     private int transformType = FIT;
 
     public ImageElementNC() {
@@ -44,19 +46,16 @@ public class ImageElementNC extends ElementNC {
     public ImageElementNC(String imgPath, int left, int top, int right, int bottom, String mimeType) {
         super(left, top, right, bottom);
         imagePath = imgPath;
-        ldImagePath.postValue(imagePath);
         this.mimeType = mimeType;
     }
 
     public void setImagePath(String path) {
         imagePath = path;
-        ldImagePath.postValue(imagePath);
         onChange();
     }
 
     public void setTransformType(int transformType) {
         this.transformType = transformType;
-        ldTransformType.postValue(transformType);
         onChange();
     }
 
@@ -75,6 +74,9 @@ public class ImageElementNC extends ElementNC {
         json.put("image",imagePath);
         json.put("mime",mimeType);
         json.put("transformType",transformType);
+        json.put("zoom",zoom);
+        json.put("offsetX",offsetX);
+        json.put("offsetY",offsetY);
         return json;
     }
 
@@ -96,6 +98,15 @@ public class ImageElementNC extends ElementNC {
         if (jsonObject.has("transformType")) {
             setTransformType(jsonObject.getInt("transformType"));
         }
+        if (jsonObject.has("zoom")) {
+            zoom = jsonObject.getInt("zoom");
+        }
+        if (jsonObject.has("offsetX")) {
+            offsetX = jsonObject.getInt("offsetX");
+        }
+        if (jsonObject.has("offsetY")) {
+            offsetY = jsonObject.getInt("offsetY");
+        }
     }
 
     @Override
@@ -104,6 +115,9 @@ public class ImageElementNC extends ElementNC {
         setImagePath(elementResp.imagePath);
         setMimeType(elementResp.mimeType);
         setTransformType(elementResp.transformType);
+        zoom = elementResp.zoom;
+        offsetX = elementResp.offsetX;
+        offsetY = elementResp.offsetY;
     }
 
     @Override
@@ -112,6 +126,9 @@ public class ImageElementNC extends ElementNC {
         elementResp.imagePath = getImagePath();
         elementResp.mimeType = getMimeType();
         elementResp.transformType = getTransformType();
+        elementResp.zoom = zoom;
+        elementResp.offsetX = offsetX;
+        elementResp.offsetY = offsetY;
         return elementResp;
     }
 
@@ -125,10 +142,5 @@ public class ImageElementNC extends ElementNC {
 
     public int getTransformType() { return transformType; }
 
-    public MutableLiveData<String> getLiveDataImagePath() { return ldImagePath; }
-
-    public MutableLiveData<Integer> getLiveDataTransformType() {
-        return ldTransformType;
-    }
 
 }
