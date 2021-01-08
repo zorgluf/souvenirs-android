@@ -244,6 +244,9 @@ public class PageBuilder {
                 InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), uri);
                 String mime = albumVM.getApplication().getContentResolver().getType(uri);
                 imageElement.setImage(input, mime);
+                if (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) {
+                    imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+                }
             }
         }
         if (texts != null) {

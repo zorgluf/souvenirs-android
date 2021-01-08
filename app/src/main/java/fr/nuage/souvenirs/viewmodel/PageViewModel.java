@@ -89,6 +89,9 @@ public class PageViewModel extends ViewModel {
     public void addImage(InputStream input, String mime) {
         ImageElement imageElement = page.createImageElement();
         imageElement.setImage(input,mime);
+        if (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) {
+            imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+        }
         PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
         pageBuilder.applyDefaultStyle(page);
     }
@@ -126,8 +129,8 @@ public class PageViewModel extends ViewModel {
         return page.getNbTxt();
     }
 
-    public MutableLiveData<Boolean> getPaintMode() {
-        return paintMode;
+    public boolean getPaintMode() {
+        return paintMode.getValue();
     }
 
     public void setPaintMode(boolean b) {

@@ -5,9 +5,14 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.lifecycle.Observer;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
+import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
+import fr.nuage.souvenirs.viewmodel.PageViewModel;
 
 
 public class ImageElementView extends AppCompatImageView {
@@ -15,7 +20,7 @@ public class ImageElementView extends AppCompatImageView {
     private Paint contourPaint;
     private Rect rect = new Rect();
 
-    public ImageElementView(Context context) {
+    public ImageElementView(Context context, PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel) {
         super(context);
 
         contourPaint = new Paint();
@@ -23,6 +28,21 @@ public class ImageElementView extends AppCompatImageView {
         contourPaint.setColor(getResources().getColor(R.color.primaryDarkColor));
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
+
+        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, (AppCompatActivity)context);
+        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, paintMode -> {
+            if (paintMode) {
+                setOnClickListener(null);
+                setOnTouchListener(null);
+                setOnLongClickListener(null);
+                setOnDragListener(null);
+            } else {
+                setOnClickListener(elementMoveDragListener);
+                setOnTouchListener(elementMoveDragListener);
+                setOnLongClickListener(elementMoveDragListener);
+                setOnDragListener(elementMoveDragListener);
+            }
+        });
 
     }
 

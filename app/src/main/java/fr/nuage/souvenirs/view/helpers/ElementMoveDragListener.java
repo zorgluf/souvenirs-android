@@ -12,6 +12,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.UUID;
 
@@ -37,14 +38,20 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     private static int activateMoveViewId = 0;
     private float initialX, initialY;
 
-    public ElementMoveDragListener(PageViewModel page, ElementViewModel el) {
-        this(page,el,null);
-    }
-
-    public ElementMoveDragListener(PageViewModel page, ElementViewModel el, GestureDetectorCompat gestureDetector) {
+    public ElementMoveDragListener(PageViewModel page, ElementViewModel el, AppCompatActivity activity) {
         pageVM = page;
         elVM = el;
-        this.gestureDetector = gestureDetector;
+        gestureDetector = new GestureDetectorCompat(activity, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent event) {
+                if (elVM instanceof TextElementViewModel) {
+                    EditTextElementDialogFragment.newInstance((TextElementViewModel) elVM).show(activity.getSupportFragmentManager(), "");
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -150,58 +157,65 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
 
     @Override
     public boolean onLongClick(View view) {
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
-        } else {
-            ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
-            view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+        if (!pageVM.getPaintMode()) {
+            if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
+            } else {
+                ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
+                view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     @Override
     public void onClick(View view) {
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
-        } else {
-            if (elVM.getClass().equals(ImageElementViewModel.class)) {
-                elVM.setSelected(true);
+        if (!pageVM.getPaintMode()) {
+            if (view.isSelected()) {
+            } else {
+                if (elVM.getClass().equals(ImageElementViewModel.class)) {
+                    elVM.setSelected(true);
+                }
+                if (elVM.getClass().equals(TextElementViewModel.class)) {
+                    elVM.setSelected(true);
+                }
             }
-            if (elVM.getClass().equals(TextElementViewModel.class)) {
-                elVM.setSelected(true);
-             }
         }
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(motionEvent);
-        }
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()) {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                //check if resize
-                int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
-                String dragAction = MOVE_DRAG;
-                if (motionEvent.getX() < resize_radius) {
-                    if (motionEvent.getY() < resize_radius) {
-                        dragAction = RESIZE_DRAG_LEFT_TOP;
+        if (!pageVM.getPaintMode()) {
+            if (gestureDetector != null) {
+                gestureDetector.onTouchEvent(motionEvent);
+            }
+            if (view.isSelected()) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    //check if resize
+                    int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
+                    String dragAction = MOVE_DRAG;
+                    if (motionEvent.getX() < resize_radius) {
+                        if (motionEvent.getY() < resize_radius) {
+                            dragAction = RESIZE_DRAG_LEFT_TOP;
+                        }
+                    } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
+                        if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
+                            dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+                        }
                     }
-                } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
-                    if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
-                        dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
-                    }
+                    //do drag
+                    //move view to front before drag
+                    view.bringToFront();
+                    //start drag
+                    view.startDrag(null, new View.DragShadowBuilder() {
+                        @Override
+                        public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+                            outShadowSize.set(1, 1);
+                            outShadowTouchPoint.set(0, 0);
+                        }
+                    }, dragAction, 0);
+                    return true;
                 }
-                //do drag
-                //move view to front before drag
-                view.bringToFront();
-                //start drag
-                view.startDrag(null, new View.DragShadowBuilder() {
-                    @Override
-                    public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
-                        outShadowSize.set(1, 1);
-                        outShadowTouchPoint.set(0, 0);
-                    }
-                }, dragAction, 0);
-                return true;
             }
         }
         return false;

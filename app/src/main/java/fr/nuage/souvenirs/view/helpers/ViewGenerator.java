@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.lifecycle.LifecycleOwner;
@@ -27,6 +28,7 @@ import fr.nuage.souvenirs.view.ImageElementView;
 import fr.nuage.souvenirs.view.PaintElementView;
 import fr.nuage.souvenirs.view.TextElementView;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
+import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
@@ -35,9 +37,9 @@ public class ViewGenerator {
     /*
 generate view based on paintElementViewModel
 */
-    public static PaintElementView generateView(PaintElementViewModel paintElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static PaintElementView generateView(PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
         //gen paintview
-        PaintElementView paintElementView = new PaintElementView(parentViewGroup.getContext(),paintElementViewModel);
+        PaintElementView paintElementView = new PaintElementView(parentViewGroup.getContext(),pageViewModel,paintElementViewModel);
         paintElementView.setId(View.generateViewId());
         //add to parent
         parentViewGroup.addView(paintElementView);
@@ -83,9 +85,9 @@ generate view based on paintElementViewModel
     /*
     generate view based on imageelementviewmodel
     */
-    public static View generateView(ImageElementViewModel imageElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static View generateView(PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
         //gen imageview
-        ImageElementView imageView = new ImageElementView(parentViewGroup.getContext());
+        AppCompatImageView imageView = new ImageElementView(parentViewGroup.getContext(),pageViewModel,imageElementViewModel);
         imageView.setId(View.generateViewId());
         //add to parent
         parentViewGroup.addView(imageView);
@@ -105,7 +107,7 @@ generate view based on paintElementViewModel
             if (i != null) {
                 if (i.intValue() == ImageElement.CENTERCROP) {
                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                } else {
+                } else if (i.intValue() == ImageElement.FIT) {
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
                 //force re-glide because of bug on glide when ScaleType.CENTER_CROP on image creation (no fit_center possible)
@@ -155,9 +157,9 @@ generate view based on paintElementViewModel
     /*
     generate view based on viewmodel
     */
-    public static View generateView(TextElementViewModel textElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static View generateView(PageViewModel pageViewModel, TextElementViewModel textElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
         //gen textview
-        TextView textView = new TextElementView(parentViewGroup.getContext());
+        TextView textView = new TextElementView(parentViewGroup.getContext(),pageViewModel,textElementViewModel);
         textView.setId(View.generateViewId());
         textView.setClickable(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
