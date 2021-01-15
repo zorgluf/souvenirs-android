@@ -17,6 +17,7 @@ import androidx.lifecycle.LifecycleOwner;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.view.EditTextElementDialogFragment;
 import fr.nuage.souvenirs.view.ImageActionModeCallback;
 import fr.nuage.souvenirs.view.TextActionModeCallback;
@@ -31,11 +32,13 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     private final static String MOVE_DRAG = "MOVE_DRAG";
     private final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
     private final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
+    private final static String PAN_DRAG = "PAN_DRAG";
 
     private PageViewModel pageVM;
     private ElementViewModel elVM;
     private GestureDetectorCompat gestureDetector;
     private static int activateMoveViewId = 0;
+    private static int activatePanViewId = 0;
     private float initialX, initialY;
 
     public ElementMoveDragListener(PageViewModel page, ElementViewModel el, AppCompatActivity activity) {
@@ -142,9 +145,47 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         int right = Math.round((view.getX()+view.getWidth())/parentX*100);
                         elVM.setPosition(top,left,bottom,right);
                         elVM.bringToFront();
-                        //reset xy
-                        //view.setY(0);
-                        //view.setX(0);
+                    }
+                    return true;
+                default:
+                    break;
+            }
+        }
+
+        if (dragType.equals(PAN_DRAG)) {
+            //handle pan element drag action
+            int action = dragEvent.getAction();
+            switch(action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    //capture all
+                    initialX = dragEvent.getX();
+                    initialY = dragEvent.getY();
+                    return true;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    if (activatePanViewId == 0) {
+                        activatePanViewId = view.getId();
+                        return true;
+                    }
+                    return false;
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    if (activatePanViewId == view.getId()) {
+                        //pan image
+                        float x = dragEvent.getX();
+                        float y = dragEvent.getY();
+                        view.setScrollX((int)(initialX-x));
+                        view.setScrollY((int)(initialY-y));
+                    }
+                    return true;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    return true;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    if (activatePanViewId == view.getId()) {
+                        activatePanViewId = 0;
+                        //set new element offset
+                        ImageElementViewModel ei = (ImageElementViewModel)elVM;
+                        ei.setOffset((int)(view.getScrollX()/(float)view.getWidth()*100)+ei.getOffsetX().getValue(),(int)(view.getScrollY()/(float)view.getHeight()*100)+ei.getOffsetY().getValue());
+                        view.setScrollX(0);
+                        view.setScrollY(0);
                     }
                     return true;
                 default:
@@ -158,7 +199,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     @Override
     public boolean onLongClick(View view) {
         if (!pageVM.getPaintMode()) {
-            if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
+            if (view.isSelected()){
             } else {
                 ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
                 view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
@@ -187,7 +228,9 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (!pageVM.getPaintMode()) {
             if (gestureDetector != null) {
-                gestureDetector.onTouchEvent(motionEvent);
+                if (gestureDetector.onTouchEvent(motionEvent)) {
+                    return true;
+                }
             }
             if (view.isSelected()) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -202,6 +245,9 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
                             dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
                         }
+                    }
+                    if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel)elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                        dragAction = PAN_DRAG;
                     }
                     //do drag
                     //move view to front before drag

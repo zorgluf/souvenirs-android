@@ -1,6 +1,7 @@
 package fr.nuage.souvenirs.view.helpers;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
@@ -87,8 +88,9 @@ generate view based on paintElementViewModel
     */
     public static View generateView(PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
         //gen imageview
-        AppCompatImageView imageView = new ImageElementView(parentViewGroup.getContext(),pageViewModel,imageElementViewModel);
+        ImageElementView imageView = new ImageElementView(parentViewGroup.getContext(),pageViewModel,imageElementViewModel);
         imageView.setId(View.generateViewId());
+        imageView.setScrollContainer(true);
         //add to parent
         parentViewGroup.addView(imageView);
         //set constraints
@@ -109,6 +111,8 @@ generate view based on paintElementViewModel
                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 } else if (i.intValue() == ImageElement.FIT) {
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                } else if (i.intValue() == ImageElement.ZOOM_OFFSET) {
+                    imageView.setScaleType(ImageView.ScaleType.MATRIX);
                 }
                 //force re-glide because of bug on glide when ScaleType.CENTER_CROP on image creation (no fit_center possible)
                 ((ImageElement)imageElementViewModel.getElement()).setImagePath(((ImageElement)imageElementViewModel.getElement()).getImagePath());
@@ -151,6 +155,13 @@ generate view based on paintElementViewModel
                 imageView.setSelected(aBoolean);
             }
         });
+        Observer<Integer> offsetObserver = integer -> {
+            if ((imageElementViewModel.getOffsetX().getValue() != null) && (imageElementViewModel.getOffsetY().getValue() != null)) {
+                imageView.updateMatrix();
+            }
+        };
+        imageElementViewModel.getOffsetX().observe(lifecycleOwner, offsetObserver);
+        imageElementViewModel.getOffsetY().observe(lifecycleOwner, offsetObserver);
         return imageView;
     }
 

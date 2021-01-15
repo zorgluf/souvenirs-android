@@ -17,6 +17,7 @@ import java.io.File;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
+import fr.nuage.souvenirs.view.helpers.ZoomOffsetTransformation;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 
 public class DataBindingAdapters {
@@ -30,29 +31,15 @@ public class DataBindingAdapters {
         }
     }
 
-    @BindingAdapter("srcCompat")
-    public static void setSrcCompat(ImageView view, String imagePath) {
-        if (imagePath != null) {
-            if (imagePath.equals("")) {
-                view.setImageDrawable(view.getResources().getDrawable(R.drawable.ic_image_black_24dp));
-            } else {
-                Glide.with(view.getContext()).load(new File(imagePath)).into(view);
-            }
-        } else {
-            view.setImageDrawable(null);
-        }
-    }
 
-    @BindingAdapter("srcCompat")
-    public static void setSrcCompat(ImageView view, ImageElementViewModel imageVM) {
-        String imagePath = imageVM.getImagePath().getValue();
+    @BindingAdapter(value = { "srcCompat", "android:scrollX", "android:scrollY" }, requireAll=false)
+    public static void setSrcCompatZoomOffset(ImageView view, String imagePath, int offsetX, int offsetY) {
         if (imagePath != null) {
             if (imagePath.equals("")) {
                 view.setImageDrawable(view.getResources().getDrawable(R.drawable.ic_image_black_24dp));
             } else {
-                int transformType = imageVM.getTransformType().getValue().intValue();
-                if (transformType == ImageElement.CENTERCROP) {
-                    Glide.with(view.getContext()).load(new File(imagePath)).apply(new RequestOptions().centerCrop()).into(view);
+                if (view.getScaleType() == ImageView.ScaleType.MATRIX) {
+                    Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY)).into(view);
                 } else {
                     Glide.with(view.getContext()).load(new File(imagePath)).into(view);
                 }
@@ -71,10 +58,12 @@ public class DataBindingAdapters {
     @BindingAdapter("android:scaleType")
     public static void setScaleType(ImageView view, Integer transformType) {
         if (transformType != null) {
-            if (transformType == ImageElement.CENTERCROP) {
+            if (transformType == ImageElement.FIT) {
+                view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            } else if (transformType == ImageElement.CENTERCROP){
                 view.setScaleType(ImageView.ScaleType.CENTER_CROP);
             } else {
-                view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                view.setScaleType(ImageView.ScaleType.MATRIX);
             }
         }
     }

@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.model;
 
+import android.graphics.BitmapFactory;
+
 import androidx.lifecycle.MutableLiveData;
 
 import org.json.JSONException;
@@ -203,8 +205,8 @@ public class ImageElement extends Element {
         return offsetX;
     }
 
-    public void setOffsetX(int zoom) {
-        setOffsetX(zoom,true);
+    public void setOffsetX(int offsetX) {
+        setOffsetX(offsetX,true);
     }
 
     public void setOffsetX(int offsetX, boolean save) {
@@ -219,8 +221,8 @@ public class ImageElement extends Element {
         return offsetY;
     }
 
-    public void setOffsetY(int zoom) {
-        setOffsetY(zoom,true);
+    public void setOffsetY(int offsetY) {
+        setOffsetY(offsetY,true);
     }
 
     public void setOffsetY(int offsetY, boolean save) {
@@ -241,5 +243,25 @@ public class ImageElement extends Element {
 
     public MutableLiveData<Integer> getLdOffsetY() {
         return ldOffsetY;
+    }
+
+    public int getImageWidth() {
+        if ((imagePath == null) || (imagePath.equals(""))) {
+            return 0;
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+        return options.outWidth;
+    }
+
+    public int getImageHeight() {
+        if ((imagePath == null) || (imagePath.equals(""))) {
+            return 0;
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+        return options.outHeight;
     }
 }

@@ -173,6 +173,12 @@ public class TilePageBuilder extends PageBuilder {
                         e_img.setBottom((int)elDef[3]);
                         e_img.setLeft((int)elDef[0]);
                         e_img.setRight((int)elDef[2]);
+                        //reset offset
+                        e_img.setOffsetX(0);
+                        e_img.setOffsetY(0);
+                        //reset zoom to center crop
+                        e_img.setZoom(1);
+
                         imCursor += 1;
                     }
                     continue;
