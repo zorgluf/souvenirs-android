@@ -26,6 +26,7 @@ public class ImageElementViewModel extends ElementViewModel {
     private LiveData<Integer> transformType;
     private LiveData<Integer> offsetX;
     private LiveData<Integer> offsetY;
+    private LiveData<Integer> zoom;
 
     public ImageElementViewModel(ImageElement e) {
         super(e);
@@ -41,6 +42,9 @@ public class ImageElementViewModel extends ElementViewModel {
         offsetY = Transformations.map(e.getLdOffsetY(), offsetY -> {
             return offsetY;
         });
+        zoom = Transformations.map(e.getLdZoom(), zoom -> {
+            return zoom;
+        });
     }
 
     public LiveData<Integer> getOffsetX() {
@@ -49,6 +53,10 @@ public class ImageElementViewModel extends ElementViewModel {
 
     public LiveData<Integer> getOffsetY() {
         return offsetY;
+    }
+
+    public LiveData<Integer> getZoom() {
+        return zoom;
     }
 
     public LiveData<String> getImagePath() {
@@ -91,5 +99,9 @@ public class ImageElementViewModel extends ElementViewModel {
     public void setOffset(int offsetX, int offsetY) {
         ((ImageElement)element).setOffsetX(offsetX);
         ((ImageElement)element).setOffsetY(offsetY);
+    }
+
+    public void setZoom(int zoom) {
+        ((ImageElement)element).setZoom(zoom);
     }
 }

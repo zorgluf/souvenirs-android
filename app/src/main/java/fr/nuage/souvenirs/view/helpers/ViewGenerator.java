@@ -155,13 +155,14 @@ generate view based on paintElementViewModel
                 imageView.setSelected(aBoolean);
             }
         });
-        Observer<Integer> offsetObserver = integer -> {
+        Observer<Integer> zoomOffsetObserver = integer -> {
             if ((imageElementViewModel.getOffsetX().getValue() != null) && (imageElementViewModel.getOffsetY().getValue() != null)) {
                 imageView.updateMatrix();
             }
         };
-        imageElementViewModel.getOffsetX().observe(lifecycleOwner, offsetObserver);
-        imageElementViewModel.getOffsetY().observe(lifecycleOwner, offsetObserver);
+        imageElementViewModel.getOffsetX().observe(lifecycleOwner, zoomOffsetObserver);
+        imageElementViewModel.getOffsetY().observe(lifecycleOwner, zoomOffsetObserver);
+        imageElementViewModel.getZoom().observe(lifecycleOwner, zoomOffsetObserver);
         return imageView;
     }
 

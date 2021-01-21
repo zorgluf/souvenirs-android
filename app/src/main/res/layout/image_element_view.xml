@@ -42,7 +42,8 @@
             tools:srcCompat="@drawable/ic_image_black_24dp"
             android:alpha='@{element.imagePath == "" ? 0.1f : 1.0f }'
             android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
-            android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }' />
+            android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }'
+            android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_bottom"

@@ -125,6 +125,13 @@ public class TilePageBuilder extends PageBuilder {
             for (Object[] elDef: getPageStyleMap()[style]) {
                 if (imCursor < images.size()) {
                     ImageElement e_img = new ImageElement((int)elDef[0],(int)elDef[1],(int)elDef[2],(int)elDef[3]);
+                    e_img.setTransformType(ImageElement.ZOOM_OFFSET);
+                    //reset offset
+                    e_img.setOffsetX(0);
+                    e_img.setOffsetY(0);
+                    //reset zoom to center crop
+                    e_img.setZoom(100);
+                    //add to page
                     p.addElement(e_img);
                     InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), images.get(imCursor));
                     String mime = albumVM.getApplication().getContentResolver().getType(images.get(imCursor));
@@ -173,11 +180,12 @@ public class TilePageBuilder extends PageBuilder {
                         e_img.setBottom((int)elDef[3]);
                         e_img.setLeft((int)elDef[0]);
                         e_img.setRight((int)elDef[2]);
+                        e_img.setTransformType(ImageElement.ZOOM_OFFSET);
                         //reset offset
                         e_img.setOffsetX(0);
                         e_img.setOffsetY(0);
                         //reset zoom to center crop
-                        e_img.setZoom(1);
+                        e_img.setZoom(100);
 
                         imCursor += 1;
                     }

@@ -32,14 +32,14 @@ public class DataBindingAdapters {
     }
 
 
-    @BindingAdapter(value = { "srcCompat", "android:scrollX", "android:scrollY" }, requireAll=false)
-    public static void setSrcCompatZoomOffset(ImageView view, String imagePath, int offsetX, int offsetY) {
+    @BindingAdapter(value = { "srcCompat", "android:scrollX", "android:scrollY", "android:scaleX"}, requireAll=false)
+    public static void setSrcCompatZoomOffset(ImageView view, String imagePath, int offsetX, int offsetY, int scaleX) {
         if (imagePath != null) {
             if (imagePath.equals("")) {
                 view.setImageDrawable(view.getResources().getDrawable(R.drawable.ic_image_black_24dp));
             } else {
                 if (view.getScaleType() == ImageView.ScaleType.MATRIX) {
-                    Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY)).into(view);
+                    Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY,scaleX)).into(view);
                 } else {
                     Glide.with(view.getContext()).load(new File(imagePath)).into(view);
                 }

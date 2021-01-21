@@ -17,12 +17,13 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 
 public class ZoomOffsetTransformation extends BitmapTransformation {
 
-    private int offsetX, offsetY;
+    private int offsetX, offsetY, zoom;
 
-    public ZoomOffsetTransformation(int offsetX, int offsetY) {
+    public ZoomOffsetTransformation(int offsetX, int offsetY, int zoom) {
         super();
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+        this.zoom = zoom;
     }
 
     @Override
@@ -38,7 +39,8 @@ public class ZoomOffsetTransformation extends BitmapTransformation {
         matrix.postScale(scale, scale);
         matrix.postTranslate((viewWidth - drawableWidth * scale) / 2F,
                 (viewHeight - drawableHeight * scale) / 2F);
-        matrix.preTranslate(-offsetX*viewWidth/100f,-offsetY*viewHeight/100f);
+        matrix.postTranslate(offsetX*viewWidth/100f,offsetY*viewHeight/100f);
+        matrix.postScale(zoom/100f,zoom/100f);
 
         Bitmap newBitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(newBitmap);
