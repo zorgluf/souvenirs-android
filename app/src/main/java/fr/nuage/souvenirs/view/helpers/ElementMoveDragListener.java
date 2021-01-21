@@ -3,21 +3,28 @@ package fr.nuage.souvenirs.view.helpers;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.view.EditTextElementDialogFragment;
 import fr.nuage.souvenirs.view.ImageActionModeCallback;
+import fr.nuage.souvenirs.view.ImageElementView;
 import fr.nuage.souvenirs.view.TextActionModeCallback;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
@@ -31,20 +38,82 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     private final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
     private final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
 
-    private PageViewModel pageVM;
-    private ElementViewModel elVM;
-    private GestureDetectorCompat gestureDetector;
+    private final PageViewModel pageVM;
+    private final ElementViewModel elVM;
+    private final GestureDetectorCompat gestureDetector;
     private static int activateMoveViewId = 0;
     private float initialX, initialY;
+    private View view;
+    private ScaleGestureDetector scaleGestureDetector;
 
-    public ElementMoveDragListener(PageViewModel page, ElementViewModel el) {
-        this(page,el,null);
-    }
-
-    public ElementMoveDragListener(PageViewModel page, ElementViewModel el, GestureDetectorCompat gestureDetector) {
+    public ElementMoveDragListener(PageViewModel page, ElementViewModel el, AppCompatActivity activity) {
         pageVM = page;
         elVM = el;
-        this.gestureDetector = gestureDetector;
+        gestureDetector = new GestureDetectorCompat(activity, new GestureDetector.SimpleOnGestureListener() {
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                    float distanceX, float distanceY) {
+                if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel)elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                    ImageElementViewModel ei = (ImageElementViewModel)elVM;
+                    ei.setOffset((int)(-distanceX/(float)view.getWidth()*100)+ei.getOffsetX().getValue(),(int)(-distanceY/(float)view.getHeight()*100)+ei.getOffsetY().getValue());
+                    return true;
+                }
+                return false;
+            }
+
+        });
+        if (elVM instanceof ImageElementViewModel)  {
+            ((ImageElementViewModel)elVM).getTransformType().observe(activity, scaleType -> {
+                if (scaleType.equals(ImageElement.ZOOM_OFFSET)) {
+                    scaleGestureDetector = new ScaleGestureDetector(activity, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                        private float sumScale;
+
+                        @Override
+                        public boolean onScaleBegin (ScaleGestureDetector detector) {
+                            sumScale = 1;
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onScale(ScaleGestureDetector scaleGestureDetector)
+                        {
+                            final float scale = scaleGestureDetector.getScaleFactor();
+                            sumScale *= scale;
+                            Matrix matrix = ((ImageElementView)view).getImageMatrix();
+                            matrix.postScale(scale,scale,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY());
+                            view.invalidate();
+                            return true;
+                        }
+
+                        @Override
+                        public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+                            ImageElementViewModel imageElementViewModel = (ImageElementViewModel)elVM;
+                            final int viewWidth = view.getWidth();
+                            final int viewHeight = view.getHeight();
+                            final int drawableWidth = ((ImageView)view).getDrawable().getIntrinsicWidth();
+                            final int drawableHeight = ((ImageView)view).getDrawable().getIntrinsicHeight();
+                            final float widthScale = viewWidth / drawableWidth;
+                            final float heightScale = viewHeight / drawableHeight;
+                            final float scale = Math.max(widthScale, heightScale);
+                            final int baseOffsetX = Math.round((viewWidth - drawableWidth * scale) / 2F);
+                            final int baseOffsetY = Math.round((viewHeight - drawableHeight * scale) / 2F);
+                            final float finalScale = (float)imageElementViewModel.getZoom().getValue()/100*sumScale;
+
+                            float[] v = new float[9];
+                            ((ImageElementView)view).getImageMatrix().getValues(v);
+                            final int newOffsetX = (int)((v[Matrix.MTRANS_X]/finalScale-baseOffsetX)/viewWidth*100);
+                            final int newOffsetY = (int)((v[Matrix.MTRANS_Y]/finalScale-baseOffsetY)/viewHeight*100);;
+
+                            imageElementViewModel.setZoom((int)(finalScale*100));
+                            imageElementViewModel.setOffset(newOffsetX,newOffsetY);
+                        }
+                    });
+                }
+            });
+        }
+
+
     }
 
     @Override
@@ -135,9 +204,6 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         int right = Math.round((view.getX()+view.getWidth())/parentX*100);
                         elVM.setPosition(top,left,bottom,right);
                         elVM.bringToFront();
-                        //reset xy
-                        //view.setY(0);
-                        //view.setX(0);
                     }
                     return true;
                 default:
@@ -150,60 +216,79 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
 
     @Override
     public boolean onLongClick(View view) {
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
-            return false;
-        } else {
-            ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
-            view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
-            return true;
+        if (!pageVM.getPaintMode()) {
+            if (view.isSelected()) {
+            } else {
+                ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
+                view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
     public void onClick(View view) {
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()){
-        } else {
-            if (elVM.getClass().equals(ImageElementViewModel.class)) {
-                elVM.setSelected(true);
+        if (!pageVM.getPaintMode()) {
+            if (view.isSelected()) {
+
+            } else {
+                if (elVM.getClass().equals(ImageElementViewModel.class)) {
+                    elVM.setSelected(true);
+                }
+                if (elVM.getClass().equals(TextElementViewModel.class)) {
+                    elVM.setSelected(true);
+                    EditTextElementDialogFragment.newInstance((TextElementViewModel) elVM).show(((AppCompatActivity)view.getContext()).getSupportFragmentManager(), "");
+                }
             }
-            if (elVM.getClass().equals(TextElementViewModel.class)) {
-                elVM.setSelected(true);
-                EditTextElementDialogFragment.newInstance((TextElementViewModel) elVM).show(((AppCompatActivity)(view.getContext())).getSupportFragmentManager(),"");
-             }
         }
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(motionEvent);
-        }
-        if (view.isSelected() || pageVM.getLdPaintMode().getValue()) {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                //check if resize
-                int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
-                String dragAction = MOVE_DRAG;
-                if (motionEvent.getX() < resize_radius) {
-                    if (motionEvent.getY() < resize_radius) {
-                        dragAction = RESIZE_DRAG_LEFT_TOP;
-                    }
-                } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
-                    if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
-                        dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+        if (!pageVM.getPaintMode()) {
+            this.view = view;
+            if (view.isSelected()) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (!(elVM instanceof ImageElementViewModel) || (((ImageElementViewModel) elVM).getTransformType().getValue() != ImageElement.ZOOM_OFFSET)) {
+                        //check if resize
+                        int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
+                        String dragAction = MOVE_DRAG;
+                        if (motionEvent.getX() < resize_radius) {
+                            if (motionEvent.getY() < resize_radius) {
+                                dragAction = RESIZE_DRAG_LEFT_TOP;
+                            }
+                        } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
+                            if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
+                                dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+                            }
+                        }
+                        //do drag
+                        //move view to front before drag
+                        view.bringToFront();
+                        //start drag
+                        view.startDrag(null, new View.DragShadowBuilder() {
+                            @Override
+                            public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+                                outShadowSize.set(1, 1);
+                                outShadowTouchPoint.set(0, 0);
+                            }
+                        }, dragAction, 0);
+                        return true;
                     }
                 }
-                //do drag
-                //move view to front before drag
-                view.bringToFront();
-                //start drag
-                view.startDrag(null, new View.DragShadowBuilder() {
-                    @Override
-                    public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
-                        outShadowSize.set(1, 1);
-                        outShadowTouchPoint.set(0, 0);
+                if (gestureDetector != null) {
+                    if (gestureDetector.onTouchEvent(motionEvent)) {
+                        return true;
                     }
-                }, dragAction, 0);
-                return true;
+                }
+                if (scaleGestureDetector != null) {
+                    scaleGestureDetector.onTouchEvent(motionEvent);
+                    if (scaleGestureDetector.isInProgress()) {
+                        return true;
+                    }
+                }
+
             }
         }
         return false;

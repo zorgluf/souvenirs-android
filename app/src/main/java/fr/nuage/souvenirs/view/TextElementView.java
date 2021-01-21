@@ -6,16 +6,23 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import org.w3c.dom.Text;
+
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
+import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
+import fr.nuage.souvenirs.viewmodel.PageViewModel;
+import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class TextElementView extends AppCompatTextView {
 
     private Paint contourPaint;
     private Rect rect = new Rect();
 
-    public TextElementView(Context context) {
+    public TextElementView(Context context, PageViewModel pageViewModel, TextElementViewModel textElementViewModel) {
         super(context);
 
         contourPaint = new Paint();
@@ -23,6 +30,21 @@ public class TextElementView extends AppCompatTextView {
         contourPaint.setColor(getResources().getColor(R.color.primaryDarkColor));
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
+
+        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, textElementViewModel, (AppCompatActivity)context);
+        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, paintMode -> {
+            if (paintMode) {
+                setOnClickListener(null);
+                setOnTouchListener(null);
+                setOnLongClickListener(null);
+                setOnDragListener(null);
+            } else {
+                setOnClickListener(elementMoveDragListener);
+                setOnTouchListener(elementMoveDragListener);
+                setOnLongClickListener(elementMoveDragListener);
+                setOnDragListener(elementMoveDragListener);
+            }
+        });
 
     }
 

@@ -11,12 +11,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.model.Page;
 import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.PaintElement;
 import fr.nuage.souvenirs.model.TextElement;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.UnknownElement;
 
 public class PageViewModel extends ViewModel {
@@ -87,12 +89,17 @@ public class PageViewModel extends ViewModel {
     public void addImage(InputStream input, String mime) {
         ImageElement imageElement = page.createImageElement();
         imageElement.setImage(input,mime);
-        PageBuilder.applyDefaultStyle(page);
+        if (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) {
+            imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+        }
+        PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        pageBuilder.applyDefaultStyle(page);
     }
 
     public void addText() {
         page.createTextElement();
-        PageBuilder.applyDefaultStyle(page);
+        PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        pageBuilder.applyDefaultStyle(page);
     }
 
     public void swapElements(UUID oriElementUUID, UUID destElementUUID) {
@@ -122,8 +129,8 @@ public class PageViewModel extends ViewModel {
         return page.getNbTxt();
     }
 
-    public MutableLiveData<Boolean> getPaintMode() {
-        return paintMode;
+    public boolean getPaintMode() {
+        return paintMode.getValue();
     }
 
     public void setPaintMode(boolean b) {

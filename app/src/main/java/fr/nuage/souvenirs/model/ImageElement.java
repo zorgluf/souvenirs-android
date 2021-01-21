@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.model;
 
+import android.graphics.BitmapFactory;
+
 import androidx.lifecycle.MutableLiveData;
 
 import org.json.JSONException;
@@ -12,11 +14,18 @@ public class ImageElement extends Element {
 
     public static final int FIT = 0;
     public static final int CENTERCROP = 1;
+    public static final int ZOOM_OFFSET = 2;
 
     private MutableLiveData<String> ldImagePath = new MutableLiveData<String>();
     private MutableLiveData<Integer> ldTransformType = new MutableLiveData<>();
+    private MutableLiveData<Integer> ldZoom = new MutableLiveData<>();
+    private MutableLiveData<Integer> ldOffsetX = new MutableLiveData<>();
+    private MutableLiveData<Integer> ldOffsetY = new MutableLiveData<>();
     private String imagePath;
     private String mimeType;
+    private int zoom = 100;
+    private int offsetX = 0;
+    private int offsetY = 0;
     private int transformType = FIT;
 
     public ImageElement() {
@@ -103,6 +112,9 @@ public class ImageElement extends Element {
         json.put("image",Utils.getRelativePath(pageParent.getAlbum().getAlbumPath(),imagePath));
         json.put("mime",mimeType);
         json.put("transformType",transformType);
+        json.put("zoom",zoom);
+        json.put("offsetX",offsetX);
+        json.put("offsetY",offsetY);
         return json;
     }
 
@@ -121,6 +133,15 @@ public class ImageElement extends Element {
         }
         if (jsonObject.has("transformType")) {
             setTransformType(jsonObject.getInt("transformType"),false);
+        }
+        if (jsonObject.has("zoom")) {
+            setZoom(jsonObject.getInt("zoom"),false);
+        }
+        if (jsonObject.has("offsetX")) {
+            setOffsetX(jsonObject.getInt("offsetX"),false);
+        }
+        if (jsonObject.has("offsetY")) {
+            setOffsetY(jsonObject.getInt("offsetY"),false);
         }
     }
 
@@ -162,5 +183,85 @@ public class ImageElement extends Element {
 
     public void setAsAlbumImage() {
         pageParent.getAlbum().setAlbumImage(getImagePath());
+    }
+
+    public int getZoom() {
+        return zoom;
+    }
+
+    public void setZoom(int zoom) {
+        setZoom(zoom,true);
+    }
+
+    public void setZoom(int zoom, boolean save) {
+        this.zoom = zoom;
+        ldZoom.postValue(zoom);
+        if (save) {
+            onChange();
+        }
+    }
+
+    public int getOffsetX() {
+        return offsetX;
+    }
+
+    public void setOffsetX(int offsetX) {
+        setOffsetX(offsetX,true);
+    }
+
+    public void setOffsetX(int offsetX, boolean save) {
+        this.offsetX = offsetX;
+        ldOffsetX.postValue(offsetX);
+        if (save) {
+            onChange();
+        }
+    }
+
+    public int getOffsetY() {
+        return offsetY;
+    }
+
+    public void setOffsetY(int offsetY) {
+        setOffsetY(offsetY,true);
+    }
+
+    public void setOffsetY(int offsetY, boolean save) {
+        this.offsetY = offsetY;
+        ldOffsetY.postValue(offsetY);
+        if (save) {
+            onChange();
+        }
+    }
+
+    public MutableLiveData<Integer> getLdZoom() {
+        return ldZoom;
+    }
+
+    public MutableLiveData<Integer> getLdOffsetX() {
+        return ldOffsetX;
+    }
+
+    public MutableLiveData<Integer> getLdOffsetY() {
+        return ldOffsetY;
+    }
+
+    public int getImageWidth() {
+        if ((imagePath == null) || (imagePath.equals(""))) {
+            return 0;
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+        return options.outWidth;
+    }
+
+    public int getImageHeight() {
+        if ((imagePath == null) || (imagePath.equals(""))) {
+            return 0;
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+        return options.outHeight;
     }
 }

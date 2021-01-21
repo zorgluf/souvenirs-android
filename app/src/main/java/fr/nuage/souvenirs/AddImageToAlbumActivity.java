@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.AlbumsRecyclerViewAdapter;
 import fr.nuage.souvenirs.view.EditAlbumFragmentArgs;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
@@ -91,7 +93,9 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
                 .setView(new ProgressBar(this,null,android.R.attr.progressBarStyleLarge)).create();
         dialog.show();
         //create page according to style
-        PageBuilder.create(album,-1,imageUris,null);
+        PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        pageBuilder.create(album,-1,imageUris, null);
+
         //dismiss progress
         dialog.dismiss();
         //start edit activity

@@ -89,4 +89,8 @@
     <string name="pref_version">Souvenirs android app version</string>
     <string name="delete_album_local">Delete local album</string>
     <string name="delete_album_remote">Delete local and remote album</string>
+    <string name="layout_text_hint_album_name">Album name</string>
+    <string name="layout_radio_style_free">Free style</string>
+    <string name="layout_radio_style_tile">Tiles style</string>
+    <string name="menu_edit_album_style">Set album style</string>
 </resources>
