@@ -1,0 +1,2 @@
+New feature : Introduce new album style : Tile. Need nextcloud souvenir app 0.5+
+

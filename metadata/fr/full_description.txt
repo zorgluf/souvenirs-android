@@ -2,6 +2,8 @@ Réalisez des albums photos, ajoutez du texte ou des annotations manuscrites.
 Partagez vos albums sur un serveur Nextcloud.
 
 Pour partager un album sur une instance Nextcloud, vous aurez besoin :
-
-* De l'application <a href='https://github.com/zorgluf/souvenirs-nextcloud'>Souvenir</a> installé sur  l'instance Nextcloud
-* Du client <a href='https://github.com/nextcloud/android'>Nextcloud Android client</a> installé et configuré sur votre appareil Android avec au moins un compte fonctionnel. La synchronisation avec votre compte Nextcloud est effectué au travers de cette application : dans l'application Souvenirs, allez dans paramètre et sélectionnez votre compte Nextcloud.
+<ul>
+<li>De l'application <a href='https://github.com/zorgluf/souvenirs-nextcloud'>Souvenir</a> installé sur  l'instance Nextcloud</li>
+<li>Du client <a href='https://github.com/nextcloud/android'>Nextcloud Android client</a> installé et configuré sur votre appareil Android avec au moins un compte fonctionnel. La synchronisation avec votre compte Nextcloud est effectué au travers de cette application : dans l'application Souvenirs, allez dans paramètre et sélectionnez votre compte Nextcloud.</li>
+</ul>
+<i>Explication des permissions : l'application a besoins des permissions suivantes : "INTERNET", "GET_ACCOUNTS". Ces permissions sont utilisées exclisivement pour télécharger des albums depuis le serveur Nextcloud et utiliser le compte nextcloud sur l'appareil.</i>
