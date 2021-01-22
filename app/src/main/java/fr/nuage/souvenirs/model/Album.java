@@ -32,6 +32,9 @@ public class Album {
     public static final String DATA_DIR = "data";
     public static final String CONFFILE = "album.json";
 
+    public static final String STYLE_FREE = "FREE";
+    public static final String STYLE_TILE = "TILE";
+
     private String albumPath;
     private MutableLiveData<String> ldName = new MutableLiveData<String>();
     private String name;
@@ -47,7 +50,9 @@ public class Album {
     private UUID id;
     private String albumImage;
     private MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
+    private String defaultStyle = STYLE_TILE;
     private boolean unsavedModifications = false;
+
 
 
     public Album(String albumPath) {
@@ -109,11 +114,16 @@ public class Album {
             if (getAlbumImage() != null) {
                 json.put("albumImage", Utils.getRelativePath(getAlbumPath(),getAlbumImage()));
             }
+            json.put("defaultStyle",getDefaultStyle());
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
         return json;
+    }
+
+    public String getDefaultStyle() {
+        return defaultStyle;
     }
 
     public void reload() {
@@ -175,6 +185,11 @@ public class Album {
                 }
             } else {
                 lastEditDate = new Date();
+            }
+            if (json.has("defaultStyle")) {
+                defaultStyle = json.getString("defaultStyle");
+            } else {
+                defaultStyle = STYLE_FREE;
             }
             JSONArray jPages = json.getJSONArray("pages");
             ArrayList<Page> pages = new ArrayList<Page>();
@@ -453,6 +468,12 @@ public class Album {
     public void setAlbumImage(String albumImage) {
         this.albumImage = albumImage;
         ldAlbumImage.postValue(albumImage);
+        setLastEditDate(new Date());
+        onChange();
+    }
+
+    public void setDefaultStyle(String style) {
+        defaultStyle = style;
         setLastEditDate(new Date());
         onChange();
     }

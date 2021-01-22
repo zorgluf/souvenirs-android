@@ -197,9 +197,10 @@ public abstract class Element {
         if (!album.FirstPage(actualPage)) {
             Page previousPage = album.getPage(album.getIndex(actualPage)-1);
             previousPage.addElement(this);
-            PageBuilder.applyDefaultStyle(previousPage);
             actualPage.delElement(this);
-            PageBuilder.applyDefaultStyle(actualPage);
+            PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+            pageBuilder.applyDefaultStyle(actualPage);
+            pageBuilder.applyDefaultStyle(previousPage);
         }
     }
 
@@ -209,9 +210,10 @@ public abstract class Element {
         if (!album.isLastPage(actualPage)) {
             Page nextPage = album.getPage(album.getIndex(actualPage)+1);
             nextPage.addElement(this);
-            PageBuilder.applyDefaultStyle(nextPage);
             actualPage.delElement(this);
-            PageBuilder.applyDefaultStyle(actualPage);
+            PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+            pageBuilder.applyDefaultStyle(actualPage);
+            pageBuilder.applyDefaultStyle(nextPage);
         }
     }
 

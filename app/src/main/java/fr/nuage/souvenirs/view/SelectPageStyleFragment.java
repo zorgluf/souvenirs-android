@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment;
 import java.util.Arrays;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 
 public class SelectPageStyleFragment extends Fragment {
 
@@ -25,6 +27,7 @@ public class SelectPageStyleFragment extends Fragment {
     private OnSelectPageStyleListener listener;
     private int imageFilter;
     private int textFilter;
+    private String albumStyle;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -33,14 +36,15 @@ public class SelectPageStyleFragment extends Fragment {
     public SelectPageStyleFragment() {
     }
 
-    public SelectPageStyleFragment(OnSelectPageStyleListener listener,int imageFilter, int textFilter) {
+    public SelectPageStyleFragment(OnSelectPageStyleListener listener,int imageFilter, int textFilter, String albumStyle) {
         this.listener = listener;
         this.imageFilter = imageFilter;
         this.textFilter = textFilter;
+        this.albumStyle = albumStyle;
     }
 
     public SelectPageStyleFragment(OnSelectPageStyleListener listener) {
-        this(listener,-1,-1);
+        this(listener,-1,-1, Album.STYLE_FREE);
     }
 
 
@@ -60,16 +64,21 @@ public class SelectPageStyleFragment extends Fragment {
         cs.clone(previewGrid);
         float[] weights = new float[mCols];
         Arrays.fill(weights,(float)1);
-        for (int i=0;i<PageBuilder.PAGE_STYLE_MAP.length;i++) {
+
+        //init pagebuilder
+        PageBuilder pageBuilder;
+        if (albumStyle.equals(Album.STYLE_TILE)) {
+            pageBuilder = new TilePageBuilder();
+        } else {
+            pageBuilder = new PageBuilder();
+        }
+        for (int i=0;i<pageBuilder.getPageStyleMap().length;i++) {
             //filter style
-            if ((imageFilter != -1) && (PageBuilder.getNbImages(i) != imageFilter)) {
-                continue;
-            }
-            if ((textFilter != -1) && (PageBuilder.getNbTxt(i) != textFilter)) {
+            if (!pageBuilder.isStyleFitted(i,imageFilter,textFilter)) {
                 continue;
             }
             //gen view and add to parent
-            View pageView = PageBuilder.genPreview(i,previewGrid,inflater);
+            View pageView = pageBuilder.genPreview(i,previewGrid,inflater);
             pageView.setId(View.generateViewId());
             final int j = i;
             pageView.setOnClickListener(new View.OnClickListener() {

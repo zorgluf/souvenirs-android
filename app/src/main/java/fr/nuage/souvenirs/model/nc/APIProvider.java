@@ -105,6 +105,7 @@ public class APIProvider {
         String albumImage;
         boolean isShared;
         String shareToken;
+        String defaultStyle;
         List<PageResp> pages;
     }
 
@@ -128,6 +129,9 @@ public class APIProvider {
         @SerializedName("mime")
         String mimeType;
         int transformType;
+        int zoom;
+        int offsetX;
+        int offsetY;
         //for textelement
         String text;
     }

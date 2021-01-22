@@ -11,8 +11,10 @@ import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 
 public class PaintElementView extends AppCompatImageView implements View.OnTouchListener {
@@ -30,10 +32,10 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
     private static final float TOUCH_TOLERANCE = 4;
 
     public PaintElementView(Context context) {
-        this(context,null);
+        this(context,null,null);
     }
 
-    public PaintElementView(Context context, PaintElementViewModel paintElementViewModel) {
+    public PaintElementView(Context context, PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel) {
         super(context);
 
         this.paintElementViewModel = paintElementViewModel;
@@ -56,7 +58,18 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
-        setOnTouchListener(this);
+        AppCompatActivity activity = (AppCompatActivity)getContext();
+        //listen to paint mode
+        pageViewModel.getLdPaintMode().observe(activity, isPaintMode -> {
+            if (isPaintMode) {
+                //activate submenu
+                activity.startActionMode(new PaintActionModeCallback(activity.getSupportFragmentManager(),pageViewModel,paintElementViewModel));
+            }
+            //activate/deactivate draw on page
+            setPaintMode(isPaintMode);
+        });
+        //listen to color change
+        paintElementViewModel.getLdColor().observe(activity, color ->  { setColor(color); });
     }
 
     public void setColor(int color) {

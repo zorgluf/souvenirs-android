@@ -5,7 +5,6 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +30,9 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
+import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
 import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
@@ -50,6 +51,7 @@ public class EditPageFragment extends Fragment  {
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
     private PageViewModel pageVM;
+    private AlbumViewModel albumVM;
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
 
@@ -62,7 +64,7 @@ public class EditPageFragment extends Fragment  {
         String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
 
         //load view model
-        AlbumViewModel albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
+        albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
         pageVM = albumVM.getPage(UUID.fromString(pageId));
         //set focus on that page
         albumVM.setFocusPage(pageVM);
@@ -94,74 +96,39 @@ public class EditPageFragment extends Fragment  {
                 for (ElementViewModel e : elementViewModels) {
                     if (e.getClass() == TextElementViewModel.class) {
                         TextElementViewModel et = (TextElementViewModel) e;
-                        View textView = ViewGenerator.generateView(et,pageLayout,getActivity());
-                        //set on click listener
-                        GestureDetectorCompat elementGestureDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener(){
-                            @Override
-                            public boolean onDoubleTap (MotionEvent e) {
-                                EditTextElementDialogFragment.newInstance(et).show(getParentFragmentManager(),"");
-                                return true;
-                            }
-                        });
-                        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageVM,e,elementGestureDetector);
-                        pageVM.getPaintMode().observe(getViewLifecycleOwner(),isPaintMode -> {
-                            if (isPaintMode) {
-                                textView.setOnClickListener(null);
-                                textView.setOnTouchListener(null);
-                                textView.setOnLongClickListener(null);
-                                textView.setOnDragListener(null);
-                            } else {
-                                textView.setOnClickListener(elementMoveDragListener);
-                                textView.setOnTouchListener(elementMoveDragListener);
-                                textView.setOnLongClickListener(elementMoveDragListener);
-                                textView.setOnDragListener(elementMoveDragListener);
-                            }
-                        });
+                        ViewGenerator.generateView(pageVM,et,pageLayout,getActivity());
                         //subscribe to selection
                         e.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
-                            if (isSelected && ((actionModeElement==null) || !actionModeElement.equals(e))) {
-                                getActivity().startActionMode(new TextActionModeCallback((TextElementViewModel) e));
-                                actionModeElement = e;
+                            if (isSelected) {
+                                if (!et.equals(actionModeElement)) {
+                                    getActivity().startActionMode(new TextActionModeCallback(et));
+                                    actionModeElement = et;
+                                }
+                            } else {
+                                if (et.equals(actionModeElement)) {
+                                    actionModeElement = null;
+                                }
                             }
                         });
                     } else if (e.getClass() == ImageElementViewModel.class) {
                         ImageElementViewModel ei = (ImageElementViewModel) e;
-                        View imageView = ViewGenerator.generateView(ei,pageLayout, that);
-                        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageVM, ei);
-                        pageVM.getPaintMode().observe(getViewLifecycleOwner(),isPaintMode -> {
-                            if (isPaintMode) {
-                                imageView.setOnClickListener(null);
-                                imageView.setOnTouchListener(null);
-                                imageView.setOnLongClickListener(null);
-                                imageView.setOnDragListener(null);
-                            } else {
-                                imageView.setOnClickListener(elementMoveDragListener);
-                                imageView.setOnTouchListener(elementMoveDragListener);
-                                imageView.setOnLongClickListener(elementMoveDragListener);
-                                imageView.setOnDragListener(elementMoveDragListener);
-                            }
-                        });
+                        ViewGenerator.generateView(pageVM,ei,pageLayout, that);
                         //subscribe to selection
                         ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
-                            if (isSelected && ((actionModeElement==null) || (!actionModeElement.equals(ei)))) {
-                                getActivity().startActionMode(new ImageActionModeCallback(ei));
-                                actionModeElement = ei;
+                            if (isSelected) {
+                                if (!ei.equals(actionModeElement)) {
+                                    getActivity().startActionMode(new ImageActionModeCallback(ei));
+                                    actionModeElement = ei;
+                                }
+                            } else {
+                                if (ei.equals(actionModeElement)) {
+                                    actionModeElement = null;
+                                }
                             }
                         });
                     } else if (e.getClass() == PaintElementViewModel.class) {
                         PaintElementViewModel ep = (PaintElementViewModel) e;
-                        PaintElementView paintView = ViewGenerator.generateView(ep,pageLayout,getActivity());
-                        //listen to paint mode
-                        pageVM.getPaintMode().observe(getViewLifecycleOwner(),isPaintMode -> {
-                            if (isPaintMode) {
-                                //activate submenu
-                                getActivity().startActionMode(new PaintActionModeCallback(getActivity().getSupportFragmentManager(),pageVM,ep));
-                            }
-                            //activate/deactivate draw on page
-                            paintView.setPaintMode(isPaintMode);
-                        });
-                        //listen to color change
-                        ep.getLdColor().observe(getViewLifecycleOwner(), paintView::setColor);
+                        ViewGenerator.generateView(pageVM,ep,pageLayout,getActivity());
                     } else {
                         //unknown element : display default view
                         inflater1.inflate(R.layout.unknown_element_view, pageLayout, true);
@@ -223,9 +190,12 @@ public class EditPageFragment extends Fragment  {
         //set logic to change style
         MenuItem changeStyle = menu.findItem(R.id.edit_page_change_style);
         changeStyle.setOnMenuItemClickListener(menuItem -> {
-            SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> PageBuilder.applyStyle(style,pageVM.getPage());
+            SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> {
+                PageBuilder pageBuilder = (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+                pageBuilder.applyStyle(style,pageVM.getPage());
+            };
             //launch select style dialog
-            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText());
+            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText(),albumVM.getDefaultStyle());
             dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
             return true;
         });
