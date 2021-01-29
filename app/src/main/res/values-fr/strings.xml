@@ -6,7 +6,7 @@
     <string name="albums_path">Chemin vers les albums</string>
     <string name="dialog_create_album_msg">Entrez le nom de l\'album</string>
     <string name="icon_edit_album">Modifier l\'album</string>
-    <string name="add_page_title">Sélectionnez un style de page...</string>
+    <string name="add_page_title">Sélectionnez un style de page…</string>
     <string name="export_to_pdf_menu">Export PDF</string>
     <string name="change_text_edit_dialog">OK</string>
     <string name="action_menu_image_delete">Supprimer</string>
@@ -33,7 +33,7 @@
     <string name="nextcloud_notification_com_err">Erreur de communication avec le serveur Nextcloud.</string>
     <string name="nextcloud_notification_dir_creation_err">Erreur de crèation du répertoire sur le serveur Nextcloud.</string>
     <string name="nextcloud_notification_io_err">Erreur IO sur les fichiers de l\'album.</string>
-    <string name="nextcloud_notification_list_files">Liste des fichiers sur les serveur Nextcloud...</string>
+    <string name="nextcloud_notification_list_files">Liste des fichiers sur les serveur Nextcloud…</string>
     <string name="nextcloud_notification_delete_file">Suppression des fichiers obsolètes sur le serveur.</string>
     <string name="nextcloud_notification_upload_file">Téléchargement du fichier</string>
     <string name="nextcloud_notification_upload_dir">Création du répertoire</string>
@@ -55,7 +55,7 @@
     <string name="nextcloud_notification_share_url">Partage de l\'album</string>
     <string name="nextcloud_notification_tap_share">Touchez pour partager le lien.</string>
     <string name="pref_nextcloud_enable">Activer la synchronisation Nextcloud</string>
-    <string name="text_element_hint">Saisissez votre texte ici...</string>
+    <string name="text_element_hint">Saisissez votre texte ici…</string>
     <string name="style_none">Aucun style prédéfini trouvé</string>
     <string name="pref_nextcloud_wifi">Synchronisation activée en Wifi uniquement</string>
     <string name="nextcloud_notification_tap_retry">Touchez pour ré-essayer.</string>
@@ -89,4 +89,8 @@
     <string name="pref_version">Version de l\'application Souvenirs</string>
     <string name="delete_album_local">Supprimer l\'album local</string>
     <string name="delete_album_remote">Supprimer l\'album local et distant</string>
+    <string name="layout_text_hint_album_name">Nom de l\'album</string>
+    <string name="layout_radio_style_free">Style libre</string>
+    <string name="layout_radio_style_tile">Style tuile</string>
+    <string name="menu_edit_album_style">Définir le style de l\'album</string>
 </resources>

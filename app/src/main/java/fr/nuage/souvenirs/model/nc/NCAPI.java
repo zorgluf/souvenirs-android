@@ -13,7 +13,7 @@ import retrofit2.http.Path;
 
 public interface NCAPI {
 
-        String mApiEndpoint = "/index.php/apps/souvenir/apiv2/";
+        String mApiEndpoint = "/index.php/apps/souvenirs/apiv2/";
 
         @GET("album")
         Call<List<String>> getAlbums();
