@@ -1,14 +1,15 @@
 package fr.nuage.souvenirs.view;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
@@ -16,13 +17,16 @@ import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 
 public class DeleteShareDialogFragment extends DialogFragment {
     private AlbumViewModel albumViewModel;
+
     public DeleteShareDialogFragment(AlbumViewModel albumViewModel) {
         super();
         this.albumViewModel = albumViewModel;
     }
+
+    @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.AppTheme_MaterialDialog_Alert);
         builder.setTitle(getResources().getString(R.string.dialog_delete_album_share_confirm, albumViewModel.getName().getValue()))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     new DeleteShareTask(getContext()).execute(albumViewModel.getAlbumNC());
@@ -32,16 +36,20 @@ public class DeleteShareDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class DeleteShareTask extends AsyncTask<AlbumNC, Void, Boolean> {
         private Context context;
-        private Dialog dialog;
+        private AlertDialog dialog;
+
         public DeleteShareTask(Context context) {
             this.context = context;
         }
+
         @Override
         protected Boolean doInBackground(AlbumNC... albumNC) {
             return albumNC[0].deleteShare();
         }
+
         @Override
         protected void onPreExecute() {
             //launch progress dialog
@@ -49,6 +57,7 @@ public class DeleteShareDialogFragment extends DialogFragment {
                     .setView(new ProgressBar(context,null,android.R.attr.progressBarStyleLarge)).create();
             dialog.show();
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
             dialog.dismiss();
