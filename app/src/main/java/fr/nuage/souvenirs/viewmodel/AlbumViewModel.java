@@ -53,6 +53,7 @@ public class AlbumViewModel extends AndroidViewModel {
     private boolean syncInProgress = false;
     private MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
     private MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
+    private MediatorLiveData<String> ldDefaultStyle = new MediatorLiveData<>();
 
     public AlbumViewModel(Application app) {
         super(app);
@@ -100,6 +101,7 @@ public class AlbumViewModel extends AndroidViewModel {
                         ldDate.removeSource(oldAlbum.getLdDate());
                         pages = new MutableLiveData<>();
                         ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
+                        ldDefaultStyle.removeSource(oldAlbum.getLdDefaultStyle());
                         ldNCState.removeSource(oldAlbum.getLdLastEditDate());
                         ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
                     }
@@ -122,6 +124,9 @@ public class AlbumViewModel extends AndroidViewModel {
                         });
                         ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
                             ldAlbumImage.setValue(imagePath);
+                        });
+                        ldDefaultStyle.addSource(album.getLdDefaultStyle(), style -> {
+                            ldDefaultStyle.setValue(style);
                         });
                         ldNCState.addSource(album.getLdLastEditDate(), date -> {
                             ldNCState.postValue(getNCState());
@@ -413,5 +418,9 @@ public class AlbumViewModel extends AndroidViewModel {
 
     public String getDefaultStyle() {
         return album.getDefaultStyle();
+    }
+
+    public MediatorLiveData<String> getLdDefaultStyle() {
+        return ldDefaultStyle;
     }
 }

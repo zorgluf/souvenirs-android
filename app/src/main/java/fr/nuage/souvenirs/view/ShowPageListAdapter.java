@@ -23,6 +23,7 @@ import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
+import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
@@ -33,8 +34,7 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapter.ViewHolder> {
     private ArrayList<PageViewModel> mPages = new ArrayList<PageViewModel>();
     private Fragment mFragment;
-
-
+    private AlbumViewModel albumViewModel;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private ShowItemPageListBinding mBinding;
@@ -42,17 +42,18 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
             super(binding.getRoot());
             mBinding = binding;
         }
-        public void bind(PageViewModel page) {
-            mBinding.setPage(page);
+        public void bind(AlbumViewModel album) {
+            mBinding.setAlbum(album);
             mBinding.executePendingBindings();
         }
     }
 
-    public ShowPageListAdapter(LiveData<ArrayList<PageViewModel>> myDataset, Fragment fragment) {
+    public ShowPageListAdapter(LiveData<ArrayList<PageViewModel>> myDataset, Fragment fragment, AlbumViewModel albumViewModel) {
         if (myDataset.getValue() != null) {
             mPages = myDataset.getValue();
         }
         mFragment = fragment;
+        this.albumViewModel = albumViewModel;
     }
 
     public void updateList(ArrayList<PageViewModel> newList) {
@@ -76,6 +77,8 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ShowPageListAdapter.ViewHolder holder, int position) {
+        holder.bind(albumViewModel);
+
         PageViewModel page = mPages.get(position);
         //listen to elements changes
         page.getElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {

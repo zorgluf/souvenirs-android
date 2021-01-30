@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="page" type="fr.nuage.souvenirs.viewmodel.PageViewModel"/>
+        <import type="fr.nuage.souvenirs.model.Album"/>
+        <variable name="album" type="fr.nuage.souvenirs.viewmodel.AlbumViewModel"/>
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,10 +19,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="@dimen/mtrl_card_spacing"
-        android:layout_marginTop="@dimen/mtrl_card_spacing"
-        android:layout_marginRight="@dimen/mtrl_card_spacing"
-        android:layout_marginBottom="@dimen/mtrl_card_spacing">
+        android:layout_marginLeft="@{(album.defaultStyle.equals(Album.STYLE_TILE)) ? 0f : @dimen/mtrl_card_spacing }"
+        android:layout_marginTop="@{(album.defaultStyle.equals(Album.STYLE_TILE)) ? 0f : @dimen/mtrl_card_spacing }"
+        android:layout_marginRight="@{(album.defaultStyle.equals(Album.STYLE_TILE)) ? 0f : @dimen/mtrl_card_spacing }"
+        android:layout_marginBottom="@{(album.defaultStyle.equals(Album.STYLE_TILE)) ? 0f : @dimen/mtrl_card_spacing }">
 
         <FrameLayout
             android:id="@+id/page_layout"

@@ -4,6 +4,7 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -12,6 +13,7 @@ import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
 
@@ -82,6 +84,13 @@ public class DataBindingAdapters {
     @BindingAdapter("android:tint")
     public static void setTint(ImageView v, int color) {
         v.setColorFilter(color);
+    }
+
+    @BindingAdapter(value = { "android:layout_marginLeft", "android:layout_marginBottom", "android:layout_marginRight", "android:layout_marginTop" })
+    public static void setLayoutMarginLeft(MaterialCardView v, float marginLeft, float marginTop, float marginRight, float marginBottom) {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) v.getLayoutParams();
+        params.setMargins((int)marginLeft, (int)marginTop, (int)marginRight, (int)marginBottom);
+        v.setLayoutParams(params);
     }
 
 }

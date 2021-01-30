@@ -51,6 +51,7 @@ public class Album {
     private String albumImage;
     private MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
     private String defaultStyle = STYLE_TILE;
+    private MutableLiveData<String> ldDefaultStyle = new MutableLiveData<>();
     private boolean unsavedModifications = false;
 
 
@@ -72,6 +73,7 @@ public class Album {
         ldPages.postValue(pages);
         ldDate.postValue(date);
         ldAlbumImage.postValue(albumImage);
+        ldDefaultStyle.postValue(defaultStyle);
     }
 
     public String getName(){
@@ -474,6 +476,7 @@ public class Album {
 
     public void setDefaultStyle(String style) {
         defaultStyle = style;
+        ldDefaultStyle.postValue(defaultStyle);
         setLastEditDate(new Date());
         onChange();
     }
@@ -552,4 +555,7 @@ public class Album {
         return ldDate;
     }
 
+    public MutableLiveData<String> getLdDefaultStyle() {
+        return ldDefaultStyle;
+    }
 }
