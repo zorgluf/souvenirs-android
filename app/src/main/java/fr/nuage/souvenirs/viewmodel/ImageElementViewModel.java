@@ -30,21 +30,11 @@ public class ImageElementViewModel extends ElementViewModel {
 
     public ImageElementViewModel(ImageElement e) {
         super(e);
-        imagePath = Transformations.map(e.getLiveDataImagePath(), imagePath -> {
-            return imagePath;
-        });
-        transformType = Transformations.map(e.getLiveDataTransformType(), transformType -> {
-            return transformType;
-        });
-        offsetX = Transformations.map(e.getLdOffsetX(), offsetX -> {
-            return offsetX;
-        });
-        offsetY = Transformations.map(e.getLdOffsetY(), offsetY -> {
-            return offsetY;
-        });
-        zoom = Transformations.map(e.getLdZoom(), zoom -> {
-            return zoom;
-        });
+        imagePath = Transformations.map(e.getLiveDataImagePath(), imagePath -> imagePath);
+        transformType = Transformations.map(e.getLiveDataTransformType(), transformType -> transformType);
+        offsetX = Transformations.map(e.getLdOffsetX(), offsetX -> offsetX);
+        offsetY = Transformations.map(e.getLdOffsetY(), offsetY -> offsetY);
+        zoom = Transformations.map(e.getLdZoom(), zoom -> zoom);
     }
 
     public LiveData<Integer> getOffsetX() {
@@ -89,6 +79,26 @@ public class ImageElementViewModel extends ElementViewModel {
             e.setTransformType(ImageElement.CENTERCROP);
         } else if (e.getTransformType() == ImageElement.CENTERCROP) {
             e.setTransformType(ImageElement.FIT);
+        } else if (e.getTransformType() == ImageElement.ZOOM_OFFSET) {
+            if ((e.getZoom() != 100) || (e.getOffsetX() != 0) || (e.getOffsetY() != 0)) {
+                //if custom zoom/offset, reset
+                e.setZoom(100);
+                e.setOffsetX(0);
+                e.setOffsetY(0);
+            } else {
+                //if not, zoom out life a fit
+                final int viewWidth = e.getRight()-e.getLeft();
+                final int viewHeight = e.getBottom()-e.getTop();
+                final int drawableWidth = e.getImageWidth();
+                final int drawableHeight = e.getImageHeight();
+                final float viewRatio = (float)viewWidth / viewHeight;
+                final float drawableRatio = (float)drawableWidth / drawableHeight;
+                final float scale = (drawableRatio/viewRatio);
+                e.setZoom((int)(scale*100));
+                e.setOffsetX((int)(50*(1-scale)/scale));
+                e.setOffsetY((int)(50*(1-scale)/scale));
+            }
+
         }
     }
 
