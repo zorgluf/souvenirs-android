@@ -1,31 +1,22 @@
 package fr.nuage.souvenirs.view.helpers;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.graphics.Matrix;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.DragEvent;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 
 import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.view.EditTextElementDialogFragment;
-import fr.nuage.souvenirs.view.ImageActionModeCallback;
 import fr.nuage.souvenirs.view.ImageElementView;
-import fr.nuage.souvenirs.view.TextActionModeCallback;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
@@ -40,38 +31,26 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
 
     private final PageViewModel pageVM;
     private final ElementViewModel elVM;
-    private final GestureDetectorCompat gestureDetector;
     private static int activateMoveViewId = 0;
     private float initialX, initialY;
     private View view;
     private ScaleGestureDetector scaleGestureDetector;
+    private Matrix imageMatrix;
+    private boolean isZooming = false;
+    private boolean isPaning = false;
+    private int activePointerId = MotionEvent.INVALID_POINTER_ID;
 
     public ElementMoveDragListener(PageViewModel page, ElementViewModel el, AppCompatActivity activity) {
         pageVM = page;
         elVM = el;
-        gestureDetector = new GestureDetectorCompat(activity, new GestureDetector.SimpleOnGestureListener() {
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2,
-                                    float distanceX, float distanceY) {
-                if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel)elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
-                    ImageElementViewModel ei = (ImageElementViewModel)elVM;
-                    ei.setOffset((int)(-distanceX/(float)view.getWidth()*100)+ei.getOffsetX().getValue(),(int)(-distanceY/(float)view.getHeight()*100)+ei.getOffsetY().getValue());
-                    return true;
-                }
-                return false;
-            }
-
-        });
         if (elVM instanceof ImageElementViewModel)  {
             ((ImageElementViewModel)elVM).getTransformType().observe(activity, scaleType -> {
                 if (scaleType.equals(ImageElement.ZOOM_OFFSET)) {
                     scaleGestureDetector = new ScaleGestureDetector(activity, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                        private float sumScale;
 
                         @Override
                         public boolean onScaleBegin (ScaleGestureDetector detector) {
-                            sumScale = 1;
+                            isZooming = true;
                             return true;
                         }
 
@@ -79,34 +58,20 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         public boolean onScale(ScaleGestureDetector scaleGestureDetector)
                         {
                             final float scale = scaleGestureDetector.getScaleFactor();
-                            sumScale *= scale;
-                            Matrix matrix = ((ImageElementView)view).getImageMatrix();
-                            matrix.postScale(scale,scale,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY());
-                            view.invalidate();
-                            return true;
+                            if (scale > 0.01) {
+                                imageMatrix.postScale(scale,scale,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY());
+                                ((ImageElementView)view).setImageMatrix(imageMatrix);
+                                view.invalidate();
+                                return true;
+                            } else {
+                                return false;
+                            }
                         }
 
                         @Override
                         public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-                            ImageElementViewModel imageElementViewModel = (ImageElementViewModel)elVM;
-                            final int viewWidth = view.getWidth();
-                            final int viewHeight = view.getHeight();
-                            final int drawableWidth = ((ImageView)view).getDrawable().getIntrinsicWidth();
-                            final int drawableHeight = ((ImageView)view).getDrawable().getIntrinsicHeight();
-                            final float widthScale = viewWidth / drawableWidth;
-                            final float heightScale = viewHeight / drawableHeight;
-                            final float scale = Math.max(widthScale, heightScale);
-                            final int baseOffsetX = Math.round((viewWidth - drawableWidth * scale) / 2F);
-                            final int baseOffsetY = Math.round((viewHeight - drawableHeight * scale) / 2F);
-                            final float finalScale = (float)imageElementViewModel.getZoom().getValue()/100*sumScale;
-
-                            float[] v = new float[9];
-                            ((ImageElementView)view).getImageMatrix().getValues(v);
-                            final int newOffsetX = (int)((v[Matrix.MTRANS_X]/finalScale-baseOffsetX)/viewWidth*100);
-                            final int newOffsetY = (int)((v[Matrix.MTRANS_Y]/finalScale-baseOffsetY)/viewHeight*100);;
-
-                            imageElementViewModel.setZoom((int)(finalScale*100));
-                            imageElementViewModel.setOffset(newOffsetX,newOffsetY);
+                            updateZoomOffset((ImageElementView)view,(ImageElementViewModel)elVM);
+                            isZooming = false;
                         }
                     });
                 }
@@ -114,6 +79,27 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
         }
 
 
+    }
+
+    private void updateZoomOffset(ImageElementView imageElementView, ImageElementViewModel imageElementViewModel) {
+        final int viewWidth = imageElementView.getWidth();
+        final int viewHeight = imageElementView.getHeight();
+        final int drawableWidth = imageElementView.getDrawable().getIntrinsicWidth();
+        final int drawableHeight = imageElementView.getDrawable().getIntrinsicHeight();
+        final float widthScale = (float)viewWidth / drawableWidth;
+        final float heightScale = (float)viewHeight / drawableHeight;
+        final float scale = Math.max(widthScale, heightScale);
+        final int baseOffsetX = Math.round((viewWidth - drawableWidth * scale) / 2F);
+        final int baseOffsetY = Math.round((viewHeight - drawableHeight * scale) / 2F);
+
+        float[] v = new float[9];
+        imageElementView.getImageMatrix().getValues(v);
+        final float finalScale = v[Matrix.MSCALE_X];
+        final int newOffsetX = (int)((v[Matrix.MTRANS_X]/finalScale-baseOffsetX)/viewWidth*100);
+        final int newOffsetY = (int)((v[Matrix.MTRANS_Y]/finalScale-baseOffsetY)/viewHeight*100);
+
+        imageElementViewModel.setZoom((int)(finalScale*100));
+        imageElementViewModel.setOffset(newOffsetX,newOffsetY);
     }
 
     @Override
@@ -217,10 +203,9 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     @Override
     public boolean onLongClick(View view) {
         if (!pageVM.getPaintMode()) {
-            if (view.isSelected()) {
-            } else {
+            if (!view.isSelected()) {
                 ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
-                view.startDrag(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+                view.startDragAndDrop(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
                 return true;
             }
         }
@@ -230,9 +215,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     @Override
     public void onClick(View view) {
         if (!pageVM.getPaintMode()) {
-            if (view.isSelected()) {
-
-            } else {
+            if (!view.isSelected()) {
                 if (elVM.getClass().equals(ImageElementViewModel.class)) {
                     elVM.setSelected(true);
                 }
@@ -247,46 +230,90 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (!pageVM.getPaintMode()) {
-            this.view = view;
+            //get view context for local instance
+            if (this.view == null){
+                this.view = view;
+                if (view instanceof ImageElementView) {
+                    imageMatrix = ((ImageElementView)view).getImageMatrix();
+                }
+            }
+
             if (view.isSelected()) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (!(elVM instanceof ImageElementViewModel) || (((ImageElementViewModel) elVM).getTransformType().getValue() != ImageElement.ZOOM_OFFSET)) {
-                        //check if resize
-                        int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
-                        String dragAction = MOVE_DRAG;
-                        if (motionEvent.getX() < resize_radius) {
-                            if (motionEvent.getY() < resize_radius) {
-                                dragAction = RESIZE_DRAG_LEFT_TOP;
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (!(elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                            //check if resize
+                            int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
+                            String dragAction = MOVE_DRAG;
+                            if (motionEvent.getX() < resize_radius) {
+                                if (motionEvent.getY() < resize_radius) {
+                                    dragAction = RESIZE_DRAG_LEFT_TOP;
+                                }
+                            } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
+                                if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
+                                    dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+                                }
                             }
-                        } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
-                            if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
-                                dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+                            //do drag
+                            //move view to front before drag
+                            view.bringToFront();
+                            //start drag
+                            view.startDragAndDrop(null, new View.DragShadowBuilder() {
+                                @Override
+                                public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+                                    outShadowSize.set(1, 1);
+                                    outShadowTouchPoint.set(0, 0);
+                                }
+                            }, dragAction, 0);
+                            return true;
+                        } else {
+                            final int pointerIndex = motionEvent.getActionIndex();
+                            initialX = motionEvent.getX(pointerIndex);
+                            initialY = motionEvent.getY(pointerIndex);
+                            activePointerId = motionEvent.getPointerId(0);
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                            isPaning = true;
+                            final int pointerIndex = motionEvent.findPointerIndex(activePointerId);
+                            final float x = motionEvent.getX(pointerIndex);
+                            final float y = motionEvent.getY(pointerIndex);
+                            imageMatrix.postTranslate(x- initialX,y- initialY);
+                            ((ImageElementView)view).setImageMatrix(imageMatrix);
+                            view.invalidate();
+                            initialX = x;
+                            initialY = y;
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                            activePointerId = MotionEvent.INVALID_POINTER_ID;
+                            if (!isZooming && isPaning) {
+                                updateZoomOffset((ImageElementView)view,(ImageElementViewModel)elVM);
+                            }
+                            isPaning = false;
+                        }
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        if ((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                            final int pointerId = motionEvent.getPointerId(motionEvent.getActionIndex());
+                            if (pointerId == activePointerId) {
+                                // This was our active pointer going up. Choose a new
+                                // active pointer and adjust accordingly.
+                                final int newPointerIndex = activePointerId == 0 ? 1 : 0;
+                                initialX = motionEvent.getX(newPointerIndex);
+                                initialY = motionEvent.getY(newPointerIndex);
+                                activePointerId = motionEvent.getPointerId(newPointerIndex);
                             }
                         }
-                        //do drag
-                        //move view to front before drag
-                        view.bringToFront();
-                        //start drag
-                        view.startDrag(null, new View.DragShadowBuilder() {
-                            @Override
-                            public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
-                                outShadowSize.set(1, 1);
-                                outShadowTouchPoint.set(0, 0);
-                            }
-                        }, dragAction, 0);
-                        return true;
-                    }
+                        break;
                 }
-                if (gestureDetector != null) {
-                    if (gestureDetector.onTouchEvent(motionEvent)) {
-                        return true;
-                    }
-                }
+
                 if (scaleGestureDetector != null) {
                     scaleGestureDetector.onTouchEvent(motionEvent);
-                    if (scaleGestureDetector.isInProgress()) {
-                        return true;
-                    }
+                    return scaleGestureDetector.isInProgress();
                 }
 
             }
