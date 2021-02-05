@@ -241,7 +241,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
             if (view.isSelected()) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        if (!(elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET)) {
+                        if (!((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET))) {
                             //check if resize
                             int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
                             String dragAction = MOVE_DRAG;

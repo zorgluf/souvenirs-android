@@ -33,13 +33,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:text="@{element.text}"
+            android:textAlignment="center"
             android:textAppearance="@style/AppTheme.AlbumTextDefault"
+            app:autoSizeMinTextSize="2sp"
+            app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_bottom"
             app:layout_constraintEnd_toEndOf="@+id/guideline_right"
             app:layout_constraintStart_toEndOf="@+id/guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/guideline_top"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="2sp"
             tools:text="texte">
 
         </TextView>

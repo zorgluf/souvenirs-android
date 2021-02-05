@@ -16,7 +16,7 @@
     <string name="notification_pdf_creation_title">Building PDF</string>
     <string name="notification_pdf_creation_text_end">PDF is ready</string>
     <string name="edit_menu">Edit</string>
-    <string name="text_element_hint">Insert your text here...</string>
+    <string name="text_element_hint">Insert your text here…</string>
     <string name="add_page_in_album_ask">Select the target album :</string>
     <string name="delete_album">Delete album</string>
     <string name="delete_album_message">Do you really want to delete the album ?</string>
@@ -34,7 +34,7 @@
     <string name="nextcloud_notification_com_err">Error on communication with nextcloud server.</string>
     <string name="nextcloud_notification_dir_creation_err">Error on album directory creation on nextcloud server.</string>
     <string name="nextcloud_notification_io_err">IO Error on album files.</string>
-    <string name="nextcloud_notification_list_files">Listing files on nextcloud server...</string>
+    <string name="nextcloud_notification_list_files">Listing files on nextcloud server…</string>
     <string name="nextcloud_notification_delete_file">Deleting nextcloud file</string>
     <string name="nextcloud_notification_upload_file">Upload file</string>
     <string name="nextcloud_notification_upload_dir">Create directory</string>
@@ -90,7 +90,7 @@
     <string name="delete_album_local">Delete local album</string>
     <string name="delete_album_remote">Delete local and remote album</string>
     <string name="layout_text_hint_album_name">Album name</string>
-    <string name="layout_radio_style_free">Pages style</string>
+    <string name="layout_radio_style_free">Free style</string>
     <string name="layout_radio_style_tile">Tiles style</string>
     <string name="menu_edit_album_style">Set album style</string>
 </resources>

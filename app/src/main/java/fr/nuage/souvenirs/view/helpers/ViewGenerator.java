@@ -1,7 +1,6 @@
 package fr.nuage.souvenirs.view.helpers;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.TypedValue;
@@ -9,16 +8,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
@@ -65,7 +64,7 @@ generate view based on paintElementViewModel
                             .load(new File(s))
                             .into(new CustomTarget<Bitmap>() {
                                 @Override
-                                public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
                                     paintElementView.setFirstBitmap(resource);
                                 }
 
@@ -108,11 +107,11 @@ generate view based on paintElementViewModel
         //define observables for data binding
         imageElementViewModel.getTransformType().observe(lifecycleOwner, (Observer<Integer>) i -> {
             if (i != null) {
-                if (i.intValue() == ImageElement.CENTERCROP) {
+                if (i == ImageElement.CENTERCROP) {
                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                } else if (i.intValue() == ImageElement.FIT) {
+                } else if (i == ImageElement.FIT) {
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                } else if (i.intValue() == ImageElement.ZOOM_OFFSET) {
+                } else if (i == ImageElement.ZOOM_OFFSET) {
                     imageView.setScaleType(ImageView.ScaleType.MATRIX);
                 }
                 //force re-glide because of bug on glide when ScaleType.CENTER_CROP on image creation (no fit_center possible)
@@ -122,7 +121,7 @@ generate view based on paintElementViewModel
         imageElementViewModel.getImagePath().observe(lifecycleOwner, s -> {
             if (s != null) {
                 if (s.equals("")) {
-                    imageView.setImageDrawable(imageView.getResources().getDrawable(R.drawable.ic_image_black_24dp));
+                    imageView.setImageDrawable(ResourcesCompat.getDrawable(imageView.getResources(),R.drawable.ic_image_black_24dp,null));
                 } else {
                     Glide.with(imageView.getContext()).load(new File(s)).into(imageView);
                 }
@@ -144,20 +143,10 @@ generate view based on paintElementViewModel
         imageElementViewModel.getRight().observe(lifecycleOwner, observer);
         imageElementViewModel.getTop().observe(lifecycleOwner, observer);
         imageElementViewModel.getBottom().observe(lifecycleOwner, observer);
-        imageElementViewModel.getId().observe(lifecycleOwner, new Observer<UUID>() {
-            @Override
-            public void onChanged(UUID id) {
-                imageView.setTag(id);
-            }
-        });
-        imageElementViewModel.getIsSelected().observe(lifecycleOwner, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                imageView.setSelected(aBoolean);
-            }
-        });
+        imageElementViewModel.getId().observe(lifecycleOwner, imageView::setTag);
+        imageElementViewModel.getIsSelected().observe(lifecycleOwner, imageView::setSelected);
         Observer<Integer> zoomOffsetObserver = integer -> {
-            if ((imageElementViewModel.getOffsetX().getValue() != null) && (imageElementViewModel.getOffsetY().getValue() != null)) {
+            if ((imageElementViewModel.getOffsetX().getValue() != null) && (imageElementViewModel.getOffsetY().getValue() != null) && (imageElementViewModel.getZoom().getValue() != null)) {
                 imageView.updateMatrix();
             }
         };
@@ -176,6 +165,7 @@ generate view based on paintElementViewModel
         textView.setId(View.generateViewId());
         textView.setClickable(true);
         textView.setHint(R.string.text_element_hint);
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         //add to parent
         parentViewGroup.addView(textView);
         //set constraints
@@ -217,8 +207,8 @@ generate view based on paintElementViewModel
         textElementViewModel.getRight().observe(lifecycleOwner, observer);
         textElementViewModel.getTop().observe(lifecycleOwner, observer);
         textElementViewModel.getBottom().observe(lifecycleOwner, observer);
-        textElementViewModel.getId().observe(lifecycleOwner, id -> textView.setTag(id));
-        textElementViewModel.getIsSelected().observe(lifecycleOwner, aBoolean -> textView.setSelected(aBoolean));
+        textElementViewModel.getId().observe(lifecycleOwner, textView::setTag);
+        textElementViewModel.getIsSelected().observe(lifecycleOwner, textView::setSelected);
         return textView;
     }
 

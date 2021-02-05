@@ -90,7 +90,7 @@
     <string name="delete_album_local">Supprimer l\'album local</string>
     <string name="delete_album_remote">Supprimer l\'album local et distant</string>
     <string name="layout_text_hint_album_name">Nom de l\'album</string>
-    <string name="layout_radio_style_free">Mode pages</string>
+    <string name="layout_radio_style_free">Mode libre</string>
     <string name="layout_radio_style_tile">Mode tuiles</string>
     <string name="menu_edit_album_style">Définir le style de l\'album</string>
 </resources>
