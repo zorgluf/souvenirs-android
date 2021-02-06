@@ -21,7 +21,7 @@ public class AlbumsNC {
     public static final int STATE_ERROR = 2;
 
     private static AlbumsNC albums;
-    private MutableLiveData<ArrayList<AlbumNC>> ldAlbumList = new MutableLiveData<ArrayList<AlbumNC>>();
+    private MutableLiveData<ArrayList<AlbumNC>> ldAlbumList = new MutableLiveData<>();
     private ArrayList<AlbumNC> albumList = new ArrayList<>();
     private int state;
     private MutableLiveData<Integer> ldState = new MutableLiveData<>();
@@ -42,13 +42,13 @@ public class AlbumsNC {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<String> albumIds = null;
+                List<String> albumIds;
                 try {
                     albumIds = APIProvider.getApi().getAlbums().execute().body();
                     if (albumIds == null) {
-                        throw new IOException("Network error.");
+                        throw new Exception("Network error.");
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
                     setState(STATE_ERROR);
                     return;
