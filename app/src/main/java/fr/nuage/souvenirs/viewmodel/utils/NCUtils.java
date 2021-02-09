@@ -16,7 +16,7 @@ import fr.nuage.souvenirs.SettingsActivity;
 
 public class NCUtils {
 
-    public static NCEnabledLiveData isNCEnable;
+    private static NCEnabledLiveData isNCEnable;
 
     public static void init(Context context) {
         isNCEnable = new NCEnabledLiveData(context);
@@ -26,10 +26,14 @@ public class NCUtils {
         return isNCEnable;
     }
 
+    public static void updateNCState() {
+        isNCEnable.updateState();
+    }
+
 
     private static class NCEnabledLiveData extends LiveData<Boolean> {
 
-        private Context context;
+        private final Context context;
         private boolean NCEnabled = false;
 
         public NCEnabledLiveData(Context context) {
@@ -57,22 +61,26 @@ public class NCUtils {
             }
         }
 
+        private void updateState() {
+            //get nextcloud settings
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            if (!prefs.getBoolean(SettingsActivity.NEXTCLOUD_ENABLED,false)) {
+                setState(false);
+                return;
+            }
+            if (prefs.getBoolean(SettingsActivity.NEXTCLOUD_WIFIONLY,true)) {
+                ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo info = cm.getActiveNetworkInfo();
+                setState(info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+            } else {
+                setState(true);
+            }
+        }
+
         private BroadcastReceiver networkReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //get nextcloud settings
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                if (!prefs.getBoolean(SettingsActivity.NEXTCLOUD_ENABLED,false)) {
-                    setState(false);
-                    return;
-                }
-                if (prefs.getBoolean(SettingsActivity.NEXTCLOUD_WIFIONLY,true)) {
-                    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo info = cm.getActiveNetworkInfo();
-                    setState(info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
-                } else {
-                    setState(true);
-                }
+                updateState();
             }
         };
     }

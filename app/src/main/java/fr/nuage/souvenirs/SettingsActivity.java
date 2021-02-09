@@ -2,6 +2,8 @@ package fr.nuage.souvenirs;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -23,6 +25,8 @@ import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException;
 import com.nextcloud.android.sso.helper.SingleAccountHelper;
 import com.nextcloud.android.sso.model.SingleSignOnAccount;
 import com.nextcloud.android.sso.ui.UiExceptionManager;
+
+import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -69,6 +73,11 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 } else {
                     preference.setSummary(null);
+                    //update livedata NC state async to wait for settings update
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        //update livedata NC state
+                        NCUtils.updateNCState();
+                    },500);
                 }
                 return true;
             });
@@ -89,18 +98,17 @@ public class SettingsActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
 
             try {
-                AccountImporter.onActivityResult(requestCode, resultCode, data, this, new AccountImporter.IAccountAccessGranted() {
-                    @Override
-                    public void accountAccessGranted(SingleSignOnAccount account) {
-                        SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
-                        SingleSignOnAccount ssoAccount = null;
-                        try {
-                            ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getContext());
-                            findPreference(NEXTCLOUD_ENABLED).setSummary(ssoAccount.name);
-                            ((SwitchPreference)findPreference(NEXTCLOUD_ENABLED)).setChecked(true);
-                        } catch (NextcloudFilesAppAccountNotFoundException | NoCurrentAccountSelectedException e) {
-                            e.printStackTrace();
-                        }
+                AccountImporter.onActivityResult(requestCode, resultCode, data, this, account -> {
+                    SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
+                    SingleSignOnAccount ssoAccount = null;
+                    try {
+                        ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getContext());
+                        findPreference(NEXTCLOUD_ENABLED).setSummary(ssoAccount.name);
+                        ((SwitchPreference)findPreference(NEXTCLOUD_ENABLED)).setChecked(true);
+                        //update livedata NC state
+                        NCUtils.updateNCState();
+                    } catch (NextcloudFilesAppAccountNotFoundException | NoCurrentAccountSelectedException e) {
+                        e.printStackTrace();
                     }
                 });
             } catch (AccountImportCancelledException ignored) {

@@ -11,6 +11,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -38,7 +39,8 @@ public class AlbumListViewModel extends AndroidViewModel {
         String albumPathPref = prefs.getString(SettingsActivity.ALBUMS_PATH, null);
         //load albums
         albums = Albums.getInstance(albumPathPref);
-        albumViewModels = new CopyOnWriteArrayList<>(new ArrayList<>());
+        //albumViewModels = new CopyOnWriteArrayList<>(new ArrayList<>());
+        albumViewModels = new ArrayList<>();
         //build livedata and load album list
         albumList.addSource(albums.getLiveDataAlbumList(), albums -> updateAlbumList());
         //load NC albums
@@ -56,6 +58,15 @@ public class AlbumListViewModel extends AndroidViewModel {
                 albumsNC.updateAlbumList();
             } else {
                 if (albumsNC != null) {
+                    //remove albumNC ref
+                    for(Iterator<AlbumViewModel> iter = albumViewModels.iterator(); iter.hasNext();) {
+                        AlbumViewModel albumViewModel = iter.next();
+                        albumViewModel.setAlbumNC(null);
+                        if (albumViewModel.getAlbum() == null) {
+                            iter.remove();
+                        }
+                    }
+                    //remove albumsNC model
                     albumList.removeSource(albumsNC.getLiveDataAlbumList());
                     albumsNC.getLdState().removeObserver(albumsNCStateObserver);
                     albumsNC = null;

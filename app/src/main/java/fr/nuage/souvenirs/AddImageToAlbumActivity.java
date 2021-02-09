@@ -38,9 +38,6 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //init utils
-        NCUtils.init(getApplicationContext());
-
         // Get intent, action and MIME type
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -49,7 +46,7 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if (type.startsWith("image/")) {
-                imageUris = new ArrayList<Uri>();
+                imageUris = new ArrayList<>();
                 imageUris.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
@@ -68,12 +65,7 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mAdapter);
-        albumsVM.getAlbumList().observe(this, new Observer<List<AlbumViewModel>>() {
-            @Override
-            public void onChanged(@Nullable List<AlbumViewModel> albumViewModels) {
-                mAdapter.updateList(albumViewModels);
-            }
-        });
+        albumsVM.getAlbumList().observe(this, albumViewModels -> mAdapter.updateList(albumViewModels));
 
         //pre-select album
         if (extra.containsKey(AddImageToAlbumActivity.EXTRA_ALBUM)) {

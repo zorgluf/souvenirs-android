@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -35,13 +36,10 @@ public class AlbumListActivity extends AppCompatActivity  {
 
         createNotificationChannel();
 
-        //init utils
-        NCUtils.init(getApplicationContext());
-
         //set default prefs
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String albumPathPref = prefs.getString(SettingsActivity.ALBUMS_PATH, null);
-        if (albumPathPref == null || albumPathPref == "") {
+        if (albumPathPref == null || albumPathPref.equals("")) {
             File path = new File(getExternalFilesDir(null),"albums");
             path.mkdirs();
             SharedPreferences.Editor editor = prefs.edit();
