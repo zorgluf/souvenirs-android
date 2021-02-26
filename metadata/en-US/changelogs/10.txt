@@ -1,0 +1,8 @@
+Major Change: nextcloud souvenir appip change to prepare app publication : you will need v1+ of souvenirs app on your nextcloud server.
+Change: center text elements
+Change: No more space between pages on tile mode
+Change: improve pinch to zoom in tile mode
+Change: enable preset image zoom in tile mode (fill/crop)
+Fix: Various graphical bug when syncing album
+Fix: Color in delete share dialog buttons
+
