@@ -121,12 +121,13 @@ public class AlbumListViewModel extends AndroidViewModel {
                         //check if albumNC is present in VM
                         if (!avm.hasNCAlbum()) {
                             avm.setAlbumNC(a);
-                            a.getLdDate().observeForever(date -> sortAlbumList());
                         }
                     }
                 }
                 if (!albumExists) {
                     albumViewModels.add(new AlbumViewModel(getApplication(), a));
+                }
+                if (!a.getLdDate().hasObservers()) {
                     a.getLdDate().observeForever(date -> sortAlbumList());
                 }
             }

@@ -8,7 +8,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="miter"
       android:strokeWidth="5.56589985"
-      android:fillColor="@color/lightGrey"
+      android:fillColor="@color/textDefault"
       android:strokeColor="#00000000"
       android:fillType="nonZero"
       android:fillAlpha="1"
@@ -16,5 +16,5 @@
   <path
       android:pathData="M69.354,-0l14.5,0l-39.317,68.099l-14.5,0z"
       android:strokeWidth="1.07456994"
-      android:fillColor="@color/lightGrey"/>
+      android:fillColor="@color/textDefault"/>
 </vector>
