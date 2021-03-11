@@ -94,11 +94,11 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
 
         float[] v = new float[9];
         imageElementView.getImageMatrix().getValues(v);
-        final float finalScale = v[Matrix.MSCALE_X];
-        final int newOffsetX = (int)((v[Matrix.MTRANS_X]/finalScale-baseOffsetX)/viewWidth*100);
-        final int newOffsetY = (int)((v[Matrix.MTRANS_Y]/finalScale-baseOffsetY)/viewHeight*100);
+        final float secondScale = v[Matrix.MSCALE_X]/scale;
+        final int newOffsetX = (int)((v[Matrix.MTRANS_X]/secondScale-baseOffsetX*scale)/viewWidth*100);
+        final int newOffsetY = (int)((v[Matrix.MTRANS_Y]/secondScale-baseOffsetY*scale)/viewHeight*100);
 
-        imageElementViewModel.setZoom((int)(finalScale*100));
+        imageElementViewModel.setZoom((int)(secondScale*100));
         imageElementViewModel.setOffset(newOffsetX,newOffsetY);
     }
 

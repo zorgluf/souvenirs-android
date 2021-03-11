@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
 import fr.nuage.souvenirs.R;
@@ -32,7 +33,7 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
 
         contourPaint = new Paint();
         contourPaint.setAntiAlias(true);
-        contourPaint.setColor(getResources().getColor(R.color.primaryDarkColor));
+        contourPaint.setColor(ContextCompat.getColor(context,R.color.primaryDarkColor));
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
 
@@ -81,6 +82,9 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         if (getDrawable() == null) {
             return;
         }
+        if ((imageElementViewModel.getOffsetX().getValue() == null) || (imageElementViewModel.getOffsetY().getValue() == null) || (imageElementViewModel.getZoom().getValue() == null)) {
+            return;
+        }
         final float viewWidth = getWidth();
         final float viewHeight = getHeight();
         final int drawableWidth = getDrawable().getIntrinsicWidth();
@@ -92,7 +96,7 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         matrix.postTranslate((viewWidth - drawableWidth * scale) / 2F,
                 (viewHeight - drawableHeight * scale) / 2F);
         matrix.postScale(scale, scale);
-        matrix.postTranslate(imageElementViewModel.getOffsetX().getValue()*viewWidth/100f,(float)imageElementViewModel.getOffsetY().getValue()*viewHeight/100f);
+        matrix.postTranslate(imageElementViewModel.getOffsetX().getValue()*viewWidth/100f,imageElementViewModel.getOffsetY().getValue()*viewHeight/100f);
         matrix.postScale(imageElementViewModel.getZoom().getValue()/100f,imageElementViewModel.getZoom().getValue()/100f);
         setImageMatrix(matrix);
     }

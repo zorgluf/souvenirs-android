@@ -86,7 +86,7 @@ public class ImageElementViewModel extends ElementViewModel {
                 e.setOffsetX(0);
                 e.setOffsetY(0);
             } else {
-                //if not, zoom out life a fit
+                //if not, zoom out like a fit
                 final int viewWidth = e.getRight()-e.getLeft();
                 final int viewHeight = e.getBottom()-e.getTop();
                 final int drawableWidth = e.getImageWidth();
