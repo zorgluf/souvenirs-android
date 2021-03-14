@@ -1,12 +1,14 @@
 package fr.nuage.souvenirs.view.helpers;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class EditItemTouchHelper extends ItemTouchHelper.Callback {
 
-    private ItemTouchHelperAdapter adapter;
+    private final ItemTouchHelperAdapter adapter;
 
     public EditItemTouchHelper(ItemTouchHelperAdapter adapter) {
         this.adapter = adapter;
@@ -19,8 +21,12 @@ public class EditItemTouchHelper extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-        adapter.onItemMove(viewHolder.getAdapterPosition(),target.getAdapterPosition());
-        return true;
+        if (viewHolder.getAdapterPosition() != target.getAdapterPosition()) {
+            adapter.onItemMove(viewHolder.getAdapterPosition(),target.getAdapterPosition());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

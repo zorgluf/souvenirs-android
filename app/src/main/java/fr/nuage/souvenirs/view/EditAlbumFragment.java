@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
@@ -65,7 +66,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         //inflateview
@@ -88,47 +89,21 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         //listen to album view model
         AlbumListViewModel albumListViewModel = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class);
         LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
-        albumListViewModel.getAlbumList().observe(lifecycleOwner, new Observer<List<AlbumViewModel>>() {
-            @Override
-            public void onChanged(List<AlbumViewModel> albumViewModels) {
-                AlbumViewModel albumVM = albumListViewModel.getAlbum(albumPath);
-                if (albumVM != null) {
-                    setAlbumVM(albumVM);
-                    albumVM.getPages().observe(lifecycleOwner, new Observer<ArrayList<PageViewModel>>() {
-                        @Override
-                        public void onChanged(@Nullable ArrayList<PageViewModel> PageViewModels) {
-                            editPageListAdapter.updateList(PageViewModels);
-                        }
-                    });
-                    getActivity().setTitle(albumVM.getName().getValue());
-                    albumVM.getName().observe(lifecycleOwner, new Observer<String>() {
-                        @Override
-                        public void onChanged(@Nullable String s) {
-                            getActivity().setTitle(albumVM.getName().getValue());
-                        }
-                    });
-                    if (initialPageFocusId != null) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ((RecyclerView)getView().findViewById(R.id.page_list)).scrollToPosition(albumVM.getPosition(initialPageFocusId));
-                            }
-                        },200L);
-                    }
-                    albumVM.getFocusPageId().observe(lifecycleOwner, new Observer<UUID>() {
-                        @Override
-                        public void onChanged(@Nullable UUID id) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (id != null) {
-                                        ((RecyclerView)getView().findViewById(R.id.page_list)).scrollToPosition(albumVM.getPosition(id));
-                                    }
-                                }
-                            },200L);
-                        }
-                    });
+        albumListViewModel.getAlbumList().observe(lifecycleOwner, albumViewModels -> {
+            AlbumViewModel albumVM = albumListViewModel.getAlbum(albumPath);
+            if (albumVM != null) {
+                setAlbumVM(albumVM);
+                albumVM.getPages().observe(lifecycleOwner, PageViewModels -> editPageListAdapter.updateList(PageViewModels));
+                getActivity().setTitle(albumVM.getName().getValue());
+                albumVM.getName().observe(lifecycleOwner, s -> getActivity().setTitle(albumVM.getName().getValue()));
+                if (initialPageFocusId != null) {
+                    new Handler().postDelayed(() -> ((RecyclerView)getView().findViewById(R.id.page_list)).scrollToPosition(albumVM.getPosition(initialPageFocusId)),200L);
                 }
+                albumVM.getFocusPageId().observe(lifecycleOwner, id -> new Handler().postDelayed(() -> {
+                    if (id != null) {
+                        ((RecyclerView)getView().findViewById(R.id.page_list)).scrollToPosition(albumVM.getPosition(id));
+                    }
+                },200L));
             }
         });
 
@@ -196,36 +171,27 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         });
         //set listener to add page
         MenuItem addPageItem = menu.findItem(R.id.add_page_edit_album);
-        addPageItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                onAddPage(albumVM.getPage(-1));
-                return true;
-            }
+        addPageItem.setOnMenuItemClickListener(menuItem -> {
+            onAddPage(albumVM.getPage(-1));
+            return true;
         });
         //set listener to switch display
         MenuItem displayColunmItem = menu.findItem(R.id.display_column_edit_album);
-        displayColunmItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                //change columns
-                colNb = (colNb == 1) ? 2 : 1;
-                //change layout of recyclerview
-                RecyclerView pageListRecyclerView = getView().findViewById(R.id.page_list);
-                RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), colNb);
-                pageListRecyclerView.setLayoutManager(mLayoutManager);
-                getActivity().invalidateOptionsMenu();
-                return true;
-            }
+        displayColunmItem.setOnMenuItemClickListener(menuItem -> {
+            //change columns
+            colNb = (colNb == 1) ? 2 : 1;
+            //change layout of recyclerview
+            RecyclerView pageListRecyclerView = getView().findViewById(R.id.page_list);
+            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), colNb);
+            pageListRecyclerView.setLayoutManager(mLayoutManager);
+            getActivity().invalidateOptionsMenu();
+            return true;
         });
         //set listener to change style
         MenuItem changeAlbumStyle = menu.findItem(R.id.change_style_edit_album);
-        changeAlbumStyle.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                new SelectAlbumStyleDialogFragment(albumVM).show(getParentFragmentManager(),"");
-                return true;
-            }
+        changeAlbumStyle.setOnMenuItemClickListener(menuItem -> {
+            new SelectAlbumStyleDialogFragment(albumVM).show(getParentFragmentManager(),"");
+            return true;
         });
     }
 
