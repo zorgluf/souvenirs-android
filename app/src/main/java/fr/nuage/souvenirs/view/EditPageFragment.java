@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
@@ -56,19 +57,23 @@ public class EditPageFragment extends Fragment  {
         super.onCreate(savedInstanceState);
 
         //load album path in args
-        String albumPath = EditPageFragmentArgs.fromBundle(getArguments()).getAlbumPath();
-        String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
+        if (getArguments() != null) {
+            String albumPath = EditPageFragmentArgs.fromBundle(getArguments()).getAlbumPath();
+            String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
+            //load view model
+            albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
+            pageVM = albumVM.getPage(UUID.fromString(pageId));
+            //set focus on that page
+            albumVM.setFocusPage(pageVM);
+        }
 
-        //load view model
-        albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
-        pageVM = albumVM.getPage(UUID.fromString(pageId));
-        //set focus on that page
-        albumVM.setFocusPage(pageVM);
+
+
 
         setHasOptionsMenu(true);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         //set title
@@ -79,6 +84,15 @@ public class EditPageFragment extends Fragment  {
         binding.setFragment(this);
         binding.setPage(pageVM);
         ConstraintLayout pageLayout = binding.pageLayout;
+
+        binding.mainLayout.setOnClickListener(view -> {
+            //if we recieve click, means no element has catch it : off page click, unselect all
+            if (pageVM.getElements().getValue() != null) {
+                for (ElementViewModel e : pageVM.getElements().getValue()) {
+                    e.setSelected(false);
+                }
+            }
+        });
 
         EditPageFragment that = this;
 
@@ -153,7 +167,7 @@ public class EditPageFragment extends Fragment  {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_page, menu);
 
         //set logic to add image
@@ -192,7 +206,7 @@ public class EditPageFragment extends Fragment  {
             };
             //launch select style dialog
             SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText(),albumVM.getDefaultStyle());
-            dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
+            dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
             return true;
         });
 
