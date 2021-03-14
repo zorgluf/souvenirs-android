@@ -1,32 +1,21 @@
 package fr.nuage.souvenirs.viewmodel;
 
-import android.view.View;
-import android.widget.ImageView;
+import android.util.Log;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.bumptech.glide.Glide;
-
-import java.io.File;
 import java.io.InputStream;
-import java.util.UUID;
 
-import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
-import fr.nuage.souvenirs.view.ImageElementView;
 
 public class ImageElementViewModel extends ElementViewModel {
 
-    private LiveData<String> imagePath;
-    private LiveData<Integer> transformType;
-    private LiveData<Integer> offsetX;
-    private LiveData<Integer> offsetY;
-    private LiveData<Integer> zoom;
+    private final LiveData<String> imagePath;
+    private final LiveData<Integer> transformType;
+    private final LiveData<Integer> offsetX;
+    private final LiveData<Integer> offsetY;
+    private final LiveData<Integer> zoom;
 
     public ImageElementViewModel(ImageElement e) {
         super(e);
@@ -91,12 +80,12 @@ public class ImageElementViewModel extends ElementViewModel {
                 final int viewHeight = e.getBottom()-e.getTop();
                 final int drawableWidth = e.getImageWidth();
                 final int drawableHeight = e.getImageHeight();
-                final float viewRatio = (float)viewWidth / viewHeight;
-                final float drawableRatio = (float)drawableWidth / drawableHeight;
-                final float scale = (drawableRatio/viewRatio);
+                final float viewRatio = viewWidth / (float)viewHeight;
+                final float drawableRatio = drawableWidth / (float)drawableHeight;
+                final float scale = Math.min(drawableRatio/viewRatio,viewRatio/drawableRatio);
                 e.setZoom((int)(scale*100));
-                e.setOffsetX((int)(50*(1-scale)/scale));
-                e.setOffsetY((int)(50*(1-scale)/scale));
+                e.setOffsetX((int)(50*(1/scale-1)));
+                e.setOffsetY((int)(50*(1/scale-1)));
             }
 
         }

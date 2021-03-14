@@ -1,5 +1,6 @@
 package fr.nuage.souvenirs.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -22,11 +23,12 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 
 
+@SuppressLint("ViewConstructor")
 public class ImageElementView extends AppCompatImageView implements View.OnLayoutChangeListener {
 
-    private Paint contourPaint;
-    private Rect rect = new Rect();
-    private ImageElementViewModel imageElementViewModel;
+    private final Paint contourPaint;
+    private final Rect rect = new Rect();
+    private final ImageElementViewModel imageElementViewModel;
 
     public ImageElementView(Context context, PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel) {
         super(context);
@@ -93,9 +95,9 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         final float heightScale = viewHeight / drawableHeight;
         final float scale = Math.max(widthScale, heightScale);
         Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
         matrix.postTranslate((viewWidth - drawableWidth * scale) / 2F,
                 (viewHeight - drawableHeight * scale) / 2F);
-        matrix.postScale(scale, scale);
         matrix.postTranslate(imageElementViewModel.getOffsetX().getValue()*viewWidth/100f,imageElementViewModel.getOffsetY().getValue()*viewHeight/100f);
         matrix.postScale(imageElementViewModel.getZoom().getValue()/100f,imageElementViewModel.getZoom().getValue()/100f);
         setImageMatrix(matrix);

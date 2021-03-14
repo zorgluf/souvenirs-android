@@ -17,7 +17,9 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 
 public class ZoomOffsetTransformation extends BitmapTransformation {
 
-    private int offsetX, offsetY, zoom;
+    private final int offsetX;
+    private final int offsetY;
+    private final int zoom;
 
     public ZoomOffsetTransformation(int offsetX, int offsetY, int zoom) {
         super();
@@ -28,18 +30,16 @@ public class ZoomOffsetTransformation extends BitmapTransformation {
 
     @Override
     protected Bitmap transform(@NonNull BitmapPool pool, @NonNull Bitmap toTransform, int outWidth, int outHeight) {
-        final float viewWidth = outWidth;
-        final float viewHeight = outHeight;
         final int drawableWidth = toTransform.getWidth();
         final int drawableHeight = toTransform.getHeight();
-        final float widthScale = viewWidth / drawableWidth;
-        final float heightScale = viewHeight / drawableHeight;
+        final float widthScale = (float) outWidth / drawableWidth;
+        final float heightScale = (float) outHeight / drawableHeight;
         final float scale = Math.max(widthScale, heightScale);
         Matrix matrix = new Matrix();
         matrix.postScale(scale, scale);
-        matrix.postTranslate((viewWidth - drawableWidth * scale) / 2F,
-                (viewHeight - drawableHeight * scale) / 2F);
-        matrix.postTranslate(offsetX*viewWidth/100f,offsetY*viewHeight/100f);
+        matrix.postTranslate(((float) outWidth - drawableWidth * scale) / 2F,
+                ((float) outHeight - drawableHeight * scale) / 2F);
+        matrix.postTranslate(offsetX* (float) outWidth /100f,offsetY* (float) outHeight /100f);
         matrix.postScale(zoom/100f,zoom/100f);
 
         Bitmap newBitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);
