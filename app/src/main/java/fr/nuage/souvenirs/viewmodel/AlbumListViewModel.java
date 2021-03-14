@@ -115,7 +115,9 @@ public class AlbumListViewModel extends AndroidViewModel {
             for (AlbumNC a : albumsNC.getAlbumList()) {
                 //check if exists in list
                 boolean albumExists = false;
-                for (AlbumViewModel avm : albumViewModels) {
+                Iterator<AlbumViewModel> itAVM = albumViewModels.iterator();
+                while (itAVM.hasNext()) {
+                    AlbumViewModel avm = itAVM.next();
                     if (a.getId().equals(avm.getId())) {
                         albumExists = true;
                         //check if albumNC is present in VM
