@@ -56,22 +56,21 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         }
         //load view model
         albumsVM = new ViewModelProvider(this,new AlbumListViewModelFactory(getApplication())).get(AlbumListViewModel.class);
-        mAdapter = new AlbumsRecyclerViewAdapter(albumsVM.getAlbumList().getValue(), this, false);
-
-        //set content view
-        setContentView(R.layout.activity_add_image_to_album);
-
-        //link to adapter
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(mAdapter);
-        albumsVM.getAlbumList().observe(this, albumViewModels -> mAdapter.updateList(albumViewModels));
+        mAdapter = new AlbumsRecyclerViewAdapter(albumsVM.getAlbumList().getValue(), this, false, true);
 
         //pre-select album
         if (extra.containsKey(AddImageToAlbumActivity.EXTRA_ALBUM)) {
             String albumPath = extra.getString(AddImageToAlbumActivity.EXTRA_ALBUM);
             AlbumViewModel album = albumsVM.getAlbum(albumPath);
             onListFragmentInteraction(album,false,false);
+        } else {
+            //set content view
+            setContentView(R.layout.activity_add_image_to_album);
+            //link to adapter
+            RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(mAdapter);
+            albumsVM.getAlbumList().observe(this, albumViewModels -> mAdapter.updateList(albumViewModels));
         }
 
     }

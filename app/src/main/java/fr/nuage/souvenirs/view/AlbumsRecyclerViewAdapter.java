@@ -1,24 +1,12 @@
 package fr.nuage.souvenirs.view;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.DialogFragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,9 +15,6 @@ import java.util.List;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentAlbumInListBinding;
-import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.Albums;
-import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.viewmodel.AlbumDiffUtilCallback;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 
@@ -39,21 +24,37 @@ public class AlbumsRecyclerViewAdapter extends RecyclerView.Adapter<AlbumsRecycl
     private List<AlbumViewModel> mValues;
     private final OnListFragmentInteractionListener mListener;
     private boolean mEditable = false;
+    private boolean mOnlyLocalAlbums = false;
 
     public AlbumsRecyclerViewAdapter(List<AlbumViewModel> albums, OnListFragmentInteractionListener listener) {
-        mValues = albums;
-        mListener = listener;
+        this(albums,listener,false,false);
     }
 
     public AlbumsRecyclerViewAdapter(List<AlbumViewModel> albums, OnListFragmentInteractionListener listener, boolean editable) {
-        this(albums,listener);
+        this(albums,listener,editable,false);
+    }
+
+    public AlbumsRecyclerViewAdapter(List<AlbumViewModel> albums, OnListFragmentInteractionListener listener, boolean editable, boolean onlyLocalAlbums) {
+        mValues = new ArrayList<>();
+        if (albums != null) {
+            updateList(albums);
+        }
+        mListener = listener;
         mEditable = editable;
+        mOnlyLocalAlbums = onlyLocalAlbums;
     }
 
     public void updateList(@NonNull List<AlbumViewModel> newList) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AlbumDiffUtilCallback(mValues, newList));
+        ArrayList<AlbumViewModel> filteredAlbums = new ArrayList<>();
+        for (AlbumViewModel albumViewModel: newList) {
+            if (mOnlyLocalAlbums && !albumViewModel.hasLocalAlbum()) {
+                continue;
+            }
+            filteredAlbums.add(albumViewModel);
+        }
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AlbumDiffUtilCallback(mValues, filteredAlbums));
         diffResult.dispatchUpdatesTo(this);
-        mValues = new ArrayList<AlbumViewModel>(newList);
+        mValues = filteredAlbums;
     }
 
     @Override
@@ -86,8 +87,10 @@ public class AlbumsRecyclerViewAdapter extends RecyclerView.Adapter<AlbumsRecycl
         });
         holder.binding.SharedImageView.setOnClickListener(v -> new DeleteShareDialogFragment(albumVM).show(((AppCompatActivity)v.getContext()).getSupportFragmentManager(),null));
         if (!mEditable) {
-            holder.binding.editInAlbumListButton.setVisibility(View.GONE);
-            holder.binding.delButton.setVisibility(View.GONE);
+            holder.binding.albumLayout.removeView(holder.binding.editInAlbumListButton);
+            holder.binding.albumLayout.removeView(holder.binding.delButton);
+            holder.binding.albumLayout.removeView(holder.binding.SharedImageView);
+            holder.binding.albumLayout.removeView(holder.binding.albumNextcloud);
         }
     }
 
