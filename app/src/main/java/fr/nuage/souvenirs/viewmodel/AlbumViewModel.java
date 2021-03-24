@@ -423,4 +423,20 @@ public class AlbumViewModel extends AndroidViewModel {
     public MediatorLiveData<String> getLdDefaultStyle() {
         return ldDefaultStyle;
     }
+
+    public PageViewModel getNextPage(PageViewModel pageVM) {
+        int pos = getPosition(pageVM);
+        if (pos < getPages().getValue().size()-1) {
+            return getPage(pos + 1);
+        }
+        return null;
+    }
+
+    public PageViewModel getPrevPage(PageViewModel pageVM) {
+        int pos = getPosition(pageVM);
+        if (pos > 0) {
+            return getPage(pos - 1);
+        }
+        return null;
+    }
 }

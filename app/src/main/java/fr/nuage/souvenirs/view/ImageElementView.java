@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,19 +41,31 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         contourPaint.setStyle(Paint.Style.STROKE);
 
         ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, (AppCompatActivity)context);
-        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, paintMode -> {
-            if (paintMode) {
+        Observer<Boolean> activateListenersObserver = new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if ((pageViewModel.getLdEditMode().getValue() != null) && (pageViewModel.getLdPaintMode().getValue() != null)) {
+                    if (pageViewModel.getLdEditMode().getValue()) {
+                        if (!pageViewModel.getLdPaintMode().getValue()) {
+                            setOnClickListener(elementMoveDragListener);
+                            setOnTouchListener(elementMoveDragListener);
+                            setOnLongClickListener(elementMoveDragListener);
+                            setOnDragListener(elementMoveDragListener);
+                            setClickable(true);
+                            return;
+                        }
+                    }
+                }
                 setOnClickListener(null);
                 setOnTouchListener(null);
                 setOnLongClickListener(null);
                 setOnDragListener(null);
-            } else {
-                setOnClickListener(elementMoveDragListener);
-                setOnTouchListener(elementMoveDragListener);
-                setOnLongClickListener(elementMoveDragListener);
-                setOnDragListener(elementMoveDragListener);
+                setClickable(false);
+                setLongClickable(false);
             }
-        });
+        };
+        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, activateListenersObserver);
+        pageViewModel.getLdEditMode().observe((AppCompatActivity)context, activateListenersObserver);
 
         addOnLayoutChangeListener(this);
 

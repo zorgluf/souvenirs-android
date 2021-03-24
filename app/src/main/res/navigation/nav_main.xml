@@ -41,7 +41,7 @@
     <fragment
         android:id="@+id/nav_album_edit"
         android:name="fr.nuage.souvenirs.view.EditAlbumFragment"
-        tools:layout="@layout/activity_edit_album" >
+        tools:layout="@layout/fragment_edit_album" >
         <argument
             android:name="albumPath"
             app:argType="string" />
@@ -67,5 +67,8 @@
         <argument
             android:name="pageId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_nav_page_edit_self"
+            app:destination="@id/nav_page_edit"/>
     </fragment>
 </navigation>

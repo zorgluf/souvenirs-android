@@ -23,13 +23,15 @@ import fr.nuage.souvenirs.model.UnknownElement;
 
 public class PageViewModel extends ViewModel {
 
-    private Page page;
-    private LiveData<ArrayList<ElementViewModel>> elements;
-    private MutableLiveData<Boolean> paintMode = new MutableLiveData<>();
+    private final Page page;
+    private final LiveData<ArrayList<ElementViewModel>> elements;
+    private final MutableLiveData<Boolean> paintMode = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> editMode = new MutableLiveData<>();
 
     public PageViewModel(Page page) {
         super();
         this.page = page;
+        editMode.postValue(false);
         paintMode.postValue(false);
         elements = Transformations.map(page.getLiveDataElements(), elements -> {
             ArrayList<ElementViewModel> out = new ArrayList<ElementViewModel>();
@@ -80,6 +82,10 @@ public class PageViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> getLdPaintMode() {
         return paintMode;
+    }
+
+    public MutableLiveData<Boolean> getLdEditMode() {
+        return editMode;
     }
 
     public Page getPage() {
@@ -156,4 +162,5 @@ public class PageViewModel extends ViewModel {
         //set draw mode on view model
         setPaintMode(true);
     }
+
 }

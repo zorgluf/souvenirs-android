@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,12 +20,20 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
+import androidx.transition.Scene;
+import androidx.transition.Transition;
+import androidx.transition.TransitionInflater;
+import androidx.transition.TransitionManager;
+import androidx.transition.TransitionSet;
 
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
@@ -38,7 +47,6 @@ import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
-import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class EditPageFragment extends Fragment  {
@@ -67,9 +75,6 @@ public class EditPageFragment extends Fragment  {
             albumVM.setFocusPage(pageVM);
         }
 
-
-
-
         setHasOptionsMenu(true);
     }
 
@@ -79,11 +84,16 @@ public class EditPageFragment extends Fragment  {
         //set title
         getActivity().setTitle(R.string.edit_page_title);
 
+        return createView(inflater,container);
+
+    }
+
+    private View createView(@NonNull LayoutInflater inflater, ViewGroup container) {
         //inflateview
         FragmentEditPageBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_page, container, false);
-        binding.setFragment(this);
-        binding.setPage(pageVM);
-        ConstraintLayout pageLayout = binding.pageLayout;
+
+        pageVM.getLdEditMode().postValue(true);
+        binding.pageViewEdit.setPageViewModel(pageVM);
 
         binding.mainLayout.setOnClickListener(view -> {
             //if we recieve click, means no element has catch it : off page click, unselect all
@@ -94,19 +104,13 @@ public class EditPageFragment extends Fragment  {
             }
         });
 
-        EditPageFragment that = this;
-
         //listen to elements changes
         pageVM.getElements().observe(getViewLifecycleOwner(), elementViewModels -> {
-            //remove all
-            pageLayout.removeAllViewsInLayout();
-            //rebuild layout
+            //set observers
             if (elementViewModels != null) {
-                LayoutInflater inflater1 = LayoutInflater.from(pageLayout.getContext());
                 for (ElementViewModel e : elementViewModels) {
                     if (e.getClass() == TextElementViewModel.class) {
                         TextElementViewModel et = (TextElementViewModel) e;
-                        ViewGenerator.generateView(pageVM,et,pageLayout,getActivity());
                         //subscribe to selection
                         e.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
                             if (isSelected) {
@@ -122,7 +126,6 @@ public class EditPageFragment extends Fragment  {
                         });
                     } else if (e.getClass() == ImageElementViewModel.class) {
                         ImageElementViewModel ei = (ImageElementViewModel) e;
-                        ViewGenerator.generateView(pageVM,ei,pageLayout, that);
                         //subscribe to selection
                         ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
                             if (isSelected) {
@@ -136,17 +139,60 @@ public class EditPageFragment extends Fragment  {
                                 }
                             }
                         });
-                    } else if (e.getClass() == PaintElementViewModel.class) {
-                        PaintElementViewModel ep = (PaintElementViewModel) e;
-                        ViewGenerator.generateView(pageVM,ep,pageLayout,getActivity());
-                    } else {
-                        //unknown element : display default view
-                        inflater1.inflate(R.layout.unknown_element_view, pageLayout, true);
-                        ImageView unknownImage = pageLayout.findViewById(R.id.unknown_imageview);
                     }
                 }
             }
         });
+
+        //set prev page
+        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
+        if (prevPage == null) {
+            binding.pageViewPrev.setVisibility(View.GONE);
+        } else {
+            binding.pageViewPrev.setVisibility(View.VISIBLE);
+            prevPage.getLdEditMode().postValue(false);
+            binding.pageViewPrev.setPageViewModel(prevPage);
+            binding.pageViewPrev.setOnClickListener(view -> {
+                //build transition
+                TransitionSet transition = new TransitionSet();
+                Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
+                tMove.addTarget(pageVM.getId().toString());
+                tMove.addTarget(prevPage.getId().toString());
+                transition.addTransition(tMove);
+                //change main page
+                pageVM = prevPage;
+                //build new view
+                View nextView = createView(inflater,container);
+                //change view
+                Scene destScene = new Scene((ViewGroup)getView(),nextView);
+                TransitionManager.go(destScene,transition);
+            });
+        }
+
+        //set next page
+        PageViewModel nextPage = albumVM.getNextPage(pageVM);
+        if (nextPage == null) {
+            binding.pageViewNext.setVisibility(View.GONE);
+        } else {
+            binding.pageViewNext.setVisibility(View.VISIBLE);
+            nextPage.getLdEditMode().postValue(false);
+            binding.pageViewNext.setPageViewModel(nextPage);
+            binding.pageViewNext.setOnClickListener(view -> {
+                //build transition
+                TransitionSet transition = new TransitionSet();
+                Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
+                tMove.addTarget(pageVM.getId().toString());
+                tMove.addTarget(nextPage.getId().toString());
+                transition.addTransition(tMove);
+                //change main page
+                pageVM = nextPage;
+                //build new view
+                View nextView = createView(inflater,container);
+                //change view
+                Scene destScene = new Scene((ViewGroup)getView(),nextView);
+                TransitionManager.go(destScene,transition);
+            });
+        }
 
         return binding.getRoot();
     }
@@ -155,14 +201,14 @@ public class EditPageFragment extends Fragment  {
     public void onStart() {
         super.onStart();
         //dirty trick to disable toolbar scrolling for this fragment only
-        this.activityScrollStatus = ((AppBarLayout.LayoutParams)((Toolbar) getActivity().findViewById(R.id.toolbar)).getLayoutParams()).getScrollFlags();
-        ((AppBarLayout.LayoutParams)((Toolbar) getActivity().findViewById(R.id.toolbar)).getLayoutParams()).setScrollFlags(0);
+        this.activityScrollStatus = ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).getScrollFlags();
+        ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(0);
     }
 
     @Override
     public void onStop() {
         //restore activity scrolling
-        ((AppBarLayout.LayoutParams)((Toolbar) getActivity().findViewById(R.id.toolbar)).getLayoutParams()).setScrollFlags(this.activityScrollStatus);
+        ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(this.activityScrollStatus);
         super.onStop();
     }
 

@@ -87,11 +87,16 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        if (mBitmapToAdd != null) {
-            mCanvas.drawBitmap(mBitmapToAdd,new Rect(0,0,mBitmapToAdd.getWidth(),mBitmapToAdd.getHeight()),new Rect(0,0,mCanvas.getWidth(),mCanvas.getHeight()),mBitmapPaint);
-            mBitmapToAdd = null;
+        if ((w > 0) && (h > 0)) {
+            if (mBitmap != null) {
+                mBitmapToAdd = mBitmap;
+            }
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mCanvas = new Canvas(mBitmap);
+            if (mBitmapToAdd != null) {
+                mCanvas.drawBitmap(mBitmapToAdd,new Rect(0,0,mBitmapToAdd.getWidth(),mBitmapToAdd.getHeight()),new Rect(0,0,mCanvas.getWidth(),mCanvas.getHeight()),mBitmapPaint);
+                mBitmapToAdd = null;
+            }
         }
     }
 
