@@ -1,8 +1,6 @@
 package fr.nuage.souvenirs.model;
 
-import android.content.ContentResolver;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +9,8 @@ import android.widget.ImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.Guideline;
+import androidx.core.content.ContextCompat;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -31,6 +28,11 @@ public class TilePageBuilder extends PageBuilder {
                     // 2 V
                     { 0, 0, 100, 50 },
                     { 0, 50, 100, 100 }
+            },
+            {
+                    // 2 V (1 small)
+                    { 0, 0, 100, 80 },
+                    { 0, 80, 100, 100 }
             },
             {
                     // 2 H
@@ -77,13 +79,13 @@ public class TilePageBuilder extends PageBuilder {
 
     @Override
     public View genPreview(int style, ViewGroup parentView, LayoutInflater inflater) {
-        ConstraintLayout pageView = (ConstraintLayout) inflater.inflate(R.layout.page_preview,null);
+        ConstraintLayout pageView = (ConstraintLayout) inflater.inflate(R.layout.page_preview, parentView,false);
         ConstraintSet cs = new ConstraintSet();
         cs.clone(pageView);
         for (Object[] elDef: getPageStyleMap()[style]) {
-            ConstraintLayout elView = (ConstraintLayout) inflater.inflate(R.layout.element_preview,null);
+            ConstraintLayout elView = (ConstraintLayout) inflater.inflate(R.layout.element_preview,pageView,false);
             ImageView im = (ImageView) elView.findViewById(R.id.preview_el_image);
-            im.setImageDrawable(parentView.getResources().getDrawable(R.drawable.ic_image_black_24dp));
+            im.setImageDrawable(ContextCompat.getDrawable(parentView.getContext(),R.drawable.ic_image_black_24dp));
             Guideline left = (Guideline) elView.findViewById(R.id.guideline_left);
             left.setGuidelinePercent(((Integer)elDef[0]).floatValue()/100);
             Guideline top = (Guideline) elView.findViewById(R.id.guideline_top);
@@ -112,10 +114,10 @@ public class TilePageBuilder extends PageBuilder {
     @Override
     public void create(int style, AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
         if (texts == null) {
-            texts = new ArrayList<String>();
+            texts = new ArrayList<>();
         }
         if (images == null) {
-            images = new ArrayList<Uri>();
+            images = new ArrayList<>();
         }
         int imCursor = 0;
         int txtCursor = 0;
@@ -222,10 +224,7 @@ public class TilePageBuilder extends PageBuilder {
         if ((imageNb == -1) || (textNb == -1)) {
             return true;
         }
-        if (getPageStyleMap()[style].length == (imageNb + textNb)) {
-            return true;
-        }
-        return false;
+        return getPageStyleMap()[style].length == (imageNb + textNb);
     }
 
 }
