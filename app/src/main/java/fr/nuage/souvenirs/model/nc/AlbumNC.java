@@ -1,7 +1,6 @@
 package fr.nuage.souvenirs.model.nc;
 
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -268,29 +267,32 @@ public class AlbumNC {
             return false;
         }
         assert result != null;
+        //get local asset file path
+        String localPath = new File(localAlbumPath,assetPath).getPath();
         if (result.status.equals("ok")) {
             Log.d(getClass().getName(),String.format("Asset %1$s already present.",assetPath));
+            //check if size equal to local one
+            if ((result.size == 0) || (result.size == (new File(localPath)).length())) {
+                return true;
+            }
+            Log.d(getClass().getName(),String.format("Asset %1$s wrong size on server side, reupload.",assetPath));
         } else {
             Log.d(getClass().getName(),String.format("Asset %1$s not present.",assetPath));
-            //get path to push asset
-            String path = result.path;
-            if (path.equals("")) {
-                Log.i(getClass().getName(),"Nextcloud response incomplete");
-                setState(STATE_ERROR);
-                return false;
-            }
-            //get local asset file path
-            String localPath = new File(localAlbumPath,assetPath).getPath();
-            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(localPath));
-            //push asset
-            String modTimestamp = ((Long)(new File(localPath).lastModified()/1000)).toString();
-            if (Utils.uploadFile(path,localPath)) {
-                Log.d(getClass().getName(),String.format("Asset %1$s uploaded.",assetPath));
-            } else {
-                Log.i(getClass().getName(),String.format("Error in upload of asset %1$s",assetPath));
-                setState(STATE_ERROR);
-                return false;
-            }
+        }
+        //get path to push asset
+        String path = result.path;
+        if (path.equals("")) {
+            Log.i(getClass().getName(),"Nextcloud response incomplete");
+            setState(STATE_ERROR);
+            return false;
+        }
+        //push asset
+        if (Utils.uploadFile(path,localPath)) {
+            Log.d(getClass().getName(),String.format("Asset %1$s uploaded.",assetPath));
+        } else {
+            Log.i(getClass().getName(),String.format("Error in upload of asset %1$s",assetPath));
+            setState(STATE_ERROR);
+            return false;
         }
         return true;
     }

@@ -94,6 +94,7 @@ public class APIProvider {
     public static class AssetProbeResult {
         String status;
         String path;
+        int size;
     }
 
     public static class AlbumResp {
