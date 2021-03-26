@@ -28,7 +28,8 @@
         android:layout_marginBottom="@dimen/mtrl_card_spacing"
         android:tag="@{page.id.toString()}"
         android:clickable="true"
-        android:onClick="@{fragment::openPageEdition}">
+        android:onClick="@{fragment::openPageEdition}"
+        android:focusable="true">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/page_menu_button"
@@ -40,7 +41,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/page_layout"
             app:layout_constraintEnd_toEndOf="@+id/page_layout"
             app:srcCompat="@drawable/ic_baseline_menu_24"
-            android:onClick="@{(view) -> fragment.onClickPageMenu(page,view)}"/>
+            android:onClick="@{(view) -> fragment.onClickPageMenu(page,view)}"
+            android:focusable="true" />
 
         <FrameLayout
             android:id="@+id/page_layout"

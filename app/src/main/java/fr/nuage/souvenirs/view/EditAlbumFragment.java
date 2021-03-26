@@ -221,6 +221,12 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
                 case R.id.menu_page_edit_delete:
                     pageViewModel.delete();
                     return true;
+                case R.id.menu_page_edit_move_up:
+                    pageViewModel.moveUp();
+                    return true;
+                case R.id.menu_page_edit_move_down:
+                    pageViewModel.moveDown();
+                    return true;
             }
             return false;
         });

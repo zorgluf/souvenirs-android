@@ -6,6 +6,14 @@
         android:icon="@drawable/ic_note_add_page_black_24dp"
         android:title="@string/menu_page_edit_insert" />
     <item
+        android:id="@+id/menu_page_edit_move_up"
+        android:icon="@drawable/ic_baseline_arrow_circle_up_24"
+        android:title="@string/menu_page_edit_move_up" />
+    <item
+        android:id="@+id/menu_page_edit_move_down"
+        android:icon="@drawable/ic_baseline_arrow_circle_down_24"
+        android:title="@string/menu_page_edit_move_down" />
+    <item
         android:id="@+id/menu_page_edit_dispo"
         android:icon="@drawable/ic_view_compact_black_24dp"
         android:title="@string/menu_page_edit_dispo" />
