@@ -19,7 +19,8 @@
         android:stateListAnimator="@animator/lift_on_touch"
         android:clickable="true"
         android:layout_marginRight="@dimen/mtrl_card_spacing"
-        android:id="@+id/album_card">
+        android:id="@+id/album_card"
+        android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/albumLayout"
@@ -109,7 +110,8 @@
             app:layout_constraintDimensionRatio="h,1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@{(album.ldNCState == AlbumViewModel.NC_STATE_SYNC_IN_PROGRESS) ? @drawable/nextcloud_sync_progress : (album.ldNCState == AlbumViewModel.NC_STATE_SYNC) ? @drawable/ic_nextcloud_logo : (album.ldNCState == AlbumViewModel.NC_STATE_NOSYNC) ? @drawable/ic_nextcloud_logo_red : (album.ldNCState == AlbumViewModel.NC_STATE_ERROR) ? @drawable/ic_warning_red_24dp : @drawable/ic_nextcloud_logo_barre }" />
+            app:srcCompat="@{(album.ldNCState == AlbumViewModel.NC_STATE_SYNC_IN_PROGRESS) ? @drawable/nextcloud_sync_progress : (album.ldNCState == AlbumViewModel.NC_STATE_SYNC) ? @drawable/ic_nextcloud_logo : (album.ldNCState == AlbumViewModel.NC_STATE_NOSYNC) ? @drawable/ic_nextcloud_logo_red : (album.ldNCState == AlbumViewModel.NC_STATE_ERROR) ? @drawable/ic_warning_red_24dp : @drawable/ic_nextcloud_logo_barre }"
+            android:focusable="true" />
 
         <ImageView
             android:id="@+id/SharedImageView"
@@ -121,7 +123,8 @@
             app:layout_constraintEnd_toStartOf="@+id/albumNextcloud"
             app:layout_constraintTop_toTopOf="@+id/imageView11"
             android:clickable="true"
-            app:srcCompat="@drawable/ic_public_black_24dp" />
+            app:srcCompat="@drawable/ic_public_black_24dp"
+            android:focusable="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

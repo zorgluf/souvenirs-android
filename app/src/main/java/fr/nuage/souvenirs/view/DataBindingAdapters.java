@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
@@ -38,7 +39,7 @@ public class DataBindingAdapters {
     public static void setSrcCompatZoomOffset(ImageView view, String imagePath, int offsetX, int offsetY, int scaleX) {
         if (imagePath != null) {
             if (imagePath.equals("")) {
-                view.setImageDrawable(view.getResources().getDrawable(R.drawable.ic_image_black_24dp));
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(),R.drawable.ic_image_black_24dp));
             } else {
                 if (view.getScaleType() == ImageView.ScaleType.MATRIX) {
                     Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY,scaleX)).into(view);
@@ -46,6 +47,8 @@ public class DataBindingAdapters {
                     Glide.with(view.getContext()).load(new File(imagePath)).into(view);
                 }
             }
+        } else {
+            view.setImageDrawable(null);
         }
     }
 
