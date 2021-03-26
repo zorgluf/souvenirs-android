@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_page_edit_insert"
+        android:icon="@drawable/ic_note_add_page_black_24dp"
+        android:title="@string/menu_page_edit_insert" />
+    <item
+        android:id="@+id/menu_page_edit_dispo"
+        android:icon="@drawable/ic_view_compact_black_24dp"
+        android:title="@string/menu_page_edit_dispo" />
+    <item
+        android:id="@+id/menu_page_edit_delete"
+        android:icon="@drawable/ic_delete_forever_black_24dp"
+        android:title="@string/menu_page_edit_detele" />
+</menu>

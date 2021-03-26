@@ -30,6 +30,18 @@
         android:clickable="true"
         android:onClick="@{fragment::openPageEdition}">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/page_menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/page_layout"
+            app:layout_constraintEnd_toEndOf="@+id/page_layout"
+            app:srcCompat="@drawable/ic_baseline_menu_24"
+            android:onClick="@{(view) -> fragment.onClickPageMenu(page,view)}"/>
+
         <FrameLayout
             android:id="@+id/page_layout"
             android:layout_width="0dp"
@@ -44,64 +56,6 @@
 
         </FrameLayout>
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/page_layout" />
-
-        <LinearLayout
-            android:id="@+id/action_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/divider">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/add_page_button"
-                style="@style/AppTheme.button.text.icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:onClick="@{() -> fragment.onAddPage(page)}"
-                app:icon="@drawable/ic_note_add_page_black_24dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/switch_image"
-                style="@style/AppTheme.button.text.icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:onClick="@{() -> fragment.onSwitchStyle(page)}"
-                app:icon="@drawable/ic_view_compact_black_24dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/del_image_button"
-                style="@style/AppTheme.button.text.icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:onClick="@{() -> page.delete()}"
-                app:icon="@drawable/ic_delete_forever_black_24dp" />
-
-
-        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

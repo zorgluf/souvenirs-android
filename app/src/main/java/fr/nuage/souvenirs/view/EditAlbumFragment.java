@@ -1,29 +1,30 @@
 package fr.nuage.souvenirs.view;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
@@ -119,7 +120,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         Navigation.findNavController(getView()).navigate(action);
     }
 
-    public void onSwitchStyle(PageViewModel p) {
+    public void onSwitchLayout(PageViewModel p) {
         //save page
         lastOperationPage = p;
         //launch select style dialog
@@ -150,7 +151,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_album, menu);
 
         //set logic to edit album title
@@ -196,7 +197,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     }
 
     @Override
-    public void onPrepareOptionsMenu (Menu menu) {
+    public void onPrepareOptionsMenu (@NonNull Menu menu) {
         if (colNb != 1) {
             menu.findItem(R.id.display_column_edit_album).setIcon(R.drawable.ic_view_one_column_24dp);
         } else {
@@ -204,6 +205,28 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         }
     }
 
-
     public AlbumViewModel getAlbumVM() { return albumVM; }
+
+    public void onClickPageMenu(PageViewModel pageViewModel, View view) {
+        PopupMenu popupMenu = new PopupMenu(getContext(),view, Gravity.END);
+        popupMenu.inflate(R.menu.page_edit_menu);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.menu_page_edit_insert:
+                    onAddPage(pageViewModel);
+                    return true;
+                case R.id.menu_page_edit_dispo:
+                    onSwitchLayout(pageViewModel);
+                    return true;
+                case R.id.menu_page_edit_delete:
+                    pageViewModel.delete();
+                    return true;
+            }
+            return false;
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            popupMenu.setForceShowIcon(true);
+        }
+        popupMenu.show();
+    }
 }

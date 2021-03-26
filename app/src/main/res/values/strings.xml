@@ -93,4 +93,7 @@
     <string name="layout_radio_style_free">Free style</string>
     <string name="layout_radio_style_tile">Tiles style</string>
     <string name="menu_edit_album_style">Set album style</string>
+    <string name="menu_page_edit_insert">Insert page</string>
+    <string name="menu_page_edit_dispo">Change layout</string>
+    <string name="menu_page_edit_detele">Delete</string>
 </resources>
