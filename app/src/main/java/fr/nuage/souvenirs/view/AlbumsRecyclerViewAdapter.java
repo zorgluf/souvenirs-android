@@ -68,7 +68,7 @@ public class AlbumsRecyclerViewAdapter extends RecyclerView.Adapter<AlbumsRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         AlbumViewModel albumVM = mValues.get(position);
-        albumVM.update();
+        //albumVM.update();
         holder.binding.setAlbum(albumVM);
         holder.binding.albumCard.setOnClickListener(v -> {
             if (null != mListener) {

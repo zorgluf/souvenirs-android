@@ -105,8 +105,6 @@ public class AlbumListFragment extends Fragment implements AlbumsRecyclerViewAda
             this.activityScrollStatus = ((AppBarLayout.LayoutParams)toolbar.getLayoutParams()).getScrollFlags();
             ((AppBarLayout.LayoutParams)((Toolbar) getActivity().findViewById(R.id.toolbar)).getLayoutParams()).setScrollFlags(0);
         }
-        //refresh list
-        albumsVM.refresh();
     }
 
     @Override

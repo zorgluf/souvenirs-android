@@ -112,7 +112,7 @@ public class AlbumListViewModel extends AndroidViewModel {
         }
         if (albumsNC != null) {
             //check new albumNC in list
-            for (AlbumNC a : albumsNC.getAlbumList()) {
+            for (AlbumNC a : new ArrayList<>(albumsNC.getAlbumList())) {
                 //check if exists in list
                 boolean albumExists = false;
                 Iterator<AlbumViewModel> itAVM = albumViewModels.iterator();
@@ -135,7 +135,9 @@ public class AlbumListViewModel extends AndroidViewModel {
             }
         }
         //check if some album are deleted
-        for (AlbumViewModel avm: albumViewModels) {
+        Iterator<AlbumViewModel> itAVM = albumViewModels.iterator();
+        while (itAVM.hasNext()) {
+            AlbumViewModel avm = itAVM.next();
             if ((avm.getAlbum()!=null) && (!albums.isInAlbumList(avm.getAlbum().getId()))) {
                 avm.setAlbum(null);
             }
@@ -145,7 +147,7 @@ public class AlbumListViewModel extends AndroidViewModel {
                 }
             }
             if ((avm.getAlbum() == null) && (avm.getAlbumNC() == null))  {
-                    albumViewModels.remove(avm);
+                    itAVM.remove();
             }
         }
         sortAlbumList();

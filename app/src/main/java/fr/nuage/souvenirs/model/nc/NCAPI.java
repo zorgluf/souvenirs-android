@@ -10,13 +10,14 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface NCAPI {
 
         String mApiEndpoint = "/index.php/apps/souvenirs/apiv2/";
 
         @GET("album")
-        Call<List<String>> getAlbums();
+        Call<List<String>> getAlbums(@Query("page") int page);
 
         @GET("album/{id}")
         Call<APIProvider.AlbumResp> getAlbum(@Path("id") String id);

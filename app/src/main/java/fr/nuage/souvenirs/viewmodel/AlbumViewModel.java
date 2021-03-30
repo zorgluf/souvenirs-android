@@ -54,6 +54,7 @@ public class AlbumViewModel extends AndroidViewModel {
     private MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
     private MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
     private MediatorLiveData<String> ldDefaultStyle = new MediatorLiveData<>();
+    private int albumsNCState = AlbumsNC.STATE_NOT_LOADED;
 
     public AlbumViewModel(Application app) {
         super(app);
@@ -208,17 +209,20 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     private int getNCState() {
+        if (albumsNCState == AlbumsNC.STATE_NOT_LOADED) {
+            return NC_STATE_UNKNOWN;
+        }
         if (albumNC == null) {
             return NC_STATE_NONE;
         }
-        if (album == null) {
-            return NC_STATE_NOSYNC;
+        if (albumNC.getState() == AlbumNC.STATE_NOT_LOADED) {
+            return NC_STATE_UNKNOWN;
         }
         if (albumNC.getState() == AlbumNC.STATE_ERROR) {
             return NC_STATE_ERROR;
         }
-        if (albumNC.getState() == AlbumNC.STATE_NOT_LOADED) {
-            return NC_STATE_UNKNOWN;
+        if (album == null) {
+            return NC_STATE_NOSYNC;
         }
         if (syncInProgress) {
             return NC_STATE_SYNC_IN_PROGRESS;
@@ -399,6 +403,7 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     public void onAlbumsNCStateChanged(Integer state) {
+        albumsNCState = state;
         if (state == AlbumsNC.STATE_ERROR) {
             ldNCState.postValue(NC_STATE_ERROR);
         } else if (state == AlbumsNC.STATE_NOT_LOADED) {

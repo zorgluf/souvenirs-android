@@ -98,6 +98,19 @@
             app:layout_constraintTop_toBottomOf="@id/albumName"
             app:icon="@drawable/ic_delete_forever_black_24dp" />
 
+        <ProgressBar
+            android:id="@+id/albumNextcloudProgressBar"
+            style="@android:style/Widget.Material.ProgressBar.Small"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="@{(!NCUtils.isNCEnable || (album.ldNCState == AlbumViewModel.NC_STATE_UNKNOWN)) ? View.VISIBLE : View.GONE }"
+            app:layout_constraintDimensionRatio="h,1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
         <ImageView
             android:id="@+id/albumNextcloud"
             android:layout_width="30dp"

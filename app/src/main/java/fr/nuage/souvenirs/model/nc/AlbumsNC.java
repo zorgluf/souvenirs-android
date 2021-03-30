@@ -38,33 +38,48 @@ public class AlbumsNC {
     }
 
     public void updateAlbumList() {
+        setState(STATE_NOT_LOADED);
         //make async web api requests
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<String> albumIds;
-                try {
-                    albumIds = APIProvider.getApi().getAlbums().execute().body();
-                    if (albumIds == null) {
-                        throw new Exception("Network error.");
+                int page = 1;
+                String lastAlbumId = "";
+                ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
+                while (true) {
+                    List<String> albumIds;
+                    try {
+                        albumIds = APIProvider.getApi().getAlbums(page).execute().body();
+                        if (albumIds == null) {
+                            throw new Exception("Network error.");
+                        }
+                    } catch (Exception e) {
+                        Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
+                        setState(STATE_ERROR);
+                        return;
                     }
-                } catch (Exception e) {
-                    Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
-                    setState(STATE_ERROR);
-                    return;
+                    if (albumIds.size() == 0) {
+                        break;
+                    }
+                    if (albumIds.get(albumIds.size()-1).equals(lastAlbumId)) {  //in case pagination not supported by server (old version of nextcloud app)
+                        break;
+                    }
+                    for (String albumId: albumIds) {
+                        AlbumNC albumNC = new AlbumNC(UUID.fromString(albumId));
+                        newAlbumList.add(albumNC);
+                        setAlbumList(newAlbumList);
+                        lastAlbumId = albumId;
+                    }
+                    page += 1;
                 }
                 setState(STATE_OK);
-                ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
-                for (String albumId: albumIds) {
-                    AlbumNC albumNC = new AlbumNC(UUID.fromString(albumId));
+                for (AlbumNC albumNC: newAlbumList) {
                     if (albumNC.load()) {
                         albumNC.setState(AlbumNC.STATE_OK);
-                        newAlbumList.add(albumNC);
                     } else {
-                        Log.w(getClass().getName(),"Wrong album id "+albumId);
+                        Log.w(getClass().getName(),"Wrong album id "+albumNC.getId().toString());
                     }
                 }
-                setAlbumList(newAlbumList);
             }
         }).start();
     }
