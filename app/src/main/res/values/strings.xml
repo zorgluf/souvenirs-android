@@ -59,7 +59,7 @@
     <string name="pref_nextcloud_wifi">Enable Nextcloud sync only on Wifi</string>
     <string name="nextcloud_notification_tap_retry">Tap to retry.</string>
     <string name="sync_create_local_album">Create local album</string>
-    <string name="sync_to_nextcloud">Sync album %1$s to Nextcloud server</string>
+    <string name="sync_to_nextcloud">Sync \"%1$s\"</string>
     <string name="sync_create_remote_album">Create Nextcloud album</string>
     <string name="nextcloud_notification_err">Error with Nextcloud communications.</string>
     <string name="nextcloud_notification_finish_ok">Nextcloud album sync finished !</string>

@@ -76,7 +76,7 @@
     <string name="sync_create_local_album">Création de l\'album local</string>
     <string name="sync_create_remote_album">Création de l\'album Nextcloud</string>
     <string name="sync_fetch_remote_album">Téléchargement de l\'album Nextcloud</string>
-    <string name="sync_to_nextcloud">Synchronisation de l\'album %1$s vers le serveur Nextcloud</string>
+    <string name="sync_to_nextcloud">Sync \"%1$s\"</string>
     <string name="launch_sync">Synchronisation de l\'album %1$s vers Nextcloud.</string>
     <string name="edit_page_draw">Dessiner</string>
     <string name="action_menu_paint_pen">Stylo</string>

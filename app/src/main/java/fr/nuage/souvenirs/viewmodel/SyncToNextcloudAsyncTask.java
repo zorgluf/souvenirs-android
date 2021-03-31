@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -140,14 +141,15 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
 
         //sync pages
         if (!album.getPagesLastEditDate().equals(albumNC.getPagesLastEditDate())) {
+            int nbPage = album.getPages().size();
             //delete local pages if needed
             if ((albumNC.getPagesLastEditDate() != null) && (album.getPagesLastSyncDate()!= null)) {
                 for (Page page : album.getPages()) {
                     if ((page.getLastEditDate().before(album.getPagesLastSyncDate())) && (album.getPagesLastSyncDate().before(albumNC.getPagesLastEditDate()))) {
                         if (!albumNC.hasPage(page.getId())) {
-                            notificationMsg = context.getString(R.string.sync_album_del_local_page, page.getId().toString());
+                            notificationMsg = context.getString(R.string.sync_album_del_local_page, album.getIndex(page) +"/"+ nbPage);
                             Log.d("SYNC", notificationMsg);
-                            publishProgress(0);
+                            publishProgress(nbPage,album.getIndex(page));
                             album.delPage(page);
                         } else {
                             //check local order according to remote
@@ -156,7 +158,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                             if (album.getIndex(page) != remotePos) {
                                 notificationMsg = context.getString(R.string.sync_album_change_local_page_pos, page.getId().toString());
                                 Log.d("SYNC", notificationMsg);
-                                publishProgress(0);
+                                publishProgress(nbPage,album.getIndex(page));
                                 album.movePage(page,remotePos);
                             }
                         }
@@ -172,9 +174,9 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     if ((remotePage.getLastEditDate()==null) ||
                             (page.getLastEditDate().after(remotePage.getLastEditDate()))) {
                         //local page version newer, push mod
-                        notificationMsg = context.getString(R.string.sync_album_remote_update_page,remotePage.getId().toString());
+                        notificationMsg = context.getString(R.string.sync_album_remote_update_page,albumNC.getIndex(remotePage)+"/"+nbPage);
                         Log.d("SYNC",notificationMsg);
-                        publishProgress(0);
+                        publishProgress(nbPage,albumNC.getIndex(remotePage));
                         remotePage.update(page);
                         if (!albumNC.pushPage(remotePage,album.getAlbumPath())) {
                             return RESULT_NC_ERR;
@@ -184,9 +186,9 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     int index = album.getIndex(page);
                     PageNC pageNC = new PageNC();
                     pageNC.update(page);
-                    notificationMsg = context.getString(R.string.sync_album_create_remote_page,pageNC.getId().toString());
+                    notificationMsg = context.getString(R.string.sync_album_create_remote_page,index+"/"+nbPage);
                     Log.d("SYNC",notificationMsg);
-                    publishProgress(0);
+                    publishProgress(nbPage,index);
                     if(!albumNC.createPage(pageNC,index,album.getAlbumPath())) {
                         return RESULT_NC_ERR;
                     }
@@ -196,14 +198,14 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
             //delete remote pages if needed
             if ((albumNC.getPagesLastEditDate() != null) && (album.getPagesLastSyncDate()!= null)) {
 
-                for (PageNC pageNC : (List<PageNC>)albumNC.getPages().clone()) {
+                for (PageNC pageNC : new ArrayList<>(albumNC.getPages())) {
                     if ((pageNC.getLastEditDate()==null) ||
                             ((pageNC.getLastEditDate().before(album.getPagesLastSyncDate()))  //no mod after last sync
                                     && (album.getPagesLastSyncDate().before(album.getPagesLastEditDate())))) { //local pages mod after last sync
                         if (!album.hasPage(pageNC.getId())) {
-                            notificationMsg = context.getString(R.string.sync_album_del_remote_page,pageNC.getId().toString());
+                            notificationMsg = context.getString(R.string.sync_album_del_remote_page,albumNC.getIndex(pageNC)+"/"+nbPage);
                             Log.d("SYNC",notificationMsg);
-                            publishProgress(0);
+                            publishProgress(nbPage,albumNC.getIndex(pageNC));
                             if (!albumNC.delPage(pageNC)) {
                                 return RESULT_NC_ERR;
                             }
@@ -213,9 +215,9 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                             int localPos = album.getIndex(localPage);
                             int remotePos = albumNC.getIndex(pageNC);
                             if (localPos != remotePos) {
-                                notificationMsg = context.getString(R.string.sync_album_change_remote_page_pos, pageNC.getId().toString());
+                                notificationMsg = context.getString(R.string.sync_album_change_remote_page_pos, remotePos+"/"+nbPage);
                                 Log.d("SYNC", notificationMsg);
-                                publishProgress(0);
+                                publishProgress(nbPage,remotePos);
                                 //move remote page to localpos
                                 if (!albumNC.movePage(pageNC,localPos)) {
                                     return RESULT_NC_ERR;
@@ -241,9 +243,9 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     if ((pageNC.getLastEditDate()==null) ||
                             (pageNC.getLastEditDate().after(localPage.getLastEditDate()))) {
                         //remote page version newer, pull mod
-                        notificationMsg = context.getString(R.string.sync_album_local_update_page,localPage.getId().toString());
+                        notificationMsg = context.getString(R.string.sync_album_local_update_page,album.getIndex(localPage)+"/"+nbPage);
                         Log.d("SYNC",notificationMsg);
-                        publishProgress(0);
+                        publishProgress(nbPage,album.getIndex(localPage));
                         if(!pageNC.pullAssets(album.getAlbumPath(),albumNC)) {
                             return RESULT_NC_ERR;
                         }
@@ -253,9 +255,9 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     }
                 } else { //if not pull page
                     int index = albumNC.getIndex(pageNC);
-                    notificationMsg = context.getString(R.string.sync_album_create_local_page,pageNC.getId().toString());
+                    notificationMsg = context.getString(R.string.sync_album_create_local_page,index+"/"+nbPage);
                     Log.d("SYNC",notificationMsg);
-                    publishProgress(0);
+                    publishProgress(nbPage,index);
                     if(!pageNC.pullAssets(album.getAlbumPath(),albumNC)) {
                         return RESULT_NC_ERR;
                     }

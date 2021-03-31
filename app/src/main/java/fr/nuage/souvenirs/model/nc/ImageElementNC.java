@@ -50,7 +50,12 @@ public class ImageElementNC extends ElementNC {
     }
 
     public void setImagePath(String path) {
-        imagePath = path;
+        //if start with / assume old absolute format and try to guess relative
+        if (path.startsWith("/")) {
+            imagePath = path.replaceAll("^.+/([^/]+/[^/]+)$","$1");
+        } else {
+            imagePath = path;
+        }
         onChange();
     }
 
@@ -85,12 +90,7 @@ public class ImageElementNC extends ElementNC {
         //must be called from UI thread
         if (jsonObject.has("image")) {
             String imagePath = jsonObject.getString("image");
-            //if start with / assume old absolute format and try to guess relative
-            if (imagePath.startsWith("/")) {
-                setImagePath(imagePath.replaceAll("^.+/([^/]+/[^/]+)$","$1"));
-            } else {
-                setImagePath(imagePath);
-            }
+            setImagePath(imagePath);
         }
         if (jsonObject.has("mime")) {
             setMimeType(jsonObject.getString("mime"));
