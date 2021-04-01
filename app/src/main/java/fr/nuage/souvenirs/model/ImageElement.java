@@ -1,6 +1,7 @@
 package fr.nuage.souvenirs.model;
 
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -8,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ImageElement extends Element {
@@ -245,6 +247,10 @@ public class ImageElement extends Element {
         return ldOffsetY;
     }
 
+    /**
+     * get width of image file
+     * @return width
+     */
     public int getImageWidth() {
         if ((imagePath == null) || (imagePath.equals(""))) {
             return 0;
@@ -252,9 +258,23 @@ public class ImageElement extends Element {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(imagePath, options);
+        try {
+            ExifInterface exifInterface = new ExifInterface(imagePath);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return options.outHeight;
+            }
+        } catch (IOException e) {
+        }
         return options.outWidth;
     }
 
+    /**
+     * get heiqht of image file
+     * @return height
+     */
     public int getImageHeight() {
         if ((imagePath == null) || (imagePath.equals(""))) {
             return 0;
@@ -262,6 +282,16 @@ public class ImageElement extends Element {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(imagePath, options);
+        try {
+            ExifInterface exifInterface = new ExifInterface(imagePath);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return options.outWidth;
+            }
+        } catch (IOException e) {
+        }
         return options.outHeight;
     }
 }
