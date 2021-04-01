@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +49,8 @@ import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
+
+import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
 
 public class EditPageFragment extends Fragment  {
 
@@ -167,6 +170,38 @@ public class EditPageFragment extends Fragment  {
                 Scene destScene = new Scene((ViewGroup)getView(),nextView);
                 TransitionManager.go(destScene,transition);
             });
+            //set drag event if an element is moved to this page
+            binding.pageViewPrev.setOnDragListener((v, event) -> {
+                String dragType = (String)event.getLocalState();
+                if (dragType.equals(SWITCH_DRAG)) {
+                    //handle switch elements drag action
+                    int action = event.getAction();
+                    switch(action) {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                        case DragEvent.ACTION_DRAG_EXITED:
+                            v.setAlpha((float)0.5);
+                            return true;
+                        case DragEvent.ACTION_DRAG_ENTERED:
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            v.setAlpha(1);
+                            return true;
+                        case DragEvent.ACTION_DRAG_LOCATION:
+                            return true;
+                        case DragEvent.ACTION_DROP:
+                            // Gets the page id to move
+                            ClipData.Item item = event.getClipData().getItemAt(0);
+                            UUID oriElementUUID = UUID.fromString((String)item.getText());
+                            ElementViewModel oriElementViewModel = pageVM.getElement(oriElementUUID);
+                            if (oriElementViewModel != null) {
+                                oriElementViewModel.moveToPreviousPage();
+                            }
+                            return true;
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            });
         }
 
         //set next page
@@ -191,6 +226,38 @@ public class EditPageFragment extends Fragment  {
                 //change view
                 Scene destScene = new Scene((ViewGroup)getView(),nextView);
                 TransitionManager.go(destScene,transition);
+            });
+            //set drag event if an element is moved to this page
+            binding.pageViewNext.setOnDragListener((v, event) -> {
+                String dragType = (String)event.getLocalState();
+                if (dragType.equals(SWITCH_DRAG)) {
+                    //handle switch elements drag action
+                    int action = event.getAction();
+                    switch(action) {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                        case DragEvent.ACTION_DRAG_EXITED:
+                            v.setAlpha((float)0.5);
+                            return true;
+                        case DragEvent.ACTION_DRAG_ENTERED:
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            v.setAlpha(1);
+                            return true;
+                        case DragEvent.ACTION_DRAG_LOCATION:
+                            return true;
+                        case DragEvent.ACTION_DROP:
+                            // Gets the page id to move
+                            ClipData.Item item = event.getClipData().getItemAt(0);
+                            UUID oriElementUUID = UUID.fromString((String)item.getText());
+                            ElementViewModel oriElementViewModel = pageVM.getElement(oriElementUUID);
+                            if (oriElementViewModel != null) {
+                                oriElementViewModel.moveToNextPage();
+                            }
+                            return true;
+                        default:
+                            break;
+                    }
+                }
+                return false;
             });
         }
 

@@ -163,4 +163,12 @@ public class PageViewModel extends ViewModel {
         setPaintMode(true);
     }
 
+    public ElementViewModel getElement(UUID elementId) {
+        for (ElementViewModel elementViewModel: getElements().getValue()) {
+            if (elementId.equals(elementViewModel.getId().getValue())) {
+                return  elementViewModel;
+            }
+        }
+        return null;
+    }
 }

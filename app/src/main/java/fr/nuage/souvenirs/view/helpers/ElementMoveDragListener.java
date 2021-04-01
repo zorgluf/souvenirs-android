@@ -24,10 +24,10 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class ElementMoveDragListener implements View.OnDragListener, View.OnLongClickListener, View.OnClickListener, View.OnTouchListener {
 
-    private final static String SWITCH_DRAG = "SWITCH_DRAG";
-    private final static String MOVE_DRAG = "MOVE_DRAG";
-    private final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
-    private final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
+    public final static String SWITCH_DRAG = "SWITCH_DRAG";
+    public final static String MOVE_DRAG = "MOVE_DRAG";
+    public final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
+    public final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
 
     private final PageViewModel pageVM;
     private final ElementViewModel elVM;
