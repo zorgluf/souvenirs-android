@@ -98,4 +98,6 @@
     <string name="menu_page_edit_detele">Delete</string>
     <string name="menu_page_edit_move_up">Move up</string>
     <string name="menu_page_edit_move_down">Move down</string>
+    <string name="add_photo">Add photo</string>
+    <string name="error_no_camera">No camera found !</string>
 </resources>

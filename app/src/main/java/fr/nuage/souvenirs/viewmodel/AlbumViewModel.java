@@ -444,4 +444,8 @@ public class AlbumViewModel extends AndroidViewModel {
         }
         return null;
     }
+
+    public File createEmptyDataFile(String mimeType) {
+        return album.createEmptyDataFile(mimeType);
+    }
 }

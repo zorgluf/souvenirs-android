@@ -1,10 +1,13 @@
 package fr.nuage.souvenirs.view;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
@@ -13,11 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -31,6 +37,7 @@ import androidx.transition.TransitionSet;
 
 import com.google.android.material.appbar.AppBarLayout;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -55,6 +62,7 @@ import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRA
 public class EditPageFragment extends Fragment  {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
+    private static final int ACTIVITY_ADD_PHOTO = 11;
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
@@ -62,6 +70,7 @@ public class EditPageFragment extends Fragment  {
     private AlbumViewModel albumVM;
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
+    private File pendingPhotoFile;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -295,6 +304,27 @@ public class EditPageFragment extends Fragment  {
             return true;
         });
 
+        //set logic to add photo
+        MenuItem addPhotoItem = menu.findItem(R.id.edit_page_add_photo);
+        addPhotoItem.setOnMenuItemClickListener(menuItem -> {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                // Create the File where the photo should go
+                pendingPhotoFile = albumVM.createEmptyDataFile("image/jpeg");
+                // Continue only if the File was successfully created
+                if (pendingPhotoFile != null) {
+                    Uri photoURI = FileProvider.getUriForFile(getContext(),
+                            getContext().getPackageName()+".provider",
+                            pendingPhotoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, ACTIVITY_ADD_PHOTO);
+                }
+            }
+
+            return true;
+        });
+
         //set logic to add text
         MenuItem addTextItem = menu.findItem(R.id.edit_page_add_text);
         addTextItem.setOnMenuItemClickListener(menuItem -> {
@@ -347,7 +377,13 @@ public class EditPageFragment extends Fragment  {
                     }
                 }
                 break;
+            case ACTIVITY_ADD_PHOTO:
+                if (resultCode == Activity.RESULT_OK) {
+                    pageVM.addImage(pendingPhotoFile);
+                }
         }
+
+
     }
 
 

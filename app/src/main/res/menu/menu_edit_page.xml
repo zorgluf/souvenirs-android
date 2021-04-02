@@ -8,6 +8,11 @@
         android:title="@string/add_image"
         app:showAsAction="always" />
     <item
+        android:id="@+id/edit_page_add_photo"
+        android:icon="@drawable/ic_baseline_add_a_photo_24"
+        android:title="@string/add_photo"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/edit_page_add_text"
         android:icon="@drawable/ic_text_fields_black_24dp"
         android:title="@string/edit_page_add_text"

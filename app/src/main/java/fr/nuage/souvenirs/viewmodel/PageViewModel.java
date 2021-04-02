@@ -1,12 +1,16 @@
 package fr.nuage.souvenirs.viewmodel;
 
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -95,11 +99,27 @@ public class PageViewModel extends ViewModel {
     public void addImage(InputStream input, String mime) {
         ImageElement imageElement = page.createImageElement();
         imageElement.setImage(input,mime);
+        addImage(imageElement);
+    }
+
+    public void addImage(ImageElement imageElement) {
         if (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) {
             imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
         }
         PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
         pageBuilder.applyDefaultStyle(page);
+    }
+
+    /**
+     * Import existing file
+     * @param pendingPhotoFile
+     */
+    public void addImage(File pendingPhotoFile) {
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(pendingPhotoFile.getAbsolutePath()));
+        ImageElement imageElement = page.createImageElement();
+        imageElement.setImagePath(pendingPhotoFile.getPath());
+        imageElement.setMimeType(mimeType);
+        addImage(imageElement);
     }
 
     public void addText() {
@@ -171,4 +191,6 @@ public class PageViewModel extends ViewModel {
         }
         return null;
     }
+
+
 }

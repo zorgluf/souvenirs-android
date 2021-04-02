@@ -481,13 +481,17 @@ public class Album {
         onChange();
     }
 
+    public File createEmptyDataFile(String mimeType) {
+        //generate file name
+        String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        String name = UUID.randomUUID().toString()+"."+ext;
+        return new File(getDataPath(), name);
+    }
+
     public String createDataFile(InputStream inputStream, String mimeType) {
         //if input null, do nothing (blank image)
         if (inputStream != null) {
-            //generate file name
-            String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
-            String name = UUID.randomUUID().toString()+"."+ext;
-            File file = new File(getDataPath(), name);
+            File file = createEmptyDataFile(mimeType);
             //input is a data stream : save it to file
             try {
                 OutputStream output = new FileOutputStream(file);
