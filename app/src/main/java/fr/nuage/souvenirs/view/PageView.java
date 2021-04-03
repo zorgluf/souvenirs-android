@@ -70,7 +70,7 @@ public class PageView extends ConstraintLayout {
             public boolean onFling(MotionEvent event1, MotionEvent event2,
                                    float velocityX, float velocityY) {
                 if (onSwingListener != null) {
-                    if (velocityY > velocityX) {
+                    if (Math.abs(velocityY) > Math.abs(velocityX)) {
                         if (velocityY > 0) {
                             onSwingListener.onSwing(SWING_DIRECTION_UP);
                         } else {
