@@ -59,7 +59,7 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
 
-public class EditPageFragment extends Fragment  {
+public class EditPageFragment extends Fragment implements PageView.OnSwingListener {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
@@ -156,6 +156,9 @@ public class EditPageFragment extends Fragment  {
             }
         });
 
+        //listen swing on pageview
+        binding.pageViewEdit.setOnSwingListener(this);
+
         //set prev page
         PageViewModel prevPage = albumVM.getPrevPage(pageVM);
         if (prevPage == null) {
@@ -165,19 +168,7 @@ public class EditPageFragment extends Fragment  {
             prevPage.getLdEditMode().postValue(false);
             binding.pageViewPrev.setPageViewModel(prevPage);
             binding.pageViewPrev.setOnClickListener(view -> {
-                //build transition
-                TransitionSet transition = new TransitionSet();
-                Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
-                tMove.addTarget(pageVM.getId().toString());
-                tMove.addTarget(prevPage.getId().toString());
-                transition.addTransition(tMove);
-                //change main page
-                pageVM = prevPage;
-                //build new view
-                View nextView = createView(inflater,container);
-                //change view
-                Scene destScene = new Scene((ViewGroup)getView(),nextView);
-                TransitionManager.go(destScene,transition);
+                moveToPrev();
             });
             //set drag event if an element is moved to this page
             binding.pageViewPrev.setOnDragListener((v, event) -> {
@@ -222,19 +213,7 @@ public class EditPageFragment extends Fragment  {
             nextPage.getLdEditMode().postValue(false);
             binding.pageViewNext.setPageViewModel(nextPage);
             binding.pageViewNext.setOnClickListener(view -> {
-                //build transition
-                TransitionSet transition = new TransitionSet();
-                Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
-                tMove.addTarget(pageVM.getId().toString());
-                tMove.addTarget(nextPage.getId().toString());
-                transition.addTransition(tMove);
-                //change main page
-                pageVM = nextPage;
-                //build new view
-                View nextView = createView(inflater,container);
-                //change view
-                Scene destScene = new Scene((ViewGroup)getView(),nextView);
-                TransitionManager.go(destScene,transition);
+                moveToNext();
             });
             //set drag event if an element is moved to this page
             binding.pageViewNext.setOnDragListener((v, event) -> {
@@ -387,4 +366,54 @@ public class EditPageFragment extends Fragment  {
     }
 
 
+    @Override
+    public void onSwing(int direction) {
+        switch (direction) {
+            case PageView.SWING_DIRECTION_DOWN:
+                moveToPrev();
+                break;
+            case PageView.SWING_DIRECTION_UP:
+                moveToNext();
+                break;
+        }
+    }
+
+    private void moveToNext() {
+        PageViewModel nextPage = albumVM.getNextPage(pageVM);
+        if (nextPage != null) {
+            //build transition
+            TransitionSet transition = new TransitionSet();
+            Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
+            tMove.addTarget(pageVM.getId().toString());
+            tMove.addTarget(nextPage.getId().toString());
+            transition.addTransition(tMove);
+            //change main page
+            pageVM = nextPage;
+            //build new view
+            View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
+            //change view
+            Scene destScene = new Scene((ViewGroup)getView(),nextView);
+            TransitionManager.go(destScene,transition);
+        }
+    }
+
+    private void moveToPrev() {
+        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
+        if (prevPage != null) {
+            //build transition
+            TransitionSet transition = new TransitionSet();
+            Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
+            tMove.addTarget(pageVM.getId().toString());
+            tMove.addTarget(prevPage.getId().toString());
+            transition.addTransition(tMove);
+            //change main page
+            pageVM = prevPage;
+            //build new view
+            View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
+            //change view
+            Scene destScene = new Scene((ViewGroup)getView(),nextView);
+            TransitionManager.go(destScene,transition);
+        }
+
+    }
 }

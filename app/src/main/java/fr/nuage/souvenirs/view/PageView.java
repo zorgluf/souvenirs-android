@@ -2,12 +2,15 @@ package fr.nuage.souvenirs.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.databinding.DataBindingUtil;
 
 import fr.nuage.souvenirs.R;
@@ -21,7 +24,12 @@ import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 
 public class PageView extends ConstraintLayout {
 
+    public static final int SWING_DIRECTION_UP = 1;
+    public static final int SWING_DIRECTION_DOWN = 2;
+
     private PageViewModel pageViewModel;
+    private GestureDetectorCompat mDetector;
+    private OnSwingListener onSwingListener;
 
     public PageView(@NonNull Context context) {
         super(context);
@@ -46,11 +54,34 @@ public class PageView extends ConstraintLayout {
         }
     }
 
+    public void setOnSwingListener(OnSwingListener onSwingListener) {
+        this.onSwingListener = onSwingListener;
+    }
+
     private void initView() {
         PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
         binding.setPage(pageViewModel);
 
         setTransitionName(pageViewModel.getId().toString());
+
+        //init swing listener
+        mDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent event1, MotionEvent event2,
+                                   float velocityX, float velocityY) {
+                if (onSwingListener != null) {
+                    if (velocityY > velocityX) {
+                        if (velocityY > 0) {
+                            onSwingListener.onSwing(SWING_DIRECTION_UP);
+                        } else {
+                            onSwingListener.onSwing(SWING_DIRECTION_DOWN);
+                        }
+                    }
+                }
+                return true;
+            }
+        });
+
 
         ConstraintLayout pageLayout = binding.pageLayout;
         //listen to elements changes
@@ -77,6 +108,15 @@ public class PageView extends ConstraintLayout {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return mDetector.onTouchEvent(ev);
+    }
+
+    public interface OnSwingListener {
+        void onSwing(int direction);
     }
 
 
