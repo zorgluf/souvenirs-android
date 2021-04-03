@@ -1,0 +1,9 @@
+New Feature: Take photo from camera and import as image element
+New Feature: Retry broken upload of images
+New Feature: Navigate form page to page in edit page mode
+Change: More comprehensive synchronisation messages
+Change: Drag and drop of image between pages
+Fix: handle exif rotation of photos
+Fix: direct import of photo from android system share action
+Fix: UI when moving page in album
+Fix: bug in large album list and background image display
