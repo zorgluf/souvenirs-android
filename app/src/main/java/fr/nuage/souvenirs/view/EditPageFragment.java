@@ -369,10 +369,10 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
     @Override
     public void onSwing(int direction) {
         switch (direction) {
-            case PageView.SWING_DIRECTION_DOWN:
+            case PageView.SWING_DIRECTION_UP:
                 moveToPrev();
                 break;
-            case PageView.SWING_DIRECTION_UP:
+            case PageView.SWING_DIRECTION_DOWN:
                 moveToNext();
                 break;
         }
