@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.pdf.PdfDocument;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.print.PrintAttributes;
@@ -84,6 +85,16 @@ public class ExportPdfAsyncTask extends AsyncTask<Void, Integer, Integer> {
                         if (! imPath.equals("")) {
                             ImageView imageview = eRootView.findViewById(R.id.image_imageview);
                             Bitmap imBitmap = BitmapFactory.decodeFile(imPath);
+                            int imRotation = getDegreeRotationFromExif(imPath);
+                            if (imRotation > 0 && imBitmap != null) {
+                                Matrix m = new Matrix();
+                                m.setRotate(imRotation);
+                                Bitmap tmp = Bitmap.createBitmap(imBitmap, 0, 0, imBitmap.getWidth(), imBitmap.getHeight(), m, true);
+                                if (tmp != null) {
+                                    imBitmap.recycle();
+                                    imBitmap = tmp;
+                                }
+                            }
                             imageview.setImageBitmap(imBitmap);
                         }
                     } else {
@@ -193,5 +204,31 @@ public class ExportPdfAsyncTask extends AsyncTask<Void, Integer, Integer> {
         matrix.postScale(scaleWidth, scaleHeight);
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
         return resizedBitmap;
+    }
+
+    private static int getDegreeRotationFromExif(String imPath){
+        int imRotation = ExifInterface.ORIENTATION_UNDEFINED;
+        try {
+            ExifInterface exif = new ExifInterface(imPath);
+            int exifRotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+            switch (exifRotation) {
+                case ExifInterface.ORIENTATION_ROTATE_90: {
+                    imRotation = 90;
+                    break;
+                }
+                case ExifInterface.ORIENTATION_ROTATE_180: {
+                    imRotation = 180;
+                    break;
+                }
+                case ExifInterface.ORIENTATION_ROTATE_270: {
+                    imRotation = 270;
+                    break;
+                }
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        return imRotation;
     }
 }
