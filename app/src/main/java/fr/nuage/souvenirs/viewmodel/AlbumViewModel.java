@@ -430,6 +430,9 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     public PageViewModel getNextPage(PageViewModel pageVM) {
+        if (getPages().getValue() == null) {
+            return null;
+        }
         int pos = getPosition(pageVM);
         if (pos < getPages().getValue().size()-1) {
             return getPage(pos + 1);
