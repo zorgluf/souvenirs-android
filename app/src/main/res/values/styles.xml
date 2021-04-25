@@ -57,7 +57,10 @@
     </style>
 
     <style name="AppTheme.button.text" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/secondaryColor</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <item name="colorOnSecondary">@color/secondaryTextColor</item>
     </style>
 
 </resources>
