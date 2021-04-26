@@ -151,10 +151,8 @@ public class AlbumNC {
             albumResp.id = getId();
             albumResp.albumImage = getAlbumImage();
             albumResp.date = getDate();
-            albumResp.isShared = isShared;
             albumResp.lastEditDate = getLastEditDate();
             albumResp.name = getName();
-            albumResp.shareToken = shareToken;
             albumResp.pagesLastEditDate = getPagesLastEditDate();
             albumResp.defaultStyle = getDefaultStyle();
             String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
