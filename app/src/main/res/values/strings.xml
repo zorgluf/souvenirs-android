@@ -10,39 +10,15 @@
     <string name="export_to_pdf_menu">To PDF</string>
     <string name="change_text_edit_dialog">OK</string>
     <string name="action_menu_image_delete">delete</string>
-    <string name="action_menu_image_import">Import</string>
     <string name="channel_name">souvenir</string>
     <string name="channel_description">notification channel for souvenir application</string>
-    <string name="notification_pdf_creation_title">Building PDF</string>
     <string name="notification_pdf_creation_text_end">PDF is ready</string>
     <string name="edit_menu">Edit</string>
     <string name="text_element_hint">Insert your text here…</string>
     <string name="add_page_in_album_ask">Select the target album :</string>
     <string name="delete_album">Delete album</string>
-    <string name="delete_album_message">Do you really want to delete the album ?</string>
-    <string name="pdf_export_toast">PDF export started. See notification bar to view progress status.</string>
     <string name="pick_resolution">Select PDF resolution</string>
-    <string name="pref_nextcloud_url">Nextcloud server URL</string>
-    <string name="pref_nextcloud_login">Nextcloud username</string>
-    <string name="pref_nextcloud_passwd">Nextcloud password</string>
-    <string name="pref_nextcloud">Nextcloud parameters</string>
-    <string name="notification_upload_to_nextcloud">Upload to nextcloud</string>
-    <string name="notification_upload_to_nextcloud_end">Upload to nextcloud finished !</string>
-    <string name="upload_to_nextcloud_menu">ToNextcloud</string>
-    <string name="nextcloud_prefs_empty">Please configure your nextcloud access in settings.</string>
-    <string name="nextcloud_notification_create_dir">Create root album dir on nextcloud server.</string>
-    <string name="nextcloud_notification_com_err">Error on communication with nextcloud server.</string>
-    <string name="nextcloud_notification_dir_creation_err">Error on album directory creation on nextcloud server.</string>
-    <string name="nextcloud_notification_io_err">IO Error on album files.</string>
-    <string name="nextcloud_notification_list_files">Listing files on nextcloud server…</string>
-    <string name="nextcloud_notification_delete_file">Deleting nextcloud file</string>
-    <string name="nextcloud_notification_upload_file">Upload file</string>
-    <string name="nextcloud_notification_upload_dir">Create directory</string>
-    <string name="action_menu_image_switch">Switch image</string>
-    <string name="nextcloud_notification_share_err">Error on public share creation.</string>
     <string name="nextcloud_notification_share_url">"Sharing album "</string>
-    <string name="nextcloud_notification_tap_share">Tap to share album url.</string>
-    <string name="dialog_nc_upload_msg">Do you want to upload this album ?</string>
     <string name="action_menu_add_page">Add</string>
     <string name="action_menu_display_column">Column</string>
     <string name="edit_page_title">Edit page</string>
@@ -57,7 +33,6 @@
     <string name="ask_write_perm_toast">Application need write permission to generate pdf file. Please give this permission and retry PDF export.</string>
     <string name="pref_nextcloud_enable">Enable Nextcloud Sync</string>
     <string name="pref_nextcloud_wifi">Enable Nextcloud sync only on Wifi</string>
-    <string name="nextcloud_notification_tap_retry">Tap to retry.</string>
     <string name="sync_create_local_album">Create local album</string>
     <string name="sync_to_nextcloud">Sync \"%1$s\"</string>
     <string name="sync_create_remote_album">Create Nextcloud album</string>
@@ -83,8 +58,6 @@
     <string name="color_picker_title">Pick a color</string>
     <string name="sync_album_change_local_page_pos">"Change page position of %1$s"</string>
     <string name="sync_album_change_remote_page_pos">Change remote position of page %1$s</string>
-    <string name="pref_nextcloud_account">Nextcloud account name</string>
-    <string name="title_activity_settings2">Settings</string>
 
     <string name="pref_version">Souvenirs android app version</string>
     <string name="delete_album_local">Delete local album</string>
@@ -99,5 +72,6 @@
     <string name="menu_page_edit_move_up">Move up</string>
     <string name="menu_page_edit_move_down">Move down</string>
     <string name="add_photo">Add photo</string>
-    <string name="error_no_camera">No camera found !</string>
+    <string name="pdf_export_wait">Wait a few seconds for PDF generation…</string>
+    <string name="pdf_export_title">Export PDF</string>
 </resources>

@@ -32,7 +32,7 @@ import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapter.ViewHolder> {
-    private ArrayList<PageViewModel> mPages = new ArrayList<PageViewModel>();
+    private ArrayList<PageViewModel> mPages = new ArrayList<>();
     private Fragment mFragment;
     private AlbumViewModel albumViewModel;
 

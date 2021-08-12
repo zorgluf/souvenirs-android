@@ -144,8 +144,8 @@ public class ShowAlbumFragment extends Fragment {
                                         resolution = 300;
                                         break;
                                 }
-                                Toast.makeText(getActivity(),R.string.pdf_export_toast,Toast.LENGTH_LONG).show();
-                                albumVM.exportToPdf(getActivity(),resolution);
+                                ShowAlbumFragmentDirections.ActionNavAlbumShowToPdfPrepareAlbumFragment action = ShowAlbumFragmentDirections.actionNavAlbumShowToPdfPrepareAlbumFragment(albumVM.getAlbumPath(),resolution);
+                                Navigation.findNavController(getView()).navigate(action);
                             }
                         })
                         .create().show();

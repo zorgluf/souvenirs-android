@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.navigation.Navigation;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,7 @@ import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.AlbumsNC;
+import fr.nuage.souvenirs.view.ShowAlbumFragmentDirections;
 
 public class AlbumViewModel extends AndroidViewModel {
 
@@ -335,12 +337,6 @@ public class AlbumViewModel extends AndroidViewModel {
         if (albumNC != null) {
             albumNC.load();
         }
-    }
-
-    public void exportToPdf(Activity activity, int resolution) {
-        String pdfPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath(),album.getName()+".pdf").getPath();
-        ExportPdfAsyncTask task = new ExportPdfAsyncTask(activity,album,pdfPath,resolution);
-        task.execute();
     }
 
     public UUID getId() {

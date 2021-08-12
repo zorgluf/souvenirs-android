@@ -37,6 +37,13 @@
             app:exitAnim="@anim/exit_to_left"
             app:popEnterAnim="@anim/enter_from_left"
             app:popExitAnim="@anim/exit_to_right" />
+        <action
+            android:id="@+id/action_nav_album_show_to_pdfPrepareAlbumFragment"
+            app:destination="@id/pdfPrepareAlbumFragment"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right"/>
     </fragment>
     <fragment
         android:id="@+id/nav_album_edit"
@@ -70,5 +77,16 @@
         <action
             android:id="@+id/action_nav_page_edit_self"
             app:destination="@id/nav_page_edit"/>
+    </fragment>
+    <fragment
+        android:id="@+id/pdfPrepareAlbumFragment"
+        android:name="fr.nuage.souvenirs.view.PdfPrepareAlbumFragment"
+        android:label="PdfPrepareAlbumFragment" >
+        <argument
+            android:name="albumPath"
+            app:argType="string" />
+        <argument
+            android:name="resolution"
+            app:argType="integer" />
     </fragment>
 </navigation>
