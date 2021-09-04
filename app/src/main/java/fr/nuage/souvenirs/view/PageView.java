@@ -14,6 +14,7 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.databinding.DataBindingUtil;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.databinding.PageViewAddBinding;
 import fr.nuage.souvenirs.databinding.PageViewBinding;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
@@ -49,9 +50,7 @@ public class PageView extends ConstraintLayout {
 
     public void setPageViewModel(PageViewModel pageViewModel) {
         this.pageViewModel = pageViewModel;
-        if (pageViewModel != null) {
-            initView();
-        }
+        initView();
     }
 
     public void setOnSwingListener(OnSwingListener onSwingListener) {
@@ -59,60 +58,68 @@ public class PageView extends ConstraintLayout {
     }
 
     private void initView() {
-        PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
-        binding.setPage(pageViewModel);
+        if (pageViewModel == null) {
+            PageViewAddBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view_add,this,true);
+        } else {
+            PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
+            binding.setPage(pageViewModel);
 
-        setTransitionName(pageViewModel.getId().toString());
+            setTransitionName(pageViewModel.getId().toString());
 
-        //init swing listener
-        mDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent event1, MotionEvent event2,
-                                   float velocityX, float velocityY) {
-                if (onSwingListener != null) {
-                    if (Math.abs(velocityY) > Math.abs(velocityX)) {
-                        if (velocityY > 0) {
-                            onSwingListener.onSwing(SWING_DIRECTION_UP);
+            //init swing listener
+            mDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onFling(MotionEvent event1, MotionEvent event2,
+                                       float velocityX, float velocityY) {
+                    if (onSwingListener != null) {
+                        if (Math.abs(velocityY) > Math.abs(velocityX)) {
+                            if (velocityY > 0) {
+                                onSwingListener.onSwing(SWING_DIRECTION_UP);
+                            } else {
+                                onSwingListener.onSwing(SWING_DIRECTION_DOWN);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            });
+
+
+            ConstraintLayout pageLayout = binding.pageLayout;
+            //listen to elements changes
+            pageViewModel.getElements().observe((AppCompatActivity)getContext(), elementViewModels -> {
+                //remove all
+                pageLayout.removeAllViewsInLayout();
+                //rebuild layout
+                if (elementViewModels != null) {
+                    LayoutInflater inflater1 = LayoutInflater.from(pageLayout.getContext());
+                    for (ElementViewModel e : elementViewModels) {
+                        if (e.getClass() == TextElementViewModel.class) {
+                            TextElementViewModel et = (TextElementViewModel) e;
+                            ViewGenerator.generateView(pageViewModel, et, pageLayout, (AppCompatActivity)getContext());
+                        } else if (e.getClass() == ImageElementViewModel.class) {
+                            ImageElementViewModel ei = (ImageElementViewModel) e;
+                            ViewGenerator.generateView(pageViewModel, ei, pageLayout, (AppCompatActivity)getContext());
+                        } else if (e.getClass() == PaintElementViewModel.class) {
+                            PaintElementViewModel ep = (PaintElementViewModel) e;
+                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
                         } else {
-                            onSwingListener.onSwing(SWING_DIRECTION_DOWN);
+                            //unknown element : display default view
+                            inflater1.inflate(R.layout.unknown_element_view, pageLayout, true);
                         }
                     }
                 }
-                return true;
-            }
-        });
+            });
+        }
 
-
-        ConstraintLayout pageLayout = binding.pageLayout;
-        //listen to elements changes
-        pageViewModel.getElements().observe((AppCompatActivity)getContext(), elementViewModels -> {
-            //remove all
-            pageLayout.removeAllViewsInLayout();
-            //rebuild layout
-            if (elementViewModels != null) {
-                LayoutInflater inflater1 = LayoutInflater.from(pageLayout.getContext());
-                for (ElementViewModel e : elementViewModels) {
-                    if (e.getClass() == TextElementViewModel.class) {
-                        TextElementViewModel et = (TextElementViewModel) e;
-                        ViewGenerator.generateView(pageViewModel, et, pageLayout, (AppCompatActivity)getContext());
-                    } else if (e.getClass() == ImageElementViewModel.class) {
-                        ImageElementViewModel ei = (ImageElementViewModel) e;
-                        ViewGenerator.generateView(pageViewModel, ei, pageLayout, (AppCompatActivity)getContext());
-                    } else if (e.getClass() == PaintElementViewModel.class) {
-                        PaintElementViewModel ep = (PaintElementViewModel) e;
-                        ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
-                    } else {
-                        //unknown element : display default view
-                        inflater1.inflate(R.layout.unknown_element_view, pageLayout, true);
-                    }
-                }
-            }
-        });
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return mDetector.onTouchEvent(ev);
+        if (mDetector != null) {
+            return mDetector.onTouchEvent(ev);
+        }
+        return false;
     }
 
     public interface OnSwingListener {

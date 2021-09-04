@@ -26,6 +26,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -71,11 +73,13 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
     private File pendingPhotoFile;
+    private final MutableLiveData<Integer> switchPageDelta = new MutableLiveData<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        switchPageDelta.postValue(0);
         //load album path in args
         if (getArguments() != null) {
             String albumPath = EditPageFragmentArgs.fromBundle(getArguments()).getAlbumPath();
@@ -88,6 +92,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         }
 
         setHasOptionsMenu(true);
+
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -95,6 +100,21 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
         //set title
         getActivity().setTitle(R.string.edit_page_title);
+        //listen to page switch
+        switchPageDelta.observe(getViewLifecycleOwner(), integer -> {
+            if (integer == 1) {
+                moveToNext();
+            }
+            if (integer == -1) {
+                moveToPrev();
+            }
+        });
+        //listen to pages changes
+        albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
+            //build new view
+            ((ViewGroup) getView()).removeAllViews();
+            ((ViewGroup) getView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
+        });
 
         return createView(inflater,container);
 
@@ -168,7 +188,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             prevPage.getLdEditMode().postValue(false);
             binding.pageViewPrev.setPageViewModel(prevPage);
             binding.pageViewPrev.setOnClickListener(view -> {
-                moveToPrev();
+                switchPageDelta.postValue(-1);
             });
             //set drag event if an element is moved to this page
             binding.pageViewPrev.setOnDragListener((v, event) -> {
@@ -206,14 +226,16 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
         //set next page
         PageViewModel nextPage = albumVM.getNextPage(pageVM);
+        binding.pageViewNext.setPageViewModel(nextPage);
         if (nextPage == null) {
-            binding.pageViewNext.setVisibility(View.GONE);
-        } else {
-            binding.pageViewNext.setVisibility(View.VISIBLE);
-            nextPage.getLdEditMode().postValue(false);
-            binding.pageViewNext.setPageViewModel(nextPage);
             binding.pageViewNext.setOnClickListener(view -> {
-                moveToNext();
+                albumVM.createPage(albumVM.getPosition(pageVM)+1);
+                switchPageDelta.postValue(1);
+            });
+        } else {
+            nextPage.getLdEditMode().postValue(false);
+            binding.pageViewNext.setOnClickListener(view -> {
+                switchPageDelta.postValue(1);
             });
             //set drag event if an element is moved to this page
             binding.pageViewNext.setOnDragListener((v, event) -> {
@@ -370,10 +392,10 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
     public void onSwing(int direction) {
         switch (direction) {
             case PageView.SWING_DIRECTION_UP:
-                moveToPrev();
+                switchPageDelta.postValue(-1);
                 break;
             case PageView.SWING_DIRECTION_DOWN:
-                moveToNext();
+                switchPageDelta.postValue(1);
                 break;
         }
     }
