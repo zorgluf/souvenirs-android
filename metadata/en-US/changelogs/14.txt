@@ -1,0 +1,7 @@
+New Feature: New PDF export method, fix image format
+Change: Add a button to add new page directly when editing last page
+Fix: share status when share is deleted on server side
+Fix: better animations in edit mode
+Fix: display of nextcloud album status when offline or on error
+Fix: swipe direction in edit page mode
+Fix: some buttons background
