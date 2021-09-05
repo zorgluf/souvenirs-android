@@ -36,6 +36,7 @@
             android:textAlignment="center"
             android:textAppearance="@style/AppTheme.AlbumTextDefault"
             app:autoSizeMinTextSize="2sp"
+            app:autoSizeMaxTextSize="1000sp"
             app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="@+id/guideline_bottom"
             app:layout_constraintEnd_toEndOf="@+id/guideline_right"

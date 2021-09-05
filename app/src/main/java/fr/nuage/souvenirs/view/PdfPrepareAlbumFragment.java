@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -57,8 +58,6 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class PdfPrepareAlbumFragment extends Fragment {
 
-    private PageListAdapter pageListAdapter;
-    private RecyclerView pageRecyclerView;
     private AlbumViewModel albumVM;
     private int resolution;
     private PrintedPdfDocument document;
@@ -90,25 +89,22 @@ public class PdfPrepareAlbumFragment extends Fragment {
         //inflateview
         View v = inflater.inflate(R.layout.fragment_prepare_pdf,container,false);
 
-        //set listview
-        pageRecyclerView = v.findViewById(R.id.page_listview);
+        //set real size
+        FrameLayout mainLayout = v.findViewById(R.id.pdf_main_layout);
         int pageSize = document.getPageWidth();
-        ViewGroup.LayoutParams params = pageRecyclerView.getLayoutParams();
+        ViewGroup.LayoutParams params = mainLayout.getLayoutParams();
         params.width = pageSize;
-        pageRecyclerView.setLayoutParams(params);
+        mainLayout.setLayoutParams(params);
 
-        //fill recyclerview
-        pageListAdapter =  new PageListAdapter(this);
-        pageRecyclerView.setAdapter(pageListAdapter);
+        //start page generation
         albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
-            pageListAdapter.updateList(pageViewModels);
             if (pageViewModels != null) {
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 executor.schedule(() -> {
-                    exportToPdf(pageRecyclerView);
+                    exportToPdf(mainLayout,pageViewModels);
                     waitDialog.dismiss();
                     Navigation.findNavController(container).popBackStack();
-                },2, TimeUnit.SECONDS); //dirty fix : wait for adapter to populate
+                },2, TimeUnit.SECONDS);
             }
         });
 
@@ -132,23 +128,24 @@ public class PdfPrepareAlbumFragment extends Fragment {
         document = new PrintedPdfDocument(getContext(),printAttributes);
     }
 
-    private void exportToPdf(RecyclerView listView) {
+    private void exportToPdf(FrameLayout mainLayout, ArrayList<PageViewModel> pageViewModels) {
 
         String pdfPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath(),albumVM.getName().getValue()+".pdf").getPath();
 
-        //one page per Page object
-        for(int i = 0 ; i < listView.getAdapter().getItemCount(); i++) {
-            int j = i;
+        //render page by page
+        for (PageViewModel pageViewModel : pageViewModels) {
             getActivity().runOnUiThread(() -> {
-                listView.scrollToPosition(j);
+                PageView pageView = new PageView(getContext());
+                pageView.setPageViewModel(pageViewModel);
+                mainLayout.removeAllViewsInLayout();
+                mainLayout.addView(pageView);
             });
             try {
                 Thread.sleep(2000); //dirty fix : wait for image rendering
             } catch (InterruptedException e) {
             }
-            View v = listView.findViewHolderForAdapterPosition(i).itemView;
-            PdfDocument.Page pagePdf = document.startPage(i);
-            v.draw(pagePdf.getCanvas());
+            PdfDocument.Page pagePdf = document.startPage(pageViewModels.indexOf(pageViewModel));
+            mainLayout.draw(pagePdf.getCanvas());
             document.finishPage(pagePdf);
         }
         // write the document to file
@@ -177,86 +174,6 @@ public class PdfPrepareAlbumFragment extends Fragment {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.ic_check_black_24dp);
         NotificationManagerCompat.from(getContext()).notify(new Random().nextInt(),nBuilder.build());
-    }
-
-    public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
-
-        private ArrayList<PageViewModel> mPages = new ArrayList<>();
-        private Fragment mFragment;
-
-        public PageListAdapter(Fragment fragment) {
-            mFragment = fragment;
-        }
-
-        public void updateList(ArrayList<PageViewModel> pageViewModels) {
-            if (pageViewModels != null) {
-                DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new PageDiffUtilCallback(mPages, pageViewModels));
-                mPages = pageViewModels;
-                diffResult.dispatchUpdatesTo(this);
-            }
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            private ShowItemPageListBinding mBinding;
-            public ViewHolder(ShowItemPageListBinding binding) {
-                super(binding.getRoot());
-                mBinding = binding;
-            }
-            public void bind(AlbumViewModel albumViewModel) {
-                mBinding.setAlbum(albumViewModel);
-                mBinding.executePendingBindings();
-            }
-        }
-
-        @NonNull
-        @Override
-        public PageListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            ShowItemPageListBinding binding = DataBindingUtil.inflate(inflater, R.layout.show_item_page_list,parent,false);
-            binding.setLifecycleOwner(mFragment);
-            return new PageListAdapter.ViewHolder(binding);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-            //listen to elements changes
-            PageViewModel page = mPages.get(position);
-            holder.bind(albumVM);
-            page.getElements().observe(mFragment, elementViewModels -> {
-                ViewGroup layout = holder.itemView.findViewById(R.id.page_layout);
-                layout.removeAllViewsInLayout();
-                LayoutInflater inflater = LayoutInflater.from(layout.getContext());
-                //build layout
-                if (elementViewModels != null) {
-                    for (final ElementViewModel e : elementViewModels) {
-                        if (e.getClass() == TextElementViewModel.class) {
-                            //load xml layout and bind data
-                            TextElementViewShowBinding txtBinding = DataBindingUtil.inflate(inflater, R.layout.text_element_view_show,layout,false);
-                            txtBinding.setLifecycleOwner(mFragment);
-                            txtBinding.setElement((TextElementViewModel) e);
-                            txtBinding.executePendingBindings();
-                            layout.addView(txtBinding.getRoot());
-                        } else if (e.getClass() == ImageElementViewModel.class || e.getClass() == PaintElementViewModel.class) {
-                            //load xml layout and bind data
-                            ImageElementViewBinding imBinding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);
-                            imBinding.setLifecycleOwner(mFragment);
-                            imBinding.setElement((ImageElementViewModel) e);
-                            imBinding.executePendingBindings();
-                            layout.addView(imBinding.getRoot());
-                        } else {
-                            //unknown element : display default view
-                            inflater.inflate(R.layout.unknown_element_view, layout,true);
-                        }
-                    }
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return mPages.size();
-        }
     }
 
 }
