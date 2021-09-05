@@ -402,6 +402,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
     private void moveToNext() {
         PageViewModel nextPage = albumVM.getNextPage(pageVM);
+        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
         if (nextPage != null) {
             //build transition
             TransitionSet transition = new TransitionSet();
@@ -409,6 +410,11 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             tMove.addTarget(pageVM.getId().toString());
             tMove.addTarget(nextPage.getId().toString());
             transition.addTransition(tMove);
+            if (prevPage != null) {
+                Transition fade = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.fade);
+                fade.addTarget(prevPage.getId().toString());
+                transition.addTransition(fade);
+            }
             //change main page
             pageVM = nextPage;
             //build new view
@@ -421,6 +427,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
     private void moveToPrev() {
         PageViewModel prevPage = albumVM.getPrevPage(pageVM);
+        PageViewModel nextPage = albumVM.getNextPage(pageVM);
         if (prevPage != null) {
             //build transition
             TransitionSet transition = new TransitionSet();
@@ -428,6 +435,11 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             tMove.addTarget(pageVM.getId().toString());
             tMove.addTarget(prevPage.getId().toString());
             transition.addTransition(tMove);
+            if (nextPage != null) {
+                Transition fade = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.fade);
+                fade.addTarget(nextPage.getId().toString());
+                transition.addTransition(fade);
+            }
             //change main page
             pageVM = prevPage;
             //build new view
