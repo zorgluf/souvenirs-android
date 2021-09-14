@@ -13,7 +13,8 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 
 public class ImageActionModeCallback implements ActionMode.Callback {
 
-    private ImageElementViewModel imageElementViewModel;
+    private static final double ZOOM_FACTOR = 0.2;
+    private final ImageElementViewModel imageElementViewModel;
     private Observer<Boolean> imageIsSelectedObserver;
 
     public ImageActionModeCallback(ImageElementViewModel imageElementViewModel) {
@@ -26,13 +27,14 @@ public class ImageActionModeCallback implements ActionMode.Callback {
         // Inflate a menu resource providing context menu items
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.menu_edit_page_select_image, menu);
+        menu.findItem(R.id.action_menu_image_ratio).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.findItem(R.id.action_menu_image_zoomin).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.findItem(R.id.action_menu_image_zoomout).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.findItem(R.id.action_menu_image_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         //subscribe to element selection
-        imageIsSelectedObserver = new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isSelected) {
-                if (isSelected.equals(false)) {
-                    mode.finish();
-                }
+        imageIsSelectedObserver = isSelected -> {
+            if (isSelected.equals(false)) {
+                mode.finish();
             }
         };
         imageElementViewModel.getIsSelected().observeForever(imageIsSelectedObserver);
@@ -64,6 +66,12 @@ public class ImageActionModeCallback implements ActionMode.Callback {
                 return true;
             case R.id.action_menu_image_setasalbum:
                 imageElementViewModel.setAsAlbumImage();
+                return true;
+            case R.id.action_menu_image_zoomin:
+                imageElementViewModel.zoomIn(ZOOM_FACTOR);
+                return true;
+            case R.id.action_menu_image_zoomout:
+                imageElementViewModel.zoomOut(ZOOM_FACTOR);
                 return true;
             default:
                 return false;
