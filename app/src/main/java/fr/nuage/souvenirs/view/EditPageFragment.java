@@ -93,6 +93,17 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
         setHasOptionsMenu(true);
 
+        if (savedInstanceState != null) {
+            pendingPhotoFile = (File) savedInstanceState.getSerializable("pendingPhotoFile");
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("pendingPhotoFile", pendingPhotoFile);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
