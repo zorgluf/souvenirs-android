@@ -187,6 +187,14 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             }
         });
 
+        //listen to paint mode
+        pageVM.getLdPaintMode().observe(getViewLifecycleOwner(), isPaintMode -> {
+            if (isPaintMode) {
+                //activate submenu
+                getActivity().startActionMode(new PaintActionModeCallback(getActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
+            }
+        });
+
         //listen swing on pageview
         binding.pageViewEdit.setOnSwingListener(this);
 

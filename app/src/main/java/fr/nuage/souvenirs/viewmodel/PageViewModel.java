@@ -1,5 +1,6 @@
 package fr.nuage.souvenirs.viewmodel;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -177,7 +178,9 @@ public class PageViewModel extends ViewModel {
     public void startPaintMode() {
         //create paint element if needed
         if (!page.hasPaintElement()) {
-            page.createPaintElement();
+            PaintElement paintElement = page.createPaintElement();
+            PaintElementViewModel paintElementViewModel = new PaintElementViewModel(paintElement);
+            paintElementViewModel.setImage(Bitmap.createBitmap(10,10, Bitmap.Config.ARGB_8888));
         }
         //set draw mode on view model
         setPaintMode(true);

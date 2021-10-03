@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.PageViewAddBinding;
@@ -59,31 +60,36 @@ public class PageView extends ConstraintLayout {
 
     private void initView() {
         if (pageViewModel == null) {
-            PageViewAddBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view_add,this,true);
+            DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view_add,this,true);
         } else {
             PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
             binding.setPage(pageViewModel);
 
             setTransitionName(pageViewModel.getId().toString());
 
-            //init swing listener
-            mDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onFling(MotionEvent event1, MotionEvent event2,
-                                       float velocityX, float velocityY) {
-                    if (onSwingListener != null) {
-                        if (Math.abs(velocityY) > Math.abs(velocityX)) {
-                            if (velocityY > 0) {
-                                onSwingListener.onSwing(SWING_DIRECTION_UP);
-                            } else {
-                                onSwingListener.onSwing(SWING_DIRECTION_DOWN);
+            pageViewModel.getLdPaintMode().observe((AppCompatActivity)getContext(), aBoolean -> {
+                if (aBoolean) {
+                    mDetector = null;
+                } else {
+                    //init swing listener
+                    mDetector = new GestureDetectorCompat(getContext(), new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                                               float velocityX, float velocityY) {
+                            if (onSwingListener != null) {
+                                if (Math.abs(velocityY) > Math.abs(velocityX)) {
+                                    if (velocityY > 0) {
+                                        onSwingListener.onSwing(SWING_DIRECTION_UP);
+                                    } else {
+                                        onSwingListener.onSwing(SWING_DIRECTION_DOWN);
+                                    }
+                                }
                             }
+                            return true;
                         }
-                    }
-                    return true;
+                    });
                 }
             });
-
 
             ConstraintLayout pageLayout = binding.pageLayout;
             //listen to elements changes

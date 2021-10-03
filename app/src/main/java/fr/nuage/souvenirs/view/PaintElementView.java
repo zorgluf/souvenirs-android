@@ -59,17 +59,13 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
         AppCompatActivity activity = (AppCompatActivity)getContext();
+        //listen to color change
+        paintElementViewModel.getLdColor().observe(activity, color ->  { setColor(color); });
         //listen to paint mode
         pageViewModel.getLdPaintMode().observe(activity, isPaintMode -> {
-            if (isPaintMode) {
-                //activate submenu
-                activity.startActionMode(new PaintActionModeCallback(activity.getSupportFragmentManager(),pageViewModel,paintElementViewModel));
-            }
             //activate/deactivate draw on page
             setPaintMode(isPaintMode);
         });
-        //listen to color change
-        paintElementViewModel.getLdColor().observe(activity, color ->  { setColor(color); });
     }
 
     public void setColor(int color) {
