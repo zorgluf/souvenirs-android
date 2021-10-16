@@ -22,7 +22,6 @@ import fr.nuage.souvenirs.SettingsActivity;
 public class Albums {
 
     private String albumListPath;
-    private FileObserver albumsFileObserver;
     private MutableLiveData<ArrayList<Album>> ldAlbumList = new MutableLiveData<ArrayList<Album>>();
     private ArrayList<Album> albumList = new ArrayList<>();
     private static Albums mAlbums;
@@ -33,13 +32,6 @@ public class Albums {
         }
         this.albumListPath = albumsPath;
         updateAlbumList();
-        /*albumsFileObserver = new FileObserver(albumListPath,FileObserver.CREATE | FileObserver.DELETE) {
-            @Override
-            public void onEvent(int i, @Nullable String s) {
-                updateAlbumList();
-            }
-        };
-        albumsFileObserver.startWatching();*/
     }
 
     public static Albums getInstance(String albumsPath) {

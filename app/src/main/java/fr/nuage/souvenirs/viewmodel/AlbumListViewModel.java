@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Observer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,11 +35,13 @@ public class AlbumListViewModel extends AndroidViewModel {
 
     public AlbumListViewModel(@NonNull Application application) {
         super(application);
-        //loads path from prefs
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplication());
-        String albumPathPref = prefs.getString(SettingsActivity.ALBUMS_PATH, null);
+        //get albums path
+        File albumsPath = new File(application.getApplicationContext().getExternalFilesDir(null),"albums");
+        if (!albumsPath.exists()) {
+            albumsPath.mkdirs();
+        }
         //load albums
-        albums = Albums.getInstance(albumPathPref);
+        albums = Albums.getInstance(albumsPath.getPath());
         //albumViewModels = new CopyOnWriteArrayList<>(new ArrayList<>());
         albumViewModels = new ArrayList<>();
         //build livedata and load album list
