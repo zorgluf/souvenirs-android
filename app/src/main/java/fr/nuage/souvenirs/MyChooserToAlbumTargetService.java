@@ -23,7 +23,6 @@ import fr.nuage.souvenirs.model.Albums;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class MyChooserToAlbumTargetService extends ChooserTargetService {
-    //FIXME
 
     @Override
     public List<ChooserTarget> onGetChooserTargets(ComponentName targetActivityName, IntentFilter matchedFilter) {
