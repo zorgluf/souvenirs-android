@@ -96,4 +96,5 @@ public abstract class ElementViewModel extends ViewModel {
     public Element getElement() {
         return element;
     }
+
 }

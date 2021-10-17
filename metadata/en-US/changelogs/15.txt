@@ -1,0 +1,5 @@
+New Feature: +- zoom buttons on images
+Change: due to compatibility issues with scoped storage, the directory storing album is now fixed and local to application storage directory.
+Fix: framing bug on landscape photos
+Fix: bug when using the paint feature
+

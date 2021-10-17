@@ -1,5 +1,6 @@
 package fr.nuage.souvenirs.viewmodel;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -102,5 +103,19 @@ public class ImageElementViewModel extends ElementViewModel {
 
     public void setZoom(int zoom) {
         ((ImageElement)element).setZoom(zoom);
+    }
+
+    public void zoomIn(double zoomFactor) {
+        ImageElement imageElement = (ImageElement) element;
+        imageElement.setZoom((int)(imageElement.getZoom()*(1+zoomFactor)));
+        imageElement.setOffsetX((int)(imageElement.getOffsetX()-zoomFactor*(imageElement.getOffsetX()+50)));
+        imageElement.setOffsetY((int)(imageElement.getOffsetY()-zoomFactor*(imageElement.getOffsetY()+50)));
+    }
+
+    public void zoomOut(double zoomFactor) {
+        ImageElement imageElement = (ImageElement) element;
+        imageElement.setZoom((int)(imageElement.getZoom()*(1-zoomFactor)));
+        imageElement.setOffsetX((int)(imageElement.getOffsetX()+zoomFactor*(50+imageElement.getOffsetX())));
+        imageElement.setOffsetY((int)(imageElement.getOffsetY()+zoomFactor*(50+imageElement.getOffsetY())));
     }
 }

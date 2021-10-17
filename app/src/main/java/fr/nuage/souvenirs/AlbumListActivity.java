@@ -36,17 +36,6 @@ public class AlbumListActivity extends AppCompatActivity  {
 
         createNotificationChannel();
 
-        //set default prefs
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String albumPathPref = prefs.getString(SettingsActivity.ALBUMS_PATH, null);
-        if (albumPathPref == null || albumPathPref.equals("")) {
-            File path = new File(getExternalFilesDir(null),"albums");
-            path.mkdirs();
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(SettingsActivity.ALBUMS_PATH, path.getPath());
-            editor.commit();
-        }
-
         setContentView(R.layout.activity_album_list);
 
         NavController navController = Navigation.findNavController(this,R.id.main_navhost);

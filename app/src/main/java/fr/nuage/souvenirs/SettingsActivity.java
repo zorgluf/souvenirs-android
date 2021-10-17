@@ -30,7 +30,6 @@ import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    public static final String ALBUMS_PATH = "albums_path";
     public static final String NEXTCLOUD_ENABLED = "nextcloud_enabled";
     public static final String NEXTCLOUD_WIFIONLY = "nextcloud_wifionly";
     public static final String NEXTCLOUD_VERSION = "nextcloud_version";

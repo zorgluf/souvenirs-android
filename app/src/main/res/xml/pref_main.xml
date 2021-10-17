@@ -2,13 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <EditTextPreference
-        android:defaultValue="Default value"
-        android:key="albums_path"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/albums_path" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="nextcloud_enabled"

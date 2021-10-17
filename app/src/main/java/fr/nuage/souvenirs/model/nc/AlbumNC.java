@@ -259,7 +259,7 @@ public class AlbumNC {
         APIProvider.AssetProbeResult result = null;
         try {
             result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath),e);
             setState(STATE_ERROR);
             return false;

@@ -41,28 +41,25 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         contourPaint.setStyle(Paint.Style.STROKE);
 
         ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, (AppCompatActivity)context);
-        Observer<Boolean> activateListenersObserver = new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if ((pageViewModel.getLdEditMode().getValue() != null) && (pageViewModel.getLdPaintMode().getValue() != null)) {
-                    if (pageViewModel.getLdEditMode().getValue()) {
-                        if (!pageViewModel.getLdPaintMode().getValue()) {
-                            setOnClickListener(elementMoveDragListener);
-                            setOnTouchListener(elementMoveDragListener);
-                            setOnLongClickListener(elementMoveDragListener);
-                            setOnDragListener(elementMoveDragListener);
-                            setClickable(true);
-                            return;
-                        }
+        Observer<Boolean> activateListenersObserver = aBoolean -> {
+            if ((pageViewModel.getLdEditMode().getValue() != null) && (pageViewModel.getLdPaintMode().getValue() != null)) {
+                if (pageViewModel.getLdEditMode().getValue()) {
+                    if (!pageViewModel.getLdPaintMode().getValue()) {
+                        setOnClickListener(elementMoveDragListener);
+                        setOnTouchListener(elementMoveDragListener);
+                        setOnLongClickListener(elementMoveDragListener);
+                        setOnDragListener(elementMoveDragListener);
+                        setClickable(true);
+                        return;
                     }
                 }
-                setOnClickListener(null);
-                setOnTouchListener(null);
-                setOnLongClickListener(null);
-                setOnDragListener(null);
-                setClickable(false);
-                setLongClickable(false);
             }
+            setOnClickListener(null);
+            setOnTouchListener(null);
+            setOnLongClickListener(null);
+            setOnDragListener(null);
+            setClickable(false);
+            setLongClickable(false);
         };
         pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, activateListenersObserver);
         pageViewModel.getLdEditMode().observe((AppCompatActivity)context, activateListenersObserver);

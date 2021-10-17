@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -93,6 +94,17 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
 
         setHasOptionsMenu(true);
 
+        if (savedInstanceState != null) {
+            pendingPhotoFile = (File) savedInstanceState.getSerializable("pendingPhotoFile");
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("pendingPhotoFile", pendingPhotoFile);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -116,7 +128,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             ((ViewGroup) getView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
         });
 
-        return createView(inflater,container);
+        return new LinearLayout(container.getContext());
 
     }
 
@@ -173,6 +185,14 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                         });
                     }
                 }
+            }
+        });
+
+        //listen to paint mode
+        pageVM.getLdPaintMode().observe(getViewLifecycleOwner(), isPaintMode -> {
+            if (isPaintMode) {
+                //activate submenu
+                getActivity().startActionMode(new PaintActionModeCallback(getActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
             }
         });
 

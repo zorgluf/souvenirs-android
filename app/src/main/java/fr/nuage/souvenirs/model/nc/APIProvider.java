@@ -43,7 +43,7 @@ public class APIProvider {
             }
             @Override
             public void onError(Exception ex) {
-                //on error, just log (FIXME)
+                //on error, just log
                 Log.w("NCAPI","Nextcloud API connection error.");
             }
         };

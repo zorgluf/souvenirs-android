@@ -12,6 +12,7 @@ import android.service.chooser.ChooserTargetService;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,12 +30,9 @@ public class MyChooserToAlbumTargetService extends ChooserTargetService {
         ArrayList<ChooserTarget> targets = new ArrayList<>();
 
         //load albums
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplication());
-        String albumPathPref = prefs.getString(SettingsActivity.ALBUMS_PATH, null);
-        if (albumPathPref == null) {
-            return null;
-        }
-        Albums albums = Albums.getInstance(albumPathPref);
+        //get albums path
+        File albumsPath = new File(getApplication().getApplicationContext().getExternalFilesDir(null),"albums");
+        Albums albums = Albums.getInstance(albumsPath.getPath());
         for (Album a : albums.getAlbumList()) {
             //we exclude albums edited more than 30 days ago
             long deltaDays = TimeUnit.DAYS.convert((new Date()).getTime() - a.getLastEditDate().getTime(), TimeUnit.MILLISECONDS);
