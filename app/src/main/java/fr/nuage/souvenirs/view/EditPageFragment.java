@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -127,7 +128,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             ((ViewGroup) getView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
         });
 
-        return createView(inflater,container);
+        return new LinearLayout(container.getContext());
 
     }
 
