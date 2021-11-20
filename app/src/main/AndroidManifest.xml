@@ -84,4 +84,8 @@
 
     </application>
 
+    <queries>
+        <package android:name="com.nextcloud.client" />
+    </queries>
+
 </manifest>
