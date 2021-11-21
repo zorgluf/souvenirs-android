@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
@@ -29,7 +30,7 @@ import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class AddImageToAlbumActivity extends AppCompatActivity implements AlbumsRecyclerViewAdapter.OnListFragmentInteractionListener{
 
-    public static final String EXTRA_ALBUM = "extra_album";
+    public static final String IMAGE_SHARE = "fr.nuage.souvenirs.AddImageToAlbumActivity.IMAGE_SHARE";
     private ArrayList<Uri> imageUris;
     private AlbumListViewModel albumsVM;
     private AlbumsRecyclerViewAdapter mAdapter;
@@ -59,9 +60,9 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         mAdapter = new AlbumsRecyclerViewAdapter(albumsVM.getAlbumList().getValue(), this, false, true);
 
         //pre-select album
-        if (extra.containsKey(AddImageToAlbumActivity.EXTRA_ALBUM)) {
-            String albumPath = extra.getString(AddImageToAlbumActivity.EXTRA_ALBUM);
-            AlbumViewModel album = albumsVM.getAlbum(albumPath);
+        if (extra.containsKey(Intent.EXTRA_SHORTCUT_ID)) {
+            String albumId = extra.getString(Intent.EXTRA_SHORTCUT_ID);
+            AlbumViewModel album = albumsVM.getAlbum(UUID.fromString(albumId));
             onListFragmentInteraction(album,false,false);
         } else {
             //set content view

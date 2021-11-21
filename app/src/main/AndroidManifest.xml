@@ -41,6 +41,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".SettingsActivity"
@@ -50,37 +52,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="fr.nuage.souvenirs.AlbumListActivity" />
         </activity>
+
         <activity
             android:name=".AddImageToAlbumActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="image/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="image/*" />
             </intent-filter>
 
             <meta-data
                 android:name="android.service.chooser.chooser_target_service"
-                android:value=".MyChooserToAlbumTargetService" />
+                android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
+
         </activity>
 
-        <service
-            android:name=".MyChooserToAlbumTargetService"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
-            <intent-filter>
-                <action android:name="android.service.chooser.ChooserTargetService" />
-            </intent-filter>
-        </service>
 
     </application>
 
