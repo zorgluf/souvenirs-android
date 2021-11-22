@@ -62,14 +62,21 @@ public class ZoomOffsetTransformation extends BitmapTransformation {
 
     @Override
     public int hashCode() {
-        return Util.hashCode("zoom offset transformation".hashCode(),
-                Util.hashCode(offsetX+1000*offsetY));
+        int hash = Util.hashCode("zoom offset transformation".hashCode());
+        hash = Util.hashCode(offsetX,hash);
+        hash = Util.hashCode(offsetY,hash);
+        hash = Util.hashCode(zoom,hash);
+        return hash;
     }
 
     @Override
     public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
         messageDigest.update("zoom offset transformation".getBytes());
-        byte[] data = ByteBuffer.allocate(4).putInt(offsetX+1000*offsetY).array();
-        messageDigest.update(data);
+        byte[] offsetXData = ByteBuffer.allocate(4).putInt(offsetX).array();
+        messageDigest.update(offsetXData);
+        byte[] offsetYData = ByteBuffer.allocate(4).putInt(offsetY).array();
+        messageDigest.update(offsetYData);
+        byte[] zoomData = ByteBuffer.allocate(4).putInt(zoom).array();
+        messageDigest.update(zoomData);
     }
 }
