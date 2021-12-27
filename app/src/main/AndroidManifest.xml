@@ -78,6 +78,9 @@
 
     <queries>
         <package android:name="com.nextcloud.client" />
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
     </queries>
 
 </manifest>
