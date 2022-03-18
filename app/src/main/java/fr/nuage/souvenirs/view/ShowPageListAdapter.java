@@ -19,10 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.File;
 import java.util.ArrayList;
 
+import fr.nuage.souvenirs.PanoViewerActivity;
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
+import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
@@ -109,13 +111,26 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                 binding.imageImageview.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        //open view intent
-                                        Intent intent = new Intent();
-                                        intent.setAction(Intent.ACTION_VIEW);
-                                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                        Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
-                                        intent.setDataAndType(imUri, "image/*");
-                                        mFragment.getActivity().startActivity(intent);
+                                        //special handling for panorama
+                                        if (((ImageElementViewModel) e).getIsPano().getValue()) {
+                                            //open PanoViewerActivity
+                                            Intent intent = new Intent();
+                                            intent.setClass(mFragment.getContext().getApplicationContext(), PanoViewerActivity.class);
+                                            intent.setAction(Intent.ACTION_SEND);
+                                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                            Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
+                                            intent.setType(ImageElement.GOOGLE_PANORAMA_360_MIMETYPE);
+                                            intent.putExtra(Intent.EXTRA_STREAM,imUri);
+                                            mFragment.getActivity().startActivity(intent);
+                                        } else {
+                                            //open view intent on image
+                                            Intent intent = new Intent();
+                                            intent.setAction(Intent.ACTION_VIEW);
+                                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                            Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
+                                            intent.setDataAndType(imUri, "image/*");
+                                            mFragment.getActivity().startActivity(intent);
+                                        }
                                     }
                                 });
                             }
