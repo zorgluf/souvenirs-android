@@ -1,0 +1,4 @@
+New Feature: Enable direct share target
+New Feature: Photosphere support
+Fix: Camera access
+
