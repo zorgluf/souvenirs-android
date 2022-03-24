@@ -5,6 +5,7 @@
 
     <data>
         <import type="fr.nuage.souvenirs.model.ImageElement" />
+        <import type="android.view.View"/>
         <variable name="element" type="fr.nuage.souvenirs.viewmodel.ImageElementViewModel"/>
     </data>
 
@@ -44,6 +45,19 @@
             android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
             android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }'
             android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'/>
+
+        <ImageView
+            android:id="@+id/image_panorama"
+            android:layout_width="64dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:alpha="0.5"
+            android:visibility="@{(element.isPano == true) ? View.VISIBLE : View.GONE }"
+            app:layout_constraintDimensionRatio="h,1:1"
+            app:layout_constraintStart_toEndOf="@+id/guideline_left"
+            app:layout_constraintTop_toBottomOf="@+id/guideline_top"
+            app:srcCompat="@drawable/ic_baseline_panorama_horizontal_24"
+            tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_bottom"

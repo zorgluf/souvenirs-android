@@ -73,4 +73,7 @@
     <string name="add_photo">Prendre une photo</string>
     <string name="pdf_export_wait">Attendre quelques secondes la génération du PDF…</string>
     <string name="pdf_export_title">Génération du PDF</string>
+    <string name="toast_no_camera">Aucun appareil photo détecté !</string>
+    <string name="action_menu_image_zoomin">Zoom avant</string>
+    <string name="action_menu_image_zoomout">Zoom arrière</string>
 </resources>

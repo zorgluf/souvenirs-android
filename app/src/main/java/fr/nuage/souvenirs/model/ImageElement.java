@@ -8,7 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -17,12 +19,14 @@ public class ImageElement extends Element {
     public static final int FIT = 0;
     public static final int CENTERCROP = 1;
     public static final int ZOOM_OFFSET = 2;
+    public static final String GOOGLE_PANORAMA_360_MIMETYPE = "application/vnd.google.panorama360+jpg";
 
     private MutableLiveData<String> ldImagePath = new MutableLiveData<String>();
     private MutableLiveData<Integer> ldTransformType = new MutableLiveData<>();
     private MutableLiveData<Integer> ldZoom = new MutableLiveData<>();
     private MutableLiveData<Integer> ldOffsetX = new MutableLiveData<>();
     private MutableLiveData<Integer> ldOffsetY = new MutableLiveData<>();
+    private MutableLiveData<Boolean> ldIsPano = new MutableLiveData<>();
     private String imagePath;
     private String mimeType;
     private int zoom = 100;
@@ -79,18 +83,45 @@ public class ImageElement extends Element {
 
     public void setMimeType(String mimeType) {
         setMimeType(mimeType,true);
+
     }
 
     public void setMimeType(String mimeType, boolean save) {
         this.mimeType = mimeType;
+        ldIsPano.postValue(isPhotosphere());
         if (save) {
             onChange();
         }
     }
 
+    private boolean isPhotosphere(String imagePath) {
+        File mFile = new File(imagePath);
+        try {
+            BufferedReader mReader = new BufferedReader(new FileReader(mFile));
+            String sCurrentLine;
+            while ((sCurrentLine = mReader.readLine()) != null) {
+                if(sCurrentLine.contains("GPano:ProjectionType")){
+                    mReader.close();
+                    return true;
+                }
+            }
+            mReader.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return false;
+    }
+
+    private boolean isPhotosphere() {
+        return (mimeType.equals(GOOGLE_PANORAMA_360_MIMETYPE));
+    }
+
     public void setImage(InputStream input, String mimeType) {
         String imPath = pageParent.getAlbum().createDataFile(input,mimeType);
         if (imPath != null) {
+            if (isPhotosphere(imPath)) {
+                mimeType = GOOGLE_PANORAMA_360_MIMETYPE;
+            }
             setImagePath(imPath);
             setMimeType(mimeType);
         } else {
@@ -245,6 +276,10 @@ public class ImageElement extends Element {
 
     public MutableLiveData<Integer> getLdOffsetY() {
         return ldOffsetY;
+    }
+
+    public MutableLiveData<Boolean> getLdIsPano() {
+        return ldIsPano;
     }
 
     /**

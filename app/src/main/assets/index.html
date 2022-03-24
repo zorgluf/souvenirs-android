@@ -1,0 +1,25 @@
+<head>
+    <!-- for optimal display on high DPI devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="photo-sphere-viewer.min.css"/>
+</head>
+
+<script src="three.min.js"></script>
+<script src="browser.min.js"></script>
+<script src="photo-sphere-viewer.min.js"></script>
+<body style='margin:0;padding:0;'>
+<!-- the viewer container must have a defined size -->
+<div id="viewer" style="width: 100vw; height: 100vh;"></div>
+
+<script>
+  const viewer = new PhotoSphereViewer.Viewer({
+    container: document.querySelector('#viewer'),
+    panorama: injectedObject.getPanoUrl(),
+    navbar: [
+    'autorotate',
+    ],
+    autorotateDelay: 1,
+  });
+</script>
+</body>

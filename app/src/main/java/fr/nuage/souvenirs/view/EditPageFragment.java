@@ -1,14 +1,13 @@
 package fr.nuage.souvenirs.view;
 
+import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
+
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,22 +15,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.transition.Scene;
 import androidx.transition.Transition;
 import androidx.transition.TransitionInflater;
@@ -43,15 +35,14 @@ import com.google.android.material.appbar.AppBarLayout;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
-import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
@@ -59,8 +50,6 @@ import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
-
-import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
 
 public class EditPageFragment extends Fragment implements PageView.OnSwingListener {
 
@@ -86,7 +75,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             String albumPath = EditPageFragmentArgs.fromBundle(getArguments()).getAlbumPath();
             String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
             //load view model
-            albumVM = new ViewModelProvider(getActivity(),new AlbumListViewModelFactory(getActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
+            albumVM = new ViewModelProvider(requireActivity(),new AlbumListViewModelFactory(requireActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
             pageVM = albumVM.getPage(UUID.fromString(pageId));
             //set focus on that page
             albumVM.setFocusPage(pageVM);
@@ -101,7 +90,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         outState.putSerializable("pendingPhotoFile", pendingPhotoFile);
@@ -111,7 +100,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                              Bundle savedInstanceState) {
 
         //set title
-        getActivity().setTitle(R.string.edit_page_title);
+        requireActivity().setTitle(R.string.edit_page_title);
         //listen to page switch
         switchPageDelta.observe(getViewLifecycleOwner(), integer -> {
             if (integer == 1) {
@@ -124,11 +113,11 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         //listen to pages changes
         albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
             //build new view
-            ((ViewGroup) getView()).removeAllViews();
-            ((ViewGroup) getView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
+            ((ViewGroup) requireView()).removeAllViews();
+            ((ViewGroup) requireView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
         });
 
-        return new LinearLayout(container.getContext());
+        return new LinearLayout(Objects.requireNonNull(container).getContext());
 
     }
 
@@ -159,7 +148,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                         e.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
                             if (isSelected) {
                                 if (!et.equals(actionModeElement)) {
-                                    getActivity().startActionMode(new TextActionModeCallback(et));
+                                    requireActivity().startActionMode(new TextActionModeCallback(et));
                                     actionModeElement = et;
                                 }
                             } else {
@@ -174,7 +163,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                         ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
                             if (isSelected) {
                                 if (!ei.equals(actionModeElement)) {
-                                    getActivity().startActionMode(new ImageActionModeCallback(ei));
+                                    requireActivity().startActionMode(new ImageActionModeCallback(ei));
                                     actionModeElement = ei;
                                 }
                             } else {
@@ -192,7 +181,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         pageVM.getLdPaintMode().observe(getViewLifecycleOwner(), isPaintMode -> {
             if (isPaintMode) {
                 //activate submenu
-                getActivity().startActionMode(new PaintActionModeCallback(getActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
+                requireActivity().startActionMode(new PaintActionModeCallback(requireActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
             }
         });
 
@@ -207,9 +196,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             binding.pageViewPrev.setVisibility(View.VISIBLE);
             prevPage.getLdEditMode().postValue(false);
             binding.pageViewPrev.setPageViewModel(prevPage);
-            binding.pageViewPrev.setOnClickListener(view -> {
-                switchPageDelta.postValue(-1);
-            });
+            binding.pageViewPrev.setOnClickListener(view -> switchPageDelta.postValue(-1));
             //set drag event if an element is moved to this page
             binding.pageViewPrev.setOnDragListener((v, event) -> {
                 String dragType = (String)event.getLocalState();
@@ -254,9 +241,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             });
         } else {
             nextPage.getLdEditMode().postValue(false);
-            binding.pageViewNext.setOnClickListener(view -> {
-                switchPageDelta.postValue(1);
-            });
+            binding.pageViewNext.setOnClickListener(view -> switchPageDelta.postValue(1));
             //set drag event if an element is moved to this page
             binding.pageViewNext.setOnDragListener((v, event) -> {
                 String dragType = (String)event.getLocalState();
@@ -298,14 +283,14 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
     public void onStart() {
         super.onStart();
         //dirty trick to disable toolbar scrolling for this fragment only
-        this.activityScrollStatus = ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).getScrollFlags();
-        ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(0);
+        this.activityScrollStatus = ((AppBarLayout.LayoutParams) requireActivity().findViewById(R.id.toolbar).getLayoutParams()).getScrollFlags();
+        ((AppBarLayout.LayoutParams) requireActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(0);
     }
 
     @Override
     public void onStop() {
         //restore activity scrolling
-        ((AppBarLayout.LayoutParams) getActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(this.activityScrollStatus);
+        ((AppBarLayout.LayoutParams) requireActivity().findViewById(R.id.toolbar).getLayoutParams()).setScrollFlags(this.activityScrollStatus);
         super.onStop();
     }
 
@@ -330,17 +315,19 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         addPhotoItem.setOnMenuItemClickListener(menuItem -> {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
                 // Create the File where the photo should go
                 pendingPhotoFile = albumVM.createEmptyDataFile("image/jpeg");
                 // Continue only if the File was successfully created
                 if (pendingPhotoFile != null) {
-                    Uri photoURI = FileProvider.getUriForFile(getContext(),
-                            getContext().getPackageName()+".provider",
+                    Uri photoURI = FileProvider.getUriForFile(requireContext(),
+                            requireContext().getPackageName()+".provider",
                             pendingPhotoFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     startActivityForResult(takePictureIntent, ACTIVITY_ADD_PHOTO);
                 }
+            } else {
+                Toast.makeText(getContext(),R.string.toast_no_camera,Toast.LENGTH_LONG).show();
             }
 
             return true;
@@ -381,7 +368,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         switch (requestCode) {
             case ACTIVITY_ADD_IMAGE:
                 if (resultCode == Activity.RESULT_OK) {
-                    ArrayList<Uri> uris = new ArrayList<Uri>();
+                    ArrayList<Uri> uris = new ArrayList<>();
                     ClipData clipdata = data.getClipData();
                     if (clipdata == null) {
                         uris.add(data.getData());
@@ -392,8 +379,8 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                         }
                     }
                     for (Uri uri: uris) {
-                        InputStream input = PageBuilder.getInputStreamFromUri(getActivity().getContentResolver(), uri);
-                        String mime = getActivity().getContentResolver().getType(uri);
+                        InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
+                        String mime = requireActivity().getContentResolver().getType(uri);
                         pageVM.addImage(input,mime);
                     }
                 }
@@ -440,7 +427,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             //build new view
             View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
             //change view
-            Scene destScene = new Scene((ViewGroup)getView(),nextView);
+            Scene destScene = new Scene((ViewGroup) requireView(),nextView);
             TransitionManager.go(destScene,transition);
         }
     }
@@ -465,7 +452,7 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             //build new view
             View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
             //change view
-            Scene destScene = new Scene((ViewGroup)getView(),nextView);
+            Scene destScene = new Scene((ViewGroup) requireView(),nextView);
             TransitionManager.go(destScene,transition);
         }
 
