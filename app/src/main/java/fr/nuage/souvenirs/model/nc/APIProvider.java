@@ -108,6 +108,8 @@ public class APIProvider {
         //for imageelement
         @SerializedName("image")
         String imagePath;
+        String name;
+        int size;
         @SerializedName("mime")
         String mimeType;
         int transformType;

@@ -22,6 +22,8 @@ public class ImageElementNC extends ElementNC {
 
     private String imagePath;
     private String mimeType;
+    private String name="";
+    private int size=0;
     private int zoom = 100;
     private int offsetX = 0;
     private int offsetY = 0;
@@ -78,6 +80,8 @@ public class ImageElementNC extends ElementNC {
     public JSONObject completeToJSON(JSONObject json) throws JSONException {
         json.put("image",imagePath);
         json.put("mime",mimeType);
+        json.put("name",name);
+        json.put("size",size);
         json.put("transformType",transformType);
         json.put("zoom",zoom);
         json.put("offsetX",offsetX);
@@ -94,6 +98,12 @@ public class ImageElementNC extends ElementNC {
         }
         if (jsonObject.has("mime")) {
             setMimeType(jsonObject.getString("mime"));
+        }
+        if (jsonObject.has("name")) {
+            name = jsonObject.getString("name");
+        }
+        if (jsonObject.has("size")) {
+            size = jsonObject.getInt("size");
         }
         if (jsonObject.has("transformType")) {
             setTransformType(jsonObject.getInt("transformType"));
@@ -114,6 +124,8 @@ public class ImageElementNC extends ElementNC {
         super.load(elementResp);
         setImagePath(elementResp.imagePath);
         setMimeType(elementResp.mimeType);
+        name = elementResp.name;
+        size = elementResp.size;
         setTransformType(elementResp.transformType);
         zoom = elementResp.zoom;
         offsetX = elementResp.offsetX;
@@ -125,6 +137,8 @@ public class ImageElementNC extends ElementNC {
         APIProvider.ElementResp elementResp = super.generateElementResp();
         elementResp.imagePath = getImagePath();
         elementResp.mimeType = getMimeType();
+        elementResp.name = name;
+        elementResp.size = size;
         elementResp.transformType = getTransformType();
         elementResp.zoom = zoom;
         elementResp.offsetX = offsetX;

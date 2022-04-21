@@ -97,9 +97,11 @@ public class PageViewModel extends ViewModel {
         return page;
     }
 
-    public void addImage(InputStream input, String mime) {
+    public void addImage(InputStream input, String mime, String displayName, int size) {
         ImageElement imageElement = page.createImageElement();
         imageElement.setImage(input,mime);
+        imageElement.setName(displayName);
+        imageElement.setSize(size);
         addImage(imageElement);
     }
 
