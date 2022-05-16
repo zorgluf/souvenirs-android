@@ -18,7 +18,7 @@ import retrofit2.Response;
 
 public class Utils {
 
-    public static boolean downloadFile(String remotePath, String localFolderPath) {
+    public static boolean downloadFile(String remotePath, String localFolderPath, String localFileName) {
         //if local folder do not exist, create it
         if (!new File(localFolderPath).exists()) {
             new File(localFolderPath).mkdirs();
@@ -37,7 +37,7 @@ public class Utils {
             try {
                 byte[] fileReader = new byte[4096];
                 inputStream = APIProvider.getNextcloudApi().performNetworkRequest(nextcloudRequest);
-                outputStream = new FileOutputStream(new File(localFolderPath,new File(remotePath).getName()));
+                outputStream = new FileOutputStream(new File(localFolderPath,localFileName));
                 while (true) {
                     int read = inputStream.read(fileReader);
                     if (read == -1) {
@@ -65,7 +65,7 @@ public class Utils {
         //read file
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(new File(localPath));
+            inputStream = new FileInputStream(localPath);
             //make webdav call
             NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                     .setMethod("PUT")

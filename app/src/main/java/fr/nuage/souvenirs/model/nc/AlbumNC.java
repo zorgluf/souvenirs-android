@@ -24,20 +24,20 @@ public class AlbumNC {
 
     private UUID id;
     private String name;
-    private MutableLiveData<String> ldName = new MutableLiveData<String>();
+    private final MutableLiveData<String> ldName = new MutableLiveData<>();
     private Date date;
-    private MutableLiveData<Date> ldDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldDate = new MutableLiveData<>();
     private Date lastEditDate;
-    private MutableLiveData<Date> ldLastEditDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldLastEditDate = new MutableLiveData<>();
     private String albumImage;
     private Date pagesLastEditDate;
-    private MutableLiveData<Date> ldPageLastEditDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldPageLastEditDate = new MutableLiveData<>();
     private ArrayList<PageNC> pages = new ArrayList<>();
     private boolean isShared = false;
-    private MutableLiveData<Boolean> ldIsShared = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldIsShared = new MutableLiveData<>();
     private String shareToken;
     private int state;
-    private MutableLiveData<Integer> ldState = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldState = new MutableLiveData<>();
     private String defaultStyle;
 
 
@@ -49,8 +49,6 @@ public class AlbumNC {
 
     /**
      * create album in NC. not on ui thread.
-     * @param id
-     * @return
      */
     public static AlbumNC create(@NonNull UUID id) {
         APIProvider.AlbumResp albumResp;
@@ -59,6 +57,9 @@ public class AlbumNC {
             albumResp = APIProvider.getApi().createAlbum(id.toString()).execute().body();
         } catch (IOException e) {
             Log.i(AlbumNC.class.getName(),"Error on nextcloud album creation "+id.toString());
+            return null;
+        }
+        if (albumResp == null) {
             return null;
         }
         AlbumNC albumNC = new AlbumNC(albumResp.id);
@@ -256,7 +257,7 @@ public class AlbumNC {
 
     public boolean pushAsset(String localAlbumPath, String assetPath) {
         //probe asset
-        APIProvider.AssetProbeResult result = null;
+        APIProvider.AssetProbeResult result;
         try {
             result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
         } catch (Exception e) {
@@ -264,7 +265,11 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
-        assert result != null;
+        if (result == null) {
+            Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath));
+            setState(STATE_ERROR);
+            return false;
+        }
         //get local asset file path
         String localPath = new File(localAlbumPath,assetPath).getPath();
         if (result.status.equals("ok")) {
@@ -299,7 +304,7 @@ public class AlbumNC {
         //test if asset does not exist locally
         if (! new File(localAlbumPath,assetPath).exists()) {
             //probe asset
-            APIProvider.AssetProbeResult result = null;
+            APIProvider.AssetProbeResult result;
             try {
                 result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
             } catch (IOException e) {
@@ -307,14 +312,18 @@ public class AlbumNC {
                 setState(STATE_ERROR);
                 return false;
             }
-            assert result != null;
+            if (result == null) {
+                Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath));
+                setState(STATE_ERROR);
+                return false;
+            }
             if (result.status.equals("ok")) {
                 String fullAssetPath = result.path;
                 Log.d(getClass().getName(), String.format("Asset %1$s already at %2$s.", assetPath, fullAssetPath));
                 if (!fullAssetPath.equals("")) {
                     //pull file
                     String destLocalPath = new File(localAlbumPath, Album.DATA_DIR).getPath();
-                    if (Utils.downloadFile(fullAssetPath,destLocalPath)) {
+                    if (Utils.downloadFile(fullAssetPath,destLocalPath,new File(assetPath).getName())) {
                         Log.d(getClass().getName(), String.format("Asset %1$s downloaded.", assetPath));
                     } else {
                         Log.i(getClass().getName(), String.format("Error in download of asset %1$s", assetPath));
