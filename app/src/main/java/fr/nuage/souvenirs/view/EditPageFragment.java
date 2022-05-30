@@ -1,6 +1,5 @@
 package fr.nuage.souvenirs.view;
 
-import static android.provider.BaseColumns._ID;
 import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
 
 import android.app.Activity;
@@ -8,9 +7,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.DragEvent;
@@ -24,13 +21,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.loader.content.CursorLoader;
 import androidx.transition.Scene;
 import androidx.transition.Transition;
 import androidx.transition.TransitionInflater;
@@ -40,7 +35,6 @@ import androidx.transition.TransitionSet;
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -59,7 +53,7 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
-public class EditPageFragment extends Fragment implements PageView.OnSwingListener {
+public class EditPageFragment extends Fragment {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
@@ -192,9 +186,6 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                 requireActivity().startActionMode(new PaintActionModeCallback(requireActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
             }
         });
-
-        //listen swing on pageview
-        binding.pageViewEdit.setOnSwingListener(this);
 
         //set prev page
         PageViewModel prevPage = albumVM.getPrevPage(pageVM);
@@ -418,19 +409,6 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         }
 
 
-    }
-
-
-    @Override
-    public void onSwing(int direction) {
-        switch (direction) {
-            case PageView.SWING_DIRECTION_UP:
-                switchPageDelta.postValue(-1);
-                break;
-            case PageView.SWING_DIRECTION_DOWN:
-                switchPageDelta.postValue(1);
-                break;
-        }
     }
 
     private void moveToNext() {
