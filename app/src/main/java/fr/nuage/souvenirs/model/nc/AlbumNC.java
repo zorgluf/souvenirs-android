@@ -221,6 +221,8 @@ public class AlbumNC {
         try {
             String result = APIProvider.getApi().createPage(getId().toString(),index,pageNC.generatePageResp()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                //update local object
+                pages.add(index, pageNC);
                 return true;
             } else {
                 throw new IOException("Create page error");
