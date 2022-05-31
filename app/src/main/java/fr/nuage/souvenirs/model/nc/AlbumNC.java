@@ -158,6 +158,7 @@ public class AlbumNC {
             albumResp.defaultStyle = getDefaultStyle();
             String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on post modifications on album");
@@ -186,6 +187,7 @@ public class AlbumNC {
                 tmp.remove(pageNC);
                 pageNC.clear();
                 setPages(tmp);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error in delete page");
@@ -223,6 +225,7 @@ public class AlbumNC {
             if ((result != null) && (result.equals("OK"))) {
                 //update local object
                 pages.add(index, pageNC);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Create page error");
@@ -238,6 +241,7 @@ public class AlbumNC {
         try {
             String result = APIProvider.getApi().cleanAlbum(getId().toString()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on clean");
@@ -278,6 +282,7 @@ public class AlbumNC {
             Log.d(getClass().getName(),String.format("Asset %1$s already present.",assetPath));
             //check if size equal to local one
             if ((result.size == 0) || (result.size == (new File(localPath)).length())) {
+                setState(STATE_OK);
                 return true;
             }
             Log.d(getClass().getName(),String.format("Asset %1$s wrong size on server side, reupload.",assetPath));
@@ -299,6 +304,7 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
+        setState(STATE_OK);
         return true;
     }
 
@@ -345,6 +351,7 @@ public class AlbumNC {
         } else {
             Log.d(getClass().getName(), String.format("Asset %1$s already present locally.", assetPath));
         }
+        setState(STATE_OK);
         return true;
     }
 
@@ -362,6 +369,7 @@ public class AlbumNC {
                 if ((result != null) && (result.equals("OK"))) {
                     setIsShared(false);
                     setShareToken(null);
+                    setState(STATE_OK);
                     return true;
                 } else {
                     throw new IOException("Wrong result on deleteshare");
@@ -403,6 +411,7 @@ public class AlbumNC {
                     tmp.add(pos-1,tmpPage);
                 }
                 setPages(tmp);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on move page");
@@ -464,6 +473,7 @@ public class AlbumNC {
         if (albumResp == null) {
             return false;
         }
+        setState(STATE_OK);
         return load(albumResp);
     }
 
@@ -477,6 +487,7 @@ public class AlbumNC {
             String result = APIProvider.getApi().modifyPage(getId().toString(),remotePage.getId().toString(),remotePage.generatePageResp()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
                 Log.d(getClass().getName(),String.format("Page %1$s uploaded.",getId().toString()));
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error in page upload");
