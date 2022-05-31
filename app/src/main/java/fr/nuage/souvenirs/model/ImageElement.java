@@ -235,7 +235,7 @@ public class ImageElement extends Element {
     }
 
     private void deleteImageFile() {
-        if (getImagePath() != null) {
+        if ((getImagePath() != null) && !(pageParent.getAlbum().getAlbumImage().equals(getImagePath()) )) {
             File imageFile = new File(getImagePath());
             if (imageFile.exists()) {
                 imageFile.delete();
