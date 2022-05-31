@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.model.nc;
 
+import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,8 +15,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
-
-import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
 
 public class AlbumNC {
     

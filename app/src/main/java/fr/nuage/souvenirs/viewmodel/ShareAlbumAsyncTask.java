@@ -31,9 +31,12 @@ public class ShareAlbumAsyncTask extends AsyncTask<Void, Integer, Integer> {
     protected Integer doInBackground(Void... voids) {
 
         //call to share album
+            albumViewModel.update();
         try {
             String share_url = APIProvider.getApi().createShare(albumViewModel.getId().toString()).execute().body();
             if (share_url != null) {
+                //update albumNC to get the right share status
+                albumViewModel.update();
                 //create intent to share url
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
