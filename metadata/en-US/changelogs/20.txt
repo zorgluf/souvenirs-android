@@ -1,0 +1,7 @@
+New Feature: Enable importing images from nextcloud server. Such images will not be duplicated on server side.
+Change: Disable swipe gesture on page edition (next/prev navigation), due to bad user experience.
+Fix: UI error status on nextcloud sync when success
+Fix: UI error on sharing album: icon did not update correctly
+Fix: Missing album image when original image is deleted in album
+Fix: Bug when reordering pages and nextcloud sync. Needed more than one sync to get the pages in right order.
+
