@@ -29,6 +29,8 @@ public class ImageElement extends Element {
     private MutableLiveData<Boolean> ldIsPano = new MutableLiveData<>();
     private String imagePath;
     private String mimeType;
+    private String name="";
+    private int size=0;
     private int zoom = 100;
     private int offsetX = 0;
     private int offsetY = 0;
@@ -94,6 +96,28 @@ public class ImageElement extends Element {
         }
     }
 
+    public void setName(String name) {
+        setName(name,true);
+    }
+
+    public void setName(String name, boolean save) {
+        this.name = name;
+        if (save) {
+            onChange();
+        }
+    }
+
+    public void setSize(int size) {
+        setSize(size,true);
+    }
+
+    public void setSize(int size, boolean save) {
+        this.size = size;
+        if (save) {
+            onChange();
+        }
+    }
+
     private boolean isPhotosphere(String imagePath) {
         File mFile = new File(imagePath);
         try {
@@ -144,6 +168,8 @@ public class ImageElement extends Element {
     public JSONObject completeToJSON(JSONObject json) throws JSONException {
         json.put("image",Utils.getRelativePath(pageParent.getAlbum().getAlbumPath(),imagePath));
         json.put("mime",mimeType);
+        json.put("name",name);
+        json.put("size",size);
         json.put("transformType",transformType);
         json.put("zoom",zoom);
         json.put("offsetX",offsetX);
@@ -163,6 +189,12 @@ public class ImageElement extends Element {
         }
         if (jsonObject.has("mime")) {
             setMimeType(jsonObject.getString("mime"),false);
+        }
+        if (jsonObject.has("name")) {
+            setName(jsonObject.getString("name"),false);
+        }
+        if (jsonObject.has("size")) {
+            setSize(jsonObject.getInt("size"),false);
         }
         if (jsonObject.has("transformType")) {
             setTransformType(jsonObject.getInt("transformType"),false);
@@ -186,6 +218,14 @@ public class ImageElement extends Element {
         return mimeType;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
     public int getTransformType() { return transformType; }
 
     public MutableLiveData<String> getLiveDataImagePath() { return ldImagePath; }
@@ -195,7 +235,7 @@ public class ImageElement extends Element {
     }
 
     private void deleteImageFile() {
-        if (getImagePath() != null) {
+        if ((getImagePath() != null) && !(pageParent.getAlbum().getAlbumImage().equals(getImagePath()) )) {
             File imageFile = new File(getImagePath());
             if (imageFile.exists()) {
                 imageFile.delete();

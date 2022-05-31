@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.model.nc;
 
+import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,8 +16,6 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
 
-import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
-
 public class AlbumNC {
     
     public static final int STATE_NOT_LOADED = 0;
@@ -24,20 +24,20 @@ public class AlbumNC {
 
     private UUID id;
     private String name;
-    private MutableLiveData<String> ldName = new MutableLiveData<String>();
+    private final MutableLiveData<String> ldName = new MutableLiveData<>();
     private Date date;
-    private MutableLiveData<Date> ldDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldDate = new MutableLiveData<>();
     private Date lastEditDate;
-    private MutableLiveData<Date> ldLastEditDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldLastEditDate = new MutableLiveData<>();
     private String albumImage;
     private Date pagesLastEditDate;
-    private MutableLiveData<Date> ldPageLastEditDate = new MutableLiveData<Date>();
+    private final MutableLiveData<Date> ldPageLastEditDate = new MutableLiveData<>();
     private ArrayList<PageNC> pages = new ArrayList<>();
     private boolean isShared = false;
-    private MutableLiveData<Boolean> ldIsShared = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldIsShared = new MutableLiveData<>();
     private String shareToken;
     private int state;
-    private MutableLiveData<Integer> ldState = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldState = new MutableLiveData<>();
     private String defaultStyle;
 
 
@@ -49,8 +49,6 @@ public class AlbumNC {
 
     /**
      * create album in NC. not on ui thread.
-     * @param id
-     * @return
      */
     public static AlbumNC create(@NonNull UUID id) {
         APIProvider.AlbumResp albumResp;
@@ -59,6 +57,9 @@ public class AlbumNC {
             albumResp = APIProvider.getApi().createAlbum(id.toString()).execute().body();
         } catch (IOException e) {
             Log.i(AlbumNC.class.getName(),"Error on nextcloud album creation "+id.toString());
+            return null;
+        }
+        if (albumResp == null) {
             return null;
         }
         AlbumNC albumNC = new AlbumNC(albumResp.id);
@@ -157,6 +158,7 @@ public class AlbumNC {
             albumResp.defaultStyle = getDefaultStyle();
             String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on post modifications on album");
@@ -185,6 +187,7 @@ public class AlbumNC {
                 tmp.remove(pageNC);
                 pageNC.clear();
                 setPages(tmp);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error in delete page");
@@ -220,6 +223,9 @@ public class AlbumNC {
         try {
             String result = APIProvider.getApi().createPage(getId().toString(),index,pageNC.generatePageResp()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                //update local object
+                pages.add(index, pageNC);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Create page error");
@@ -235,6 +241,7 @@ public class AlbumNC {
         try {
             String result = APIProvider.getApi().cleanAlbum(getId().toString()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on clean");
@@ -256,7 +263,7 @@ public class AlbumNC {
 
     public boolean pushAsset(String localAlbumPath, String assetPath) {
         //probe asset
-        APIProvider.AssetProbeResult result = null;
+        APIProvider.AssetProbeResult result;
         try {
             result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
         } catch (Exception e) {
@@ -264,13 +271,18 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
-        assert result != null;
+        if (result == null) {
+            Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath));
+            setState(STATE_ERROR);
+            return false;
+        }
         //get local asset file path
         String localPath = new File(localAlbumPath,assetPath).getPath();
         if (result.status.equals("ok")) {
             Log.d(getClass().getName(),String.format("Asset %1$s already present.",assetPath));
             //check if size equal to local one
             if ((result.size == 0) || (result.size == (new File(localPath)).length())) {
+                setState(STATE_OK);
                 return true;
             }
             Log.d(getClass().getName(),String.format("Asset %1$s wrong size on server side, reupload.",assetPath));
@@ -292,6 +304,7 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
+        setState(STATE_OK);
         return true;
     }
 
@@ -299,7 +312,7 @@ public class AlbumNC {
         //test if asset does not exist locally
         if (! new File(localAlbumPath,assetPath).exists()) {
             //probe asset
-            APIProvider.AssetProbeResult result = null;
+            APIProvider.AssetProbeResult result;
             try {
                 result = APIProvider.getApi().AssetProbe(getId().toString(),assetPath).execute().body();
             } catch (IOException e) {
@@ -307,14 +320,18 @@ public class AlbumNC {
                 setState(STATE_ERROR);
                 return false;
             }
-            assert result != null;
+            if (result == null) {
+                Log.i(getClass().getName(),String.format("Error on asset probe request for %1$s",assetPath));
+                setState(STATE_ERROR);
+                return false;
+            }
             if (result.status.equals("ok")) {
                 String fullAssetPath = result.path;
                 Log.d(getClass().getName(), String.format("Asset %1$s already at %2$s.", assetPath, fullAssetPath));
                 if (!fullAssetPath.equals("")) {
                     //pull file
                     String destLocalPath = new File(localAlbumPath, Album.DATA_DIR).getPath();
-                    if (Utils.downloadFile(fullAssetPath,destLocalPath)) {
+                    if (Utils.downloadFile(fullAssetPath,destLocalPath,new File(assetPath).getName())) {
                         Log.d(getClass().getName(), String.format("Asset %1$s downloaded.", assetPath));
                     } else {
                         Log.i(getClass().getName(), String.format("Error in download of asset %1$s", assetPath));
@@ -334,6 +351,7 @@ public class AlbumNC {
         } else {
             Log.d(getClass().getName(), String.format("Asset %1$s already present locally.", assetPath));
         }
+        setState(STATE_OK);
         return true;
     }
 
@@ -351,6 +369,7 @@ public class AlbumNC {
                 if ((result != null) && (result.equals("OK"))) {
                     setIsShared(false);
                     setShareToken(null);
+                    setState(STATE_OK);
                     return true;
                 } else {
                     throw new IOException("Wrong result on deleteshare");
@@ -392,6 +411,7 @@ public class AlbumNC {
                     tmp.add(pos-1,tmpPage);
                 }
                 setPages(tmp);
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error on move page");
@@ -453,6 +473,7 @@ public class AlbumNC {
         if (albumResp == null) {
             return false;
         }
+        setState(STATE_OK);
         return load(albumResp);
     }
 
@@ -466,6 +487,7 @@ public class AlbumNC {
             String result = APIProvider.getApi().modifyPage(getId().toString(),remotePage.getId().toString(),remotePage.generatePageResp()).execute().body();
             if ((result != null) && (result.equals("OK"))) {
                 Log.d(getClass().getName(),String.format("Page %1$s uploaded.",getId().toString()));
+                setState(STATE_OK);
                 return true;
             } else {
                 throw new IOException("Error in page upload");

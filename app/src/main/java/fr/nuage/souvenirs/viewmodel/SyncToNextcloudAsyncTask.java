@@ -195,9 +195,8 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                 }
             }
 
-            //delete remote pages if needed
             if ((albumNC.getPagesLastEditDate() != null) && (album.getPagesLastSyncDate()!= null)) {
-
+                //delete remote pages if needed
                 for (PageNC pageNC : new ArrayList<>(albumNC.getPages())) {
                     if ((pageNC.getLastEditDate()==null) ||
                             ((pageNC.getLastEditDate().before(album.getPagesLastSyncDate()))  //no mod after last sync
@@ -209,20 +208,23 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                             if (!albumNC.delPage(pageNC)) {
                                 return RESULT_NC_ERR;
                             }
-                        } else {
-                            //check remote order according to local
-                            Page localPage = album.getPage(pageNC.getId());
-                            int localPos = album.getIndex(localPage);
-                            int remotePos = albumNC.getIndex(pageNC);
-                            if (localPos != remotePos) {
-                                notificationMsg = context.getString(R.string.sync_album_change_remote_page_pos, remotePos+"/"+nbPage);
-                                Log.d("SYNC", notificationMsg);
-                                publishProgress(nbPage,remotePos);
-                                //move remote page to localpos
-                                if (!albumNC.movePage(pageNC,localPos)) {
-                                    return RESULT_NC_ERR;
-                                }
-                            }
+                        }
+                    }
+                }
+                //check page order (at this stage, same page should be present on both side, but not necessary in the right order)
+                //local to remote
+                for (Page page : album.getPages()) {
+                    //check remote order according to local
+                    PageNC remotePage = albumNC.getPage(page.getId());
+                    int localPos = album.getIndex(page);
+                    int remotePos = albumNC.getIndex(remotePage);
+                    if (localPos != remotePos) {
+                        notificationMsg = context.getString(R.string.sync_album_change_remote_page_pos, remotePos + "/" + nbPage);
+                        Log.d("SYNC", notificationMsg);
+                        publishProgress(nbPage, remotePos);
+                        //move remote page to localpos
+                        if (!albumNC.movePage(remotePage, localPos)) {
+                            return RESULT_NC_ERR;
                         }
                     }
                 }

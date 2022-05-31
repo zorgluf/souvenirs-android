@@ -5,9 +5,11 @@ import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRA
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,7 +53,7 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
-public class EditPageFragment extends Fragment implements PageView.OnSwingListener {
+public class EditPageFragment extends Fragment {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
@@ -185,9 +187,6 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
             }
         });
 
-        //listen swing on pageview
-        binding.pageViewEdit.setOnSwingListener(this);
-
         //set prev page
         PageViewModel prevPage = albumVM.getPrevPage(pageVM);
         if (prevPage == null) {
@@ -301,8 +300,8 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         //set logic to add image
         MenuItem addImageItem = menu.findItem(R.id.edit_page_add_image);
         addImageItem.setOnMenuItemClickListener(menuItem -> {
-            //open image picker
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            //test alternative
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("image/*");
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -381,7 +380,25 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
                     for (Uri uri: uris) {
                         InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
                         String mime = requireActivity().getContentResolver().getType(uri);
-                        pageVM.addImage(input,mime);
+                        //extract name and size
+                        String displayName = null;
+                        int size = 0;
+                        Cursor cursor = getActivity().getContentResolver()
+                                .query(uri, null, null, null, null, null);
+                        try {
+                            if (cursor != null && cursor.moveToFirst()) {
+                                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                                displayName = cursor.getString(nameIndex);
+                                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                                size = 0;
+                                if (!cursor.isNull(sizeIndex)) {
+                                    size = cursor.getInt(sizeIndex);
+                                }
+                            }
+                        } finally {
+                            cursor.close();
+                        }
+                        pageVM.addImage(input,mime,displayName,size);
                     }
                 }
                 break;
@@ -392,19 +409,6 @@ public class EditPageFragment extends Fragment implements PageView.OnSwingListen
         }
 
 
-    }
-
-
-    @Override
-    public void onSwing(int direction) {
-        switch (direction) {
-            case PageView.SWING_DIRECTION_UP:
-                switchPageDelta.postValue(-1);
-                break;
-            case PageView.SWING_DIRECTION_DOWN:
-                switchPageDelta.postValue(1);
-                break;
-        }
     }
 
     private void moveToNext() {
