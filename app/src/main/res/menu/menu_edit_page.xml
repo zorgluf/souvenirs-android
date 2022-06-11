@@ -23,6 +23,21 @@
         android:title="@string/edit_page_draw"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/edit_page_audio"
+        android:icon="@drawable/ic_baseline_audiotrack_24"
+        android:title="@string/edit_page_audio"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/edit_page_audio_stop"
+        android:icon="@drawable/ic_noaudio"
+        android:title="@string/edit_page_audio_stop"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/edit_page_audio_remove"
+        android:icon="@drawable/ic_noaudio"
+        android:title="@string/edit_page_audio_remove"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/edit_page_change_style"
         android:icon="@drawable/ic_view_compact_black_24dp"
         android:title="@string/edit_page_change_style"

@@ -1,6 +1,7 @@
 package fr.nuage.souvenirs.viewmodel;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.model.Album;
+import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.model.Page;
@@ -28,10 +30,16 @@ import fr.nuage.souvenirs.model.UnknownElement;
 
 public class PageViewModel extends ViewModel {
 
+    public static final int AUDIO_MODE_NONE = 0;
+    public static final int AUDIO_MODE_ON = 1;
+    public static final int AUDIO_MODE_OFF = 2;
+
     private final Page page;
     private final LiveData<ArrayList<ElementViewModel>> elements;
     private final MutableLiveData<Boolean> paintMode = new MutableLiveData<>();
     private final MutableLiveData<Boolean> editMode = new MutableLiveData<>();
+    private final LiveData<Integer> audioMode;
+
 
     public PageViewModel(Page page) {
         super();
@@ -59,6 +67,8 @@ public class PageViewModel extends ViewModel {
                         eVM = new ImageElementViewModel((ImageElement) element);
                     } else if (element.getClass() == PaintElement.class) {
                         eVM = new PaintElementViewModel((PaintElement) element);
+                    } else if (element.getClass() == AudioElement.class) {
+                        eVM = new AudioElementViewModel((AudioElement) element);
                     } else {
                         eVM = new UnknownElementViewModel((UnknownElement)element);
                     }
@@ -66,6 +76,20 @@ public class PageViewModel extends ViewModel {
                 out.add(eVM);
             }
             return out;
+        });
+        audioMode = Transformations.map(page.getLiveDataElements(), elements -> {
+            int mode = AUDIO_MODE_NONE;
+            for (Element element : elements) {
+                if (element.getClass().equals(AudioElement.class)) {
+                    AudioElement audioElement = (AudioElement) element;
+                    if (audioElement.isStop()) {
+                        mode = AUDIO_MODE_OFF;
+                    } else {
+                        mode = AUDIO_MODE_ON;
+                    }
+                }
+            }
+            return mode;
         });
     }
 
@@ -91,6 +115,10 @@ public class PageViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> getLdEditMode() {
         return editMode;
+    }
+
+    public LiveData<Integer> getLdAudioMode() {
+        return audioMode;
     }
 
     public Page getPage() {
@@ -197,5 +225,27 @@ public class PageViewModel extends ViewModel {
         return null;
     }
 
+    public void addAudio(InputStream inputAudio, String mimeType) {
+        AudioElement audioElement = page.createAudioElement();
+        if (inputAudio == null) {
+            //insert stop audio
+            audioElement.setStop(true,true);
+        } else {
+            audioElement.setAudio(inputAudio,mimeType);
+        }
+    }
+
+    public void removeAudio() {
+        page.removeAudio();
+    }
+
+    public AudioElement getAudioElement() {
+        for (Element element : page.getElements()) {
+            if (element.getClass().equals(AudioElement.class)) {
+                return (AudioElement)element;
+            }
+        }
+        return null;
+    }
 
 }

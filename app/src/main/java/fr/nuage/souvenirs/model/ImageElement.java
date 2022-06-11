@@ -21,12 +21,12 @@ public class ImageElement extends Element {
     public static final int ZOOM_OFFSET = 2;
     public static final String GOOGLE_PANORAMA_360_MIMETYPE = "application/vnd.google.panorama360+jpg";
 
-    private MutableLiveData<String> ldImagePath = new MutableLiveData<String>();
-    private MutableLiveData<Integer> ldTransformType = new MutableLiveData<>();
-    private MutableLiveData<Integer> ldZoom = new MutableLiveData<>();
-    private MutableLiveData<Integer> ldOffsetX = new MutableLiveData<>();
-    private MutableLiveData<Integer> ldOffsetY = new MutableLiveData<>();
-    private MutableLiveData<Boolean> ldIsPano = new MutableLiveData<>();
+    private final MutableLiveData<String> ldImagePath = new MutableLiveData<String>();
+    private final MutableLiveData<Integer> ldTransformType = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldZoom = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldOffsetX = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldOffsetY = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldIsPano = new MutableLiveData<>();
     private String imagePath;
     private String mimeType;
     private String name="";

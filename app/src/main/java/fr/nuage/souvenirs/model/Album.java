@@ -229,7 +229,7 @@ public class Album {
                 }
             }
         } catch (JSONException e) {
-            Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath);
+            Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath,e);
             return false;
         }
         updateAllLiveDataObject();

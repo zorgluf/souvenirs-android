@@ -26,6 +26,7 @@ import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
+import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
@@ -135,9 +136,11 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                 });
                             }
                             layout.addView(binding.getRoot());
+                        } else if (e.getClass() == AudioElementViewModel.class) {
+                            continue;
                         } else {
-                            //unknown element : display default view
-                            inflater.inflate(R.layout.unknown_element_view,layout,true);
+                                //unknown element : display default view
+                                inflater.inflate(R.layout.unknown_element_view,layout,true);
                         }
                     }
                 }

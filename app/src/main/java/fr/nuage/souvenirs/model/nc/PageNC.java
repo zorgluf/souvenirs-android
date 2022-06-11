@@ -175,18 +175,33 @@ public class PageNC {
                 if (!albumNC.pushAsset(localAlbumPath,ime.getImagePath())) {
                     return false;
                 }
+            } else if (e instanceof AudioElementNC) {
+                AudioElementNC aue = (AudioElementNC) e;
+                if (!aue.getAudioPath().equals("")) {
+                    if (!albumNC.pushAsset(localAlbumPath, aue.getAudioPath())) {
+                        return false;
+                    }
+                }
+
             }
         }
         return true;
     }
 
-    public boolean pullAssets(String localAlbumPath, AlbumNC  albumNC) {
+    public boolean pullAssets(String localAlbumPath, AlbumNC albumNC) {
         //pull images
         for (ElementNC e : getElements()) {
             if (e instanceof ImageElementNC) {
                 ImageElementNC ime = (ImageElementNC)e;
                 if (!albumNC.pullAsset(localAlbumPath,ime.getImagePath())) {
                     return false;
+                }
+            } else if (e instanceof AudioElementNC) {
+                AudioElementNC aue = (AudioElementNC) e;
+                if (!aue.getAudioPath().equals("")) {
+                    if (!albumNC.pullAsset(localAlbumPath, aue.getAudioPath())) {
+                        return false;
+                    }
                 }
             }
         }

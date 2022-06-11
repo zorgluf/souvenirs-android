@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 import fr.nuage.souvenirs.AlbumListActivity;
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.AudioPlayer;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
@@ -42,7 +43,7 @@ public class ShowAlbumFragment extends Fragment {
     private ShowPageListAdapter pageListAdapter;
     private RecyclerView pageListRecyclerView;
     private AlbumViewModel albumVM;
-
+    private AudioPlayer audioPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,10 +68,15 @@ public class ShowAlbumFragment extends Fragment {
                 ((AlbumListActivity)getActivity()).transparentAppbar(true);
             }
         }
+        //init audio player
+        audioPlayer = new AudioPlayer(albumVM);
+        pageListRecyclerView.setOnScrollChangeListener(audioPlayer);
     }
 
     @Override
     public void onStop() {
+        //stop audio player
+        audioPlayer.stop();
         //restore activity scrolling
         if (getActivity().getClass().equals(AlbumListActivity.class)) {
             ((AlbumListActivity)getActivity()).transparentAppbar(false);

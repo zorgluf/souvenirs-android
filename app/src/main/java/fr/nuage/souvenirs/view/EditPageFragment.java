@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.transition.Scene;
 import androidx.transition.Transition;
@@ -57,6 +58,7 @@ public class EditPageFragment extends Fragment {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
+    private static final int ACTIVITY_ADD_AUDIO = 12;
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
@@ -126,9 +128,17 @@ public class EditPageFragment extends Fragment {
     private View createView(@NonNull LayoutInflater inflater, ViewGroup container) {
         //inflateview
         FragmentEditPageBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_page, container, false);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setPage(pageVM);
+        binding.executePendingBindings();
 
         pageVM.getLdEditMode().postValue(true);
         binding.pageViewEdit.setPageViewModel(pageVM);
+
+        //listen for audiomode change to change menu
+        pageVM.getLdAudioMode().observe(getViewLifecycleOwner(), audioMode -> {
+            getActivity().invalidateOptionsMenu();
+        });
 
         binding.mainLayout.setOnClickListener(view -> {
             //if we recieve click, means no element has catch it : off page click, unselect all
@@ -332,6 +342,38 @@ public class EditPageFragment extends Fragment {
             return true;
         });
 
+        if (pageVM.getLdAudioMode().getValue() == PageViewModel.AUDIO_MODE_NONE) {
+            //disable remove audio
+            menu.removeItem(R.id.edit_page_audio_remove);
+            //set logic to add audio file
+            MenuItem addAudioItem = menu.findItem(R.id.edit_page_audio);
+            addAudioItem.setOnMenuItemClickListener(menuItem -> {
+                //test alternative
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("audio/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+                startActivityForResult(intent, ACTIVITY_ADD_AUDIO);
+                return true;
+            });
+            //set logic to add audio silence
+            MenuItem addAudioStopItem = menu.findItem(R.id.edit_page_audio_stop);
+            addAudioStopItem.setOnMenuItemClickListener(menuItem -> {
+                pageVM.addAudio(null,null);
+                return true;
+            });
+        } else {
+            //disable audio add
+            menu.removeItem(R.id.edit_page_audio);
+            menu.removeItem(R.id.edit_page_audio_stop);
+            //set logic to remove audio
+            MenuItem addAudioRemoveItem = menu.findItem(R.id.edit_page_audio_remove);
+            addAudioRemoveItem.setOnMenuItemClickListener(menuItem -> {
+                pageVM.removeAudio();
+                return true;
+            });
+        }
+
         //set logic to add text
         MenuItem addTextItem = menu.findItem(R.id.edit_page_add_text);
         addTextItem.setOnMenuItemClickListener(menuItem -> {
@@ -400,6 +442,14 @@ public class EditPageFragment extends Fragment {
                         }
                         pageVM.addImage(input,mime,displayName,size);
                     }
+                }
+                break;
+            case ACTIVITY_ADD_AUDIO:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri audioUri = data.getData();
+                    String mime = requireActivity().getContentResolver().getType(audioUri);
+                    InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), audioUri);
+                    pageVM.addAudio(input,mime);
                 }
                 break;
             case ACTIVITY_ADD_PHOTO:

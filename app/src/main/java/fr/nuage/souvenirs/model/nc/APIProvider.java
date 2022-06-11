@@ -118,6 +118,10 @@ public class APIProvider {
         int offsetY;
         //for textelement
         String text;
+        //for audio element
+        @SerializedName("audio")
+        String audioPath;
+        boolean stop;
     }
 
 }

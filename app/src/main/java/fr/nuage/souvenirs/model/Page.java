@@ -18,7 +18,7 @@ import fr.nuage.souvenirs.model.nc.PageNC;
 
 public class Page {
 
-    private MutableLiveData<ArrayList<Element>> ldElementsList = new MutableLiveData<ArrayList<Element>>();
+    private final MutableLiveData<ArrayList<Element>> ldElementsList = new MutableLiveData<ArrayList<Element>>();
     private ArrayList<Element> elementsList;
     private Album albumParent;
     private UUID id;
@@ -276,5 +276,20 @@ public class Page {
         PaintElement paintElement = new PaintElement();
         addElement(paintElement);
         return paintElement;
+    }
+
+    public AudioElement createAudioElement() {
+        AudioElement audioElement = new AudioElement();
+        addElement(audioElement);
+        return audioElement;
+    }
+
+    public void removeAudio() {
+        for (Element e : getElements()) {
+            if (e.getClass().equals(AudioElement.class)) {
+                delElement(e);
+                return;
+            }
+        }
     }
 }

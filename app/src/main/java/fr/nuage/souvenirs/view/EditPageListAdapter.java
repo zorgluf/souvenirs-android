@@ -19,7 +19,9 @@ import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.EditItemPageListBinding;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
+import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.view.helpers.EditItemTouchHelper;
+import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
@@ -98,10 +100,12 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
                             binding.setLifecycleOwner(mFragment);
                             binding.setElement(ei);
                             binding.executePendingBindings();
+                        } else if (e.getClass() == AudioElementViewModel.class) {
+                            continue;
                         } else {
-                            //unknown element : display default view
-                            inflater.inflate(R.layout.unknown_element_view,layout,true);
-                            ImageView unknownImage = layout.findViewById(R.id.unknown_imageview);
+                                //unknown element : display default view
+                                inflater.inflate(R.layout.unknown_element_view,layout,true);
+                                ImageView unknownImage = layout.findViewById(R.id.unknown_imageview);
                         }
                     }
                 }
