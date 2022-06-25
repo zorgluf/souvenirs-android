@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
+import fr.nuage.souvenirs.viewmodel.VideoElementViewModel;
 
 public class AudioPlayer implements View.OnScrollChangeListener {
 
@@ -34,7 +36,6 @@ public class AudioPlayer implements View.OnScrollChangeListener {
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build()
         );
-
 
     }
 
@@ -71,8 +72,8 @@ public class AudioPlayer implements View.OnScrollChangeListener {
                 if (firstPos == -1) {
                     return;
                 }
-                //Log.d("TRACE",String.valueOf(firstPos)+"/"+String.valueOf(lastPosition));
-                if (lastPosition < firstPos) {
+                //for audio
+                if ((lastPosition < firstPos) || (firstPos == 0)) {
                     PageViewModel pageViewModel = albumViewModel.getPage(firstPos);
                     AudioElement audioElement = pageViewModel.getAudioElement();
                     if (audioElement != null) {
@@ -81,6 +82,24 @@ public class AudioPlayer implements View.OnScrollChangeListener {
                         } else {
                             String audioPath = audioElement.getAudioPath();
                             play(audioPath);
+                        }
+                    }
+                }
+                //for video
+                if ((lastPosition != firstPos) || (firstPos == 0)) {
+                    Log.d(getClass().getName(), "Page scroll : "+lastPosition +"/"+ firstPos);
+                    //start video if one present on new page
+                    PageViewModel pageViewModel = albumViewModel.getPage(firstPos);
+                    ArrayList<VideoElementViewModel> videos = pageViewModel.getVideoElements();
+                    for (VideoElementViewModel video : videos) {
+                        video.setIsPlaying(true);
+                    }
+                    //stop videos on previous pages
+                    if (lastPosition != firstPos) {
+                        pageViewModel = albumViewModel.getPage(lastPosition);
+                        videos = pageViewModel.getVideoElements();
+                        for (VideoElementViewModel video : videos) {
+                            video.setIsPlaying(false);
                         }
                     }
                 }

@@ -87,6 +87,8 @@ public class SettingsActivity extends AppCompatActivity {
             } catch (NextcloudFilesAppAccountNotFoundException | NoCurrentAccountSelectedException e) {
             }
 
+            //refresh NCenabled status on wifi setting change TODO
+
 
             //display version
             findPreference(NEXTCLOUD_VERSION).setSummary(BuildConfig.VERSION_NAME);

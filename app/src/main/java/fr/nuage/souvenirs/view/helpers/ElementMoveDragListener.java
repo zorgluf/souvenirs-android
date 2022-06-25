@@ -216,7 +216,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     public void onClick(View view) {
         if (!pageVM.getPaintMode()) {
             if (!view.isSelected()) {
-                if (elVM.getClass().equals(ImageElementViewModel.class)) {
+                if (elVM instanceof ImageElementViewModel) {
                     elVM.setSelected(true);
                 }
                 if (elVM.getClass().equals(TextElementViewModel.class)) {

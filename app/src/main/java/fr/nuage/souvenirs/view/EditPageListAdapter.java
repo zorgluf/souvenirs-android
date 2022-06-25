@@ -19,14 +19,12 @@ import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.EditItemPageListBinding;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
-import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.view.helpers.EditItemTouchHelper;
 import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
-import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapter.ViewHolder> implements EditItemTouchHelper.ItemTouchHelperAdapter {
@@ -75,7 +73,7 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
         PageViewModel page = mPages.get(position);
         holder.bind(page,(EditAlbumFragment) this.mFragment);
         //listen to elements changes
-        page.getElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {
+        page.getLdElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {
             @Override
             public void onChanged(@Nullable ArrayList<ElementViewModel> elementViewModels) {
                 //remove all view
@@ -92,7 +90,7 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
                             binding.setLifecycleOwner(mFragment);
                             binding.setElement((TextElementViewModel) e);
                             binding.executePendingBindings();
-                        } else if (e.getClass() == ImageElementViewModel.class || e.getClass() == PaintElementViewModel.class) {
+                        } else if (e instanceof ImageElementViewModel) {
                             ImageElementViewModel ei = (ImageElementViewModel)e;
                             //load xml layout and bind data
                             ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);

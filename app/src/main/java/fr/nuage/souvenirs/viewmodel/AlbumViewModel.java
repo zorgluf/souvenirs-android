@@ -1,9 +1,7 @@
 package fr.nuage.souvenirs.viewmodel;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
@@ -14,14 +12,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.navigation.Navigation;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.SyncService;
@@ -31,7 +30,6 @@ import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.AlbumsNC;
-import fr.nuage.souvenirs.view.ShowAlbumFragmentDirections;
 
 public class AlbumViewModel extends AndroidViewModel {
 
@@ -42,20 +40,21 @@ public class AlbumViewModel extends AndroidViewModel {
     public static final int NC_STATE_NOSYNC = 4;
     public static final int NC_STATE_SYNC_IN_PROGRESS = 5;
 
-    private MediatorLiveData<String> name = new MediatorLiveData<>();
+    private final MediatorLiveData<String> name = new MediatorLiveData<>();
     private Album album;
     private AlbumNC albumNC;
     private UUID id;
-    private LiveData<ArrayList<PageViewModel>> pages = new MutableLiveData<>();
-    private MediatorLiveData<String> ldDate = new MediatorLiveData<>();
-    private MediatorLiveData<String> ldAlbumImage = new MediatorLiveData<>();
-    private MutableLiveData<UUID> focusPageId = new MutableLiveData<>();
-    private MutableLiveData<Boolean> ldHasAlbumNC = new MutableLiveData<>();
-    private MutableLiveData<Boolean> ldHasAlbum = new MutableLiveData<>();
+    private final ArrayList<PageViewModel> pages = new ArrayList<>();
+    private LiveData<ArrayList<PageViewModel>> ldPages = new MutableLiveData<>();
+    private final MediatorLiveData<String> ldDate = new MediatorLiveData<>();
+    private final MediatorLiveData<String> ldAlbumImage = new MediatorLiveData<>();
+    private final MutableLiveData<UUID> focusPageId = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldHasAlbumNC = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldHasAlbum = new MutableLiveData<>();
     private boolean syncInProgress = false;
-    private MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
-    private MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
-    private MediatorLiveData<String> ldDefaultStyle = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
+    private final MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
+    private final MediatorLiveData<String> ldDefaultStyle = new MediatorLiveData<>();
     private int albumsNCState = AlbumsNC.STATE_NOT_LOADED;
 
     public AlbumViewModel(Application app) {
@@ -91,6 +90,33 @@ public class AlbumViewModel extends AndroidViewModel {
         return this.albumNC;
     }
 
+    private void updatePages(ArrayList<Page> pages) {
+        //remove deleted pages
+        int i = 0;
+        while (i < this.pages.size()) {
+            PageViewModel pvm = this.pages.get(i);
+            if (pages.stream().filter(page -> page.getId().equals(pvm.getId())).count() == 0) {
+                this.pages.remove(i);
+            } else {
+                i++;
+            }
+        }
+        //create new pages
+        for (int j = 0; j < pages.size(); j++) {
+            Page p = pages.get(j);
+            int vmIndex = IntStream.range(0, this.pages.size())
+                    .filter(k -> this.pages.get(k).getId().equals(p.getId()))
+                    .findFirst()
+                    .orElse(-1);
+            if (vmIndex == -1) {
+                PageViewModel pVM = new PageViewModel(p);
+                this.pages.add(j,pVM);
+            } else {
+                Collections.swap(this.pages,vmIndex,j);
+            }
+        }
+    }
+
     public void setAlbum(Album album) {
         Album oldAlbum = getAlbum();
         this.album = album;
@@ -102,7 +128,7 @@ public class AlbumViewModel extends AndroidViewModel {
                         //remove previous livedata observers for Album
                         name.removeSource(oldAlbum.getLiveDataName());
                         ldDate.removeSource(oldAlbum.getLdDate());
-                        pages = new MutableLiveData<>();
+                        ldPages = new MutableLiveData<>();
                         ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
                         ldDefaultStyle.removeSource(oldAlbum.getLdDefaultStyle());
                         ldNCState.removeSource(oldAlbum.getLdLastEditDate());
@@ -117,13 +143,9 @@ public class AlbumViewModel extends AndroidViewModel {
                         ldDate.addSource(album.getLdDate(), date -> {
                             ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE)).format(date));
                         });
-                        pages = Transformations.map(album.getLiveDataPages(), pages -> {
-                            ArrayList<PageViewModel> out = new ArrayList<PageViewModel>();
-                            for (Page p : pages) {
-                                PageViewModel pVM = new PageViewModel(p);
-                                out.add(pVM);
-                            }
-                            return out;
+                        ldPages = Transformations.map(album.getLiveDataPages(), pagesModel -> {
+                            updatePages(pagesModel);
+                            return new ArrayList<>(pages);
                         });
                         ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
                             ldAlbumImage.setValue(imagePath);
@@ -287,31 +309,36 @@ public class AlbumViewModel extends AndroidViewModel {
         if (page == null) {
             return -1;
         }
-        return album.getIndex(page.getPage());
+        return getPosition(page.getId());
     }
 
     public int getPosition(UUID pageId) {
-        for (Page p : album.getPages()) {
+        for (PageViewModel p : pages) {
             if (p.getId().equals(pageId)) {
-                return album.getPages().indexOf(p);
+                return pages.indexOf(p);
             }
         }
-        return 0;
+        return -1;
     }
 
-    public LiveData<ArrayList<PageViewModel>> getPages() {
-        return pages;
+    public LiveData<ArrayList<PageViewModel>> getLdPages() {
+        return ldPages;
     }
 
 
     public String getDataPath() { return album.getDataPath(); }
 
     public PageViewModel getPage(int position) {
-        Page page = album.getPage(position);
-        if (page == null) {
+        if (position == -1) {
+            if (pages.size() == 0) {
+                return null;
+            }
+            return pages.get(pages.size()-1);
+        }
+        if (position >= pages.size()) {
             return null;
         }
-        return new PageViewModel(page);
+        return pages.get(position);
     }
 
     public PageViewModel getPage(UUID id) {
@@ -330,6 +357,7 @@ public class AlbumViewModel extends AndroidViewModel {
         album.setName(name);
     }
 
+/*  should not be used anymore
     public void update() {
         if (album != null) {
             album.load();
@@ -337,7 +365,7 @@ public class AlbumViewModel extends AndroidViewModel {
         if (albumNC != null) {
             albumNC.load();
         }
-    }
+    }*/
 
     public UUID getId() {
         return id;
@@ -426,11 +454,8 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     public PageViewModel getNextPage(PageViewModel pageVM) {
-        if (getPages().getValue() == null) {
-            return null;
-        }
         int pos = getPosition(pageVM);
-        if (pos < getPages().getValue().size()-1) {
+        if (pos < pages.size()-1) {
             return getPage(pos + 1);
         }
         return null;

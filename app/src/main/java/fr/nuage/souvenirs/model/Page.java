@@ -210,7 +210,7 @@ public class Page {
     public int getNbImage() {
         int nb=0;
         for (Element e: getElements()) {
-            if (e.getClass().equals(ImageElement.class)) {
+            if (e instanceof ImageElement) {
                 nb += 1;
             }
         }
@@ -291,5 +291,11 @@ public class Page {
                 return;
             }
         }
+    }
+
+    public VideoElement createVideoElement() {
+        VideoElement videoElement = new VideoElement();
+        addElement(videoElement);
+        return videoElement;
     }
 }

@@ -69,8 +69,6 @@ public class Albums {
                     Album album = getAlbum(f.getPath());
                     if (album == null) {
                         albumList.add(new Album(f.getPath()));
-                    } else {
-                        album.reload();
                     }
                 }
             }

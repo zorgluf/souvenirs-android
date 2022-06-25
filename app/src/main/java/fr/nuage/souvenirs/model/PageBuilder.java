@@ -231,7 +231,7 @@ public class PageBuilder {
     }
 
     public void create(int style, AlbumViewModel albumVM, ArrayList<Uri> images, ArrayList<String> texts) {
-        create(style,albumVM,albumVM.getPages().getValue().size(),images,texts);
+        create(style,albumVM,albumVM.getLdPages().getValue().size(),images,texts);
     }
 
     /* create one page and import all image/text on the page, take default style
@@ -298,14 +298,15 @@ public class PageBuilder {
 
     public void switchStyle(int style, AlbumViewModel albumVM, Page page) {
         //extract texts and images
-        ArrayList<String> texts = new ArrayList<String>();
-        ArrayList<Uri> images = new ArrayList<Uri>();
+        ArrayList<String> texts = new ArrayList<>();
+        ArrayList<Uri> images = new ArrayList<>();
         //parse page and fill text and image arrays
         for (Element e : page.getElements()) {
             if (e.getClass().equals(TextElement.class)) {
                 texts.add(((TextElement)e).getText());
             }
-            if (e.getClass().equals(ImageElement.class)) {
+            if (e instanceof ImageElement) {
+                //FIXME : will not work with video
                 images.add(Uri.fromFile(new File(((ImageElement)e).getImagePath())));
             }
         }

@@ -25,7 +25,6 @@ import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.transition.Scene;
 import androidx.transition.Transition;
@@ -115,7 +114,7 @@ public class EditPageFragment extends Fragment {
             }
         });
         //listen to pages changes
-        albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
             //build new view
             ((ViewGroup) requireView()).removeAllViews();
             ((ViewGroup) requireView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
@@ -142,15 +141,15 @@ public class EditPageFragment extends Fragment {
 
         binding.mainLayout.setOnClickListener(view -> {
             //if we recieve click, means no element has catch it : off page click, unselect all
-            if (pageVM.getElements().getValue() != null) {
-                for (ElementViewModel e : pageVM.getElements().getValue()) {
+            if (pageVM.getLdElements().getValue() != null) {
+                for (ElementViewModel e : pageVM.getLdElements().getValue()) {
                     e.setSelected(false);
                 }
             }
         });
 
         //listen to elements changes
-        pageVM.getElements().observe(getViewLifecycleOwner(), elementViewModels -> {
+        pageVM.getLdElements().observe(getViewLifecycleOwner(), elementViewModels -> {
             //set observers
             if (elementViewModels != null) {
                 for (ElementViewModel e : elementViewModels) {
@@ -169,7 +168,7 @@ public class EditPageFragment extends Fragment {
                                 }
                             }
                         });
-                    } else if (e.getClass() == ImageElementViewModel.class) {
+                    } else if (e instanceof ImageElementViewModel) {
                         ImageElementViewModel ei = (ImageElementViewModel) e;
                         //subscribe to selection
                         ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
@@ -307,12 +306,14 @@ public class EditPageFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_page, menu);
 
-        //set logic to add image
+        //set logic to add image or video
         MenuItem addImageItem = menu.findItem(R.id.edit_page_add_image);
         addImageItem.setOnMenuItemClickListener(menuItem -> {
             //test alternative
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.setType("image/*");
+            intent.setType("*/*");
+            String[] mimetypes = {"image/*", "video/*"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
             startActivityForResult(intent, ACTIVITY_ADD_IMAGE);
@@ -440,7 +441,11 @@ public class EditPageFragment extends Fragment {
                         } finally {
                             cursor.close();
                         }
-                        pageVM.addImage(input,mime,displayName,size);
+                        if (mime.startsWith("image")) {
+                            pageVM.addImage(input,mime,displayName,size);
+                        } else {
+                            pageVM.addVideo(input,mime,displayName,size);
+                        }
                     }
                 }
                 break;

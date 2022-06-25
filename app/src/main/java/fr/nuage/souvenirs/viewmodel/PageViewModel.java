@@ -1,8 +1,6 @@
 package fr.nuage.souvenirs.viewmodel;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.LiveData;
@@ -11,11 +9,11 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.AudioElement;
@@ -27,6 +25,7 @@ import fr.nuage.souvenirs.model.PaintElement;
 import fr.nuage.souvenirs.model.TextElement;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.UnknownElement;
+import fr.nuage.souvenirs.model.VideoElement;
 
 public class PageViewModel extends ViewModel {
 
@@ -35,7 +34,8 @@ public class PageViewModel extends ViewModel {
     public static final int AUDIO_MODE_OFF = 2;
 
     private final Page page;
-    private final LiveData<ArrayList<ElementViewModel>> elements;
+    private final LiveData<ArrayList<ElementViewModel>> ldElements;
+    private final ArrayList<ElementViewModel> elements = new ArrayList<>();
     private final MutableLiveData<Boolean> paintMode = new MutableLiveData<>();
     private final MutableLiveData<Boolean> editMode = new MutableLiveData<>();
     private final LiveData<Integer> audioMode;
@@ -46,36 +46,9 @@ public class PageViewModel extends ViewModel {
         this.page = page;
         editMode.postValue(false);
         paintMode.postValue(false);
-        elements = Transformations.map(page.getLiveDataElements(), elements -> {
-            ArrayList<ElementViewModel> out = new ArrayList<ElementViewModel>();
-            for (Element element : elements) {
-                ElementViewModel eVM = null;
-                //check if already exists
-                ArrayList<ElementViewModel> els = getElements().getValue();
-                if (els != null) {
-                    for (ElementViewModel elVM : els) {
-                        if (element.getId().equals(elVM.getId().getValue())) {
-                            eVM = elVM;
-                            break;
-                        }
-                    }
-                }
-                if (eVM == null) {
-                    if (element.getClass() == TextElement.class) {
-                        eVM = new TextElementViewModel((TextElement) element);
-                    } else if (element.getClass() == ImageElement.class) {
-                        eVM = new ImageElementViewModel((ImageElement) element);
-                    } else if (element.getClass() == PaintElement.class) {
-                        eVM = new PaintElementViewModel((PaintElement) element);
-                    } else if (element.getClass() == AudioElement.class) {
-                        eVM = new AudioElementViewModel((AudioElement) element);
-                    } else {
-                        eVM = new UnknownElementViewModel((UnknownElement)element);
-                    }
-                }
-                out.add(eVM);
-            }
-            return out;
+        ldElements = Transformations.map(page.getLiveDataElements(), elementsModel -> {
+            updateElements(elementsModel);
+            return new ArrayList<>(elements);
         });
         audioMode = Transformations.map(page.getLiveDataElements(), elements -> {
             int mode = AUDIO_MODE_NONE;
@@ -93,8 +66,48 @@ public class PageViewModel extends ViewModel {
         });
     }
 
-    public LiveData<ArrayList<ElementViewModel>> getElements() {
-        return elements;
+    private void updateElements(ArrayList<Element> elements) {
+        //remove deleted pages
+        int i = 0;
+        while (i < this.elements.size()) {
+            ElementViewModel evm = this.elements.get(i);
+            if (elements.stream().filter(element -> element.getId().equals(evm.getId())).count() == 0) {
+                this.elements.remove(i);
+            } else {
+                i++;
+            }
+        }
+        //create new pages
+        for (int j = 0; j < elements.size(); j++) {
+            Element e = elements.get(j);
+            int vmIndex = IntStream.range(0, this.elements.size())
+                    .filter(k -> this.elements.get(k).getId().equals(e.getId()))
+                    .findFirst()
+                    .orElse(-1);
+            if (vmIndex == -1) {
+                ElementViewModel eVM;
+                if (e.getClass() == TextElement.class) {
+                    eVM = new TextElementViewModel((TextElement) e);
+                } else if (e.getClass() == ImageElement.class) {
+                    eVM = new ImageElementViewModel((ImageElement) e);
+                } else if (e.getClass() == PaintElement.class) {
+                    eVM = new PaintElementViewModel((PaintElement) e);
+                } else if (e.getClass() == AudioElement.class) {
+                    eVM = new AudioElementViewModel((AudioElement) e);
+                } else if (e.getClass() == VideoElement.class) {
+                    eVM = new VideoElementViewModel((VideoElement) e);
+                } else {
+                    eVM = new UnknownElementViewModel((UnknownElement)e);
+                }
+                this.elements.add(j,eVM);
+            } else {
+                Collections.swap(this.elements,vmIndex,j);
+            }
+        }
+    }
+
+    public LiveData<ArrayList<ElementViewModel>> getLdElements() {
+        return ldElements;
     }
 
     public UUID getId() {
@@ -195,8 +208,8 @@ public class PageViewModel extends ViewModel {
     }
 
     public PaintElementViewModel getPaintElement() {
-        if (elements.getValue() != null) {
-            for (ElementViewModel e : elements.getValue()) {
+        if (ldElements.getValue() != null) {
+            for (ElementViewModel e : ldElements.getValue()) {
                 if (e.getClass().equals(PaintElementViewModel.class)) {
                     return (PaintElementViewModel)e;
                 }
@@ -217,7 +230,7 @@ public class PageViewModel extends ViewModel {
     }
 
     public ElementViewModel getElement(UUID elementId) {
-        for (ElementViewModel elementViewModel: getElements().getValue()) {
+        for (ElementViewModel elementViewModel: elements) {
             if (elementId.equals(elementViewModel.getId().getValue())) {
                 return  elementViewModel;
             }
@@ -248,4 +261,21 @@ public class PageViewModel extends ViewModel {
         return null;
     }
 
+    public void addVideo(InputStream input, String mime, String displayName, int size) {
+        VideoElement videoElement = page.createVideoElement();
+        videoElement.setVideo(input,mime);
+        videoElement.setName(displayName);
+        videoElement.setSize(size);
+        addImage(videoElement);
+    }
+
+    public ArrayList<VideoElementViewModel> getVideoElements() {
+        ArrayList<VideoElementViewModel> out = new ArrayList<>();
+        for (ElementViewModel element : elements) {
+            if (element.getClass().equals(VideoElementViewModel.class)) {
+                out.add((VideoElementViewModel) element);
+            }
+        }
+        return out;
+    }
 }

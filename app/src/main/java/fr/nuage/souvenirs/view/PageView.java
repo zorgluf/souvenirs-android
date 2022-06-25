@@ -12,7 +12,6 @@ import androidx.databinding.DataBindingUtil;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.PageViewBinding;
-import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
@@ -20,6 +19,7 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
+import fr.nuage.souvenirs.viewmodel.VideoElementViewModel;
 
 public class PageView extends ConstraintLayout {
 
@@ -61,7 +61,7 @@ public class PageView extends ConstraintLayout {
 
             ConstraintLayout pageLayout = binding.pageLayout;
             //listen to elements changes
-            pageViewModel.getElements().observe((AppCompatActivity)getContext(), elementViewModels -> {
+            pageViewModel.getLdElements().observe((AppCompatActivity)getContext(), elementViewModels -> {
                 //remove all
                 pageLayout.removeAllViewsInLayout();
                 //rebuild layout
@@ -76,6 +76,9 @@ public class PageView extends ConstraintLayout {
                             ViewGenerator.generateView(pageViewModel, ei, pageLayout, (AppCompatActivity)getContext());
                         } else if (e.getClass() == PaintElementViewModel.class) {
                             PaintElementViewModel ep = (PaintElementViewModel) e;
+                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
+                        } else if (e.getClass() == VideoElementViewModel.class) {
+                            VideoElementViewModel ep = (VideoElementViewModel) e;
                             ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
                         } else if (e.getClass() == AudioElementViewModel.class) {
                             continue;

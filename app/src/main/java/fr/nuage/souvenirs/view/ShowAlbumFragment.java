@@ -34,7 +34,6 @@ import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.ShareAlbumAsyncTask;
-import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class ShowAlbumFragment extends Fragment {
 
@@ -95,9 +94,9 @@ public class ShowAlbumFragment extends Fragment {
         pageListRecyclerView = v.findViewById(R.id.page_list);
 
         //fill recyclerview
-        pageListAdapter =  new ShowPageListAdapter(albumVM.getPages(),this,albumVM);
+        pageListAdapter =  new ShowPageListAdapter(albumVM.getLdPages(),this,albumVM);
         pageListRecyclerView.setAdapter(pageListAdapter);
-        albumVM.getPages().observe(getViewLifecycleOwner(), new Observer<ArrayList<PageViewModel>>() {
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), new Observer<ArrayList<PageViewModel>>() {
             @Override
             public void onChanged(@Nullable ArrayList<PageViewModel> PageViewModels) {
                 pageListAdapter.updateList(PageViewModels);
@@ -179,7 +178,7 @@ public class ShowAlbumFragment extends Fragment {
     public void onResume() {
         super.onResume();
         //refresh page list in case of edit
-        albumVM.update();
+        //albumVM.update();
     }
 
 }

@@ -160,14 +160,14 @@ public class TilePageBuilder extends PageBuilder {
     @Override
     public void applyStyle(int style, Page page) {
         //seperate txt and im elements
-        ArrayList<ImageElement> imageElementArrayList = new ArrayList<>();
+        ArrayList<Element> imageElementArrayList = new ArrayList<>();
         ArrayList<TextElement> textElementArrayList = new ArrayList<>();
         for (Element e : page.getElements()) {
             if (e.getClass().equals(TextElement.class)) {
                 textElementArrayList.add((TextElement)e);
             }
-            if (e.getClass().equals(ImageElement.class)) {
-                imageElementArrayList.add((ImageElement)e);
+            if (e instanceof ImageElement) {
+                imageElementArrayList.add(e);
             }
         }
         //read style template and apply
@@ -176,7 +176,7 @@ public class TilePageBuilder extends PageBuilder {
         while ( (imCursor < imageElementArrayList.size()) || (txtCursor < textElementArrayList.size()) ) {
             for (Object[] elDef: getPageStyleMap()[style]) {
                 if (imCursor < imageElementArrayList.size()) {
-                    ImageElement e_img = imageElementArrayList.get(imCursor);
+                    ImageElement e_img = (ImageElement) imageElementArrayList.get(imCursor);
                     if (e_img != null) {
                         e_img.setTop((int)elDef[1]);
                         e_img.setBottom((int)elDef[3]);

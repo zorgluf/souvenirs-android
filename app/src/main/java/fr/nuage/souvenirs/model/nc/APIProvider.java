@@ -122,6 +122,9 @@ public class APIProvider {
         @SerializedName("audio")
         String audioPath;
         boolean stop;
+        //for video element
+        @SerializedName("video")
+        public String videoPath;
     }
 
 }

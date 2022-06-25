@@ -1,7 +1,9 @@
 package fr.nuage.souvenirs.model;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -10,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -154,6 +157,15 @@ public class ImageElement extends Element {
         }
     }
 
+    public void setImage(Bitmap bitmap) {
+        File imFile = pageParent.getAlbum().createEmptyDataFile("image/jpeg");
+        try (FileOutputStream out = new FileOutputStream(imFile)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        } catch (IOException e) {
+            Log.e(getClass().getName(),"Impossible to save image.",e);
+        }
+        setImage(imFile.getPath(),"image/jpeg");
+    }
 
     /**
     * This method set the image path attribute to element, without deleting the previous one.

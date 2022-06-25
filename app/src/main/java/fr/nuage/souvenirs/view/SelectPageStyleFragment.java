@@ -81,12 +81,9 @@ public class SelectPageStyleFragment extends Fragment {
             View pageView = pageBuilder.genPreview(i,previewGrid,inflater);
             pageView.setId(View.generateViewId());
             final int j = i;
-            pageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onStyleSelected(j);
-                    }
+            pageView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onStyleSelected(j);
                 }
             });
             previewGrid.addView(pageView);
