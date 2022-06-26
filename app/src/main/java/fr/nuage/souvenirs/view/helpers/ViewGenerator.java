@@ -172,21 +172,23 @@ generate view based on paintElementViewModel
         imageElementViewModel.getOffsetX().observe(lifecycleOwner, zoomOffsetObserver);
         imageElementViewModel.getOffsetY().observe(lifecycleOwner, zoomOffsetObserver);
         imageElementViewModel.getZoom().observe(lifecycleOwner, zoomOffsetObserver);
-        if (imageElementViewModel.getIsPano().getValue()) {
-            //gen pano icon
-            AppCompatImageView imageViewIcon = new AppCompatImageView(parentViewGroup.getContext());
-            imageViewIcon.setId(View.generateViewId());
-            imageViewIcon.setImageResource(R.drawable.ic_baseline_panorama_horizontal_24);
-            parentViewGroup.addView(imageViewIcon);
-            ImageViewCompat.setImageTintList(imageViewIcon, ColorStateList.valueOf(parentViewGroup.getResources().getColor(R.color.secondaryColor)));
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(parentViewGroup);
-            constraintSet.constrainWidth(imageViewIcon.getId(),convertDpToPixel(48,parentViewGroup.getContext()));
-            constraintSet.constrainHeight(imageViewIcon.getId(),convertDpToPixel(48,parentViewGroup.getContext()));
-            constraintSet.connect(imageViewIcon.getId(),ConstraintSet.TOP,imageView.getId(),ConstraintSet.TOP,convertDpToPixel(8,parentViewGroup.getContext()));
-            constraintSet.connect(imageViewIcon.getId(),ConstraintSet.LEFT,imageView.getId(),ConstraintSet.LEFT,convertDpToPixel(8,parentViewGroup.getContext()));
-            constraintSet.applyTo(parentViewGroup);
-        }
+        imageElementViewModel.getIsPano().observe(lifecycleOwner, aBoolean -> {
+            if (aBoolean) {
+                //gen pano icon
+                AppCompatImageView imageViewIcon = new AppCompatImageView(parentViewGroup.getContext());
+                imageViewIcon.setId(View.generateViewId());
+                imageViewIcon.setImageResource(R.drawable.ic_baseline_panorama_horizontal_24);
+                parentViewGroup.addView(imageViewIcon);
+                ImageViewCompat.setImageTintList(imageViewIcon, ColorStateList.valueOf(parentViewGroup.getResources().getColor(R.color.secondaryColor)));
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(parentViewGroup);
+                constraintSet.constrainWidth(imageViewIcon.getId(),convertDpToPixel(48,parentViewGroup.getContext()));
+                constraintSet.constrainHeight(imageViewIcon.getId(),convertDpToPixel(48,parentViewGroup.getContext()));
+                constraintSet.connect(imageViewIcon.getId(),ConstraintSet.TOP,imageView.getId(),ConstraintSet.TOP,convertDpToPixel(8,parentViewGroup.getContext()));
+                constraintSet.connect(imageViewIcon.getId(),ConstraintSet.LEFT,imageView.getId(),ConstraintSet.LEFT,convertDpToPixel(8,parentViewGroup.getContext()));
+                constraintSet.applyTo(parentViewGroup);
+            }
+        });
         return imageView;
     }
 
