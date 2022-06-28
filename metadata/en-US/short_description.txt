@@ -1,1 +1,1 @@
-Make photo albums and share them on Nextcloud
+Make photo albums and share them on Nextcloud. Support for image, sound, video, photosphere and annotations.

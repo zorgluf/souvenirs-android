@@ -1,5 +1,5 @@
-Réalisez des albums photos, ajoutez du texte ou des annotations manuscrites.
-Partagez vos albums sur un serveur Nextcloud.
+Réalisez des albums photos, ajoutez du texte ou des annotations manuscrites. Possibilité d'ajouter des vidéos, sons, ou des images au format photosphere.
+Téléchargerz et partagez vos albums sur un serveur Nextcloud.
 
 Pour partager un album sur une instance Nextcloud, vous aurez besoin :
 <ul>
@@ -9,11 +9,9 @@ Pour partager un album sur une instance Nextcloud, vous aurez besoin :
 
 <b>Encore une application de gallerie photo</b>
 
-Les albums papiers traditionnels ne sont pas juste une suite de photos ordonnées dans le temps, ce sont des supports visuels conçus pour raconter une histoire, vous rappeler un souvenir.
+Les albums ne sont pas juste une suite de photos ordonnées dans le temps, ce sont des supports visuels conçus pour raconter une histoire, vous rappeler un souvenir.
 
-L'objectif de cette application est de reproduire cet objet à travers une organisation spatiale des photos, de textes ou d'annotations manuelles, vous donnant les outils pour enregistrer des souvenirs et non une succession de photos.
-
-Bon, au moins essayer de le faire avec des compétences d'amateur en programmation android...
+L'objectif de cette application est de reproduire cet objet traditionnel à travers une organisation spatiale des photos, de textes ou d'annotations manuelles, vous donnant les outils pour enregistrer des souvenirs et non une succession de photos. C'est du moins ce que j'essaye de faire avec des compétences d'amateur en programmation android...
 
 <b>Style d'album</b>
 
@@ -22,7 +20,7 @@ Les albums sont constitués de pages sur lesquels on peut insérer des photos ou
 Deux styles d'album sont disponibles :
 <ul>
 <li>Le style tuile : les photo et blocs de texte sont agencés sous forme de tuiles contigues sur toute la page. Vous pouvez déplacer et zoomer les images à l'intérieur des tuiles et ajouter des annotations manuscrites.</li>
-<li>Le style libre : vous pouvez redimensionner les photos et les blocs comme vous le désirez sur la page, même les superposer. Ce style vous demandera plus de temps de conception de l'ablum et laisse souvent du vide entre les éléments, ce qui n'optimise pas la lecture sur un petit smartphone.</li>
+<li>Le style libre : vous pouvez redimensionner les photos et les blocs comme vous le désirez sur la page, même les superposer. Ce style vous demandera plus de temps de conception de l'ablum et laisse souvent du vide entre les éléments, ce qui n'optimise pas la lecture sur un petit smartphone. (plus supporté, deprecated)</li>
 </ul>
 
 <i>Explication des permissions : l'application a besoins des permissions suivantes : "INTERNET", "GET_ACCOUNTS". Ces permissions sont utilisées exclisivement pour télécharger des albums depuis le serveur Nextcloud et utiliser le compte nextcloud sur l'appareil.
@@ -32,5 +30,6 @@ Cette application utilise les libraries tierces suivantes :
 <li>The media loading library <a href='https://github.com/bumptech/glide'>Glide</a></li>
 <li>The <a href='https://github.com/nextcloud/Android-SingleSignOn'>Nextcloud Single Sign On</a> library</li>
 <li>The <a href='https://square.github.io/retrofit/'>retrofit</a> http client</li>
+<li>The <a href='https://photo-sphere-viewer.js.org/'>photo sphere viewer</a> javascript library</li>
 </ul>
 </i>

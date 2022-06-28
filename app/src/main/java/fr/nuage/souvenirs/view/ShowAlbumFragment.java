@@ -28,12 +28,12 @@ import java.util.ArrayList;
 
 import fr.nuage.souvenirs.AlbumListActivity;
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.AudioPlayer;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.ShareAlbumAsyncTask;
-import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class ShowAlbumFragment extends Fragment {
 
@@ -42,7 +42,7 @@ public class ShowAlbumFragment extends Fragment {
     private ShowPageListAdapter pageListAdapter;
     private RecyclerView pageListRecyclerView;
     private AlbumViewModel albumVM;
-
+    private AudioPlayer audioPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,10 +67,15 @@ public class ShowAlbumFragment extends Fragment {
                 ((AlbumListActivity)getActivity()).transparentAppbar(true);
             }
         }
+        //init audio player
+        audioPlayer = new AudioPlayer(albumVM);
+        pageListRecyclerView.setOnScrollChangeListener(audioPlayer);
     }
 
     @Override
     public void onStop() {
+        //stop audio player
+        audioPlayer.stop();
         //restore activity scrolling
         if (getActivity().getClass().equals(AlbumListActivity.class)) {
             ((AlbumListActivity)getActivity()).transparentAppbar(false);
@@ -89,9 +94,9 @@ public class ShowAlbumFragment extends Fragment {
         pageListRecyclerView = v.findViewById(R.id.page_list);
 
         //fill recyclerview
-        pageListAdapter =  new ShowPageListAdapter(albumVM.getPages(),this,albumVM);
+        pageListAdapter =  new ShowPageListAdapter(albumVM.getLdPages(),this,albumVM);
         pageListRecyclerView.setAdapter(pageListAdapter);
-        albumVM.getPages().observe(getViewLifecycleOwner(), new Observer<ArrayList<PageViewModel>>() {
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), new Observer<ArrayList<PageViewModel>>() {
             @Override
             public void onChanged(@Nullable ArrayList<PageViewModel> PageViewModels) {
                 pageListAdapter.updateList(PageViewModels);
@@ -173,7 +178,7 @@ public class ShowAlbumFragment extends Fragment {
     public void onResume() {
         super.onResume();
         //refresh page list in case of edit
-        albumVM.update();
+        //albumVM.update();
     }
 
 }

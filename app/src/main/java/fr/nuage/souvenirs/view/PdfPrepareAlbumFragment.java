@@ -2,7 +2,6 @@ package fr.nuage.souvenirs.view;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,22 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,18 +34,10 @@ import java.util.concurrent.TimeUnit;
 
 import fr.nuage.souvenirs.AlbumListActivity;
 import fr.nuage.souvenirs.R;
-import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
-import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
-import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
-import fr.nuage.souvenirs.viewmodel.ElementViewModel;
-import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
-import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
-import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
-import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class PdfPrepareAlbumFragment extends Fragment {
 
@@ -97,7 +80,7 @@ public class PdfPrepareAlbumFragment extends Fragment {
         mainLayout.setLayoutParams(params);
 
         //start page generation
-        albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
             if (pageViewModels != null) {
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 executor.schedule(() -> {

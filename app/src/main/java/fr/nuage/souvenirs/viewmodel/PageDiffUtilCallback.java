@@ -31,8 +31,8 @@ public class PageDiffUtilCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        ArrayList<ElementViewModel> oldElements = oldPages.get(oldItemPosition).getElements().getValue();
-        ArrayList<ElementViewModel> newElements = newPages.get(newItemPosition).getElements().getValue();
+        ArrayList<ElementViewModel> oldElements = oldPages.get(oldItemPosition).getLdElements().getValue();
+        ArrayList<ElementViewModel> newElements = newPages.get(newItemPosition).getLdElements().getValue();
         if (newElements == null) {
             return oldElements == null;
         }

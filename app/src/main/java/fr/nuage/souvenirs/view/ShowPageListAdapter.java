@@ -1,9 +1,9 @@
 package fr.nuage.souvenirs.view;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -24,14 +24,17 @@ import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
+import fr.nuage.souvenirs.databinding.VideoElementViewBinding;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
+import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageDiffUtilCallback;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
+import fr.nuage.souvenirs.viewmodel.VideoElementViewModel;
 
 public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapter.ViewHolder> {
     private ArrayList<PageViewModel> mPages = new ArrayList<>();
@@ -83,7 +86,7 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
 
         PageViewModel page = mPages.get(position);
         //listen to elements changes
-        page.getElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {
+        page.getLdElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {
             @Override
             public void onChanged(@Nullable ArrayList<ElementViewModel> elementViewModels) {
                 //remove all view
@@ -100,7 +103,48 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             binding.setElement((TextElementViewModel) e);
                             binding.executePendingBindings();
                             layout.addView(binding.getRoot());
-                        } else if (e.getClass() == ImageElementViewModel.class || e.getClass() == PaintElementViewModel.class) {
+                        } else if (e instanceof VideoElementViewModel) {
+                            //load xml layout and bind data
+                            VideoElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.video_element_view,layout,false);
+                            binding.setLifecycleOwner(mFragment);
+                            binding.setElement((VideoElementViewModel) e);
+                            binding.executePendingBindings();
+                            ((VideoElementViewModel) e).getVideoPath().observe(mFragment, binding.imageVideoview::setVideoPath);
+                            ((VideoElementViewModel) e).getIsPlaying().observe(mFragment, isPlaying -> {
+                                if (isPlaying) {
+                                    if (binding.imageVideoview.isPlaying()) {
+                                        binding.imageVideoview.resume();
+                                    } else {
+                                        binding.imageVideoview.start();
+                                    }
+                                } else {
+                                    binding.imageVideoview.pause();
+                                }
+                            });
+                            //set on click event
+                            binding.imageVideoview.setOnClickListener(view -> {
+                                //open view intent on video
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((VideoElementViewModel) e).getVideoPath().getValue()));
+                                intent.setDataAndType(imUri, "video/*");
+                                mFragment.getActivity().startActivity(intent);
+                            });
+                            //scale to fill/crop canvas
+                            binding.imageVideoview.setOnPreparedListener(mp -> {
+                                float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
+                                float screenRatio = binding.imageVideoview.getWidth() / (float)
+                                        binding.imageVideoview.getHeight();
+                                float scaleX = videoRatio / screenRatio;
+                                if (scaleX >= 1f) {
+                                    binding.imageVideoview.setScaleX(scaleX);
+                                } else {
+                                    binding.imageVideoview.setScaleY(1f / scaleX);
+                                }
+                            });
+                            layout.addView(binding.getRoot());
+                        } else if (e instanceof ImageElementViewModel) {
                             //load xml layout and bind data
                             ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);
                             binding.setLifecycleOwner(mFragment);
@@ -108,36 +152,35 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             binding.executePendingBindings();
                             //do not listen to click if paintelement
                             if (e.getClass() != PaintElementViewModel.class) {
-                                binding.imageImageview.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //special handling for panorama
-                                        if (((ImageElementViewModel) e).getIsPano().getValue()) {
-                                            //open PanoViewerActivity
-                                            Intent intent = new Intent();
-                                            intent.setClass(mFragment.getContext().getApplicationContext(), PanoViewerActivity.class);
-                                            intent.setAction(Intent.ACTION_SEND);
-                                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                            Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
-                                            intent.setType(ImageElement.GOOGLE_PANORAMA_360_MIMETYPE);
-                                            intent.putExtra(Intent.EXTRA_STREAM,imUri);
-                                            mFragment.getActivity().startActivity(intent);
-                                        } else {
-                                            //open view intent on image
-                                            Intent intent = new Intent();
-                                            intent.setAction(Intent.ACTION_VIEW);
-                                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                            Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
-                                            intent.setDataAndType(imUri, "image/*");
-                                            mFragment.getActivity().startActivity(intent);
-                                        }
+                                binding.imageImageview.setOnClickListener(view -> {
+                                    //special handling for panorama
+                                    if (((ImageElementViewModel) e).getIsPano().getValue()) {
+                                        //open PanoViewerActivity
+                                        Intent intent = new Intent();
+                                        intent.setClass(mFragment.getContext().getApplicationContext(), PanoViewerActivity.class);
+                                        intent.setAction(Intent.ACTION_SEND);
+                                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                        Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
+                                        intent.setType(ImageElement.GOOGLE_PANORAMA_360_MIMETYPE);
+                                        intent.putExtra(Intent.EXTRA_STREAM,imUri);
+                                        mFragment.getActivity().startActivity(intent);
+                                    } else {
+                                        //open view intent on image
+                                        Intent intent = new Intent();
+                                        intent.setAction(Intent.ACTION_VIEW);
+                                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                        Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
+                                        intent.setDataAndType(imUri, "image/*");
+                                        mFragment.getActivity().startActivity(intent);
                                     }
                                 });
                             }
                             layout.addView(binding.getRoot());
+                        } else if (e.getClass() == AudioElementViewModel.class) {
+                            continue;
                         } else {
-                            //unknown element : display default view
-                            inflater.inflate(R.layout.unknown_element_view,layout,true);
+                                //unknown element : display default view
+                                inflater.inflate(R.layout.unknown_element_view,layout,true);
                         }
                     }
                 }

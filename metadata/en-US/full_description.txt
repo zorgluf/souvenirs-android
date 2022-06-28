@@ -1,4 +1,5 @@
-Make photo albums, add text and handwritten annotations. Upload them on Nextcloud server and share with friends/family.
+Make photo albums, add text, video, sound and handwritten annotations. Support for photosphere image format in viewer.
+Upload your albums on a Nextcloud server and share them with family and friends.
 
 To upload an album to a Nextcloud instance, you will need:
 <ul>
@@ -8,11 +9,9 @@ To upload an album to a Nextcloud instance, you will need:
 
 <b>Yet an other gallery app</b>
 
-Old school paper albums are not just a collection of time ordered photos, they are visuals and texts organised to tell a story, make you remember a moment in the past.
+From a personal point of view, an album is not just a collection of time ordered photos, they are visuals and texts organised to tell a story, to help you remember moment and feelings from the past.
 
-The goal of this gallery app is to mimic a full photo album though image spacial organisation, text and hand drawings, giving you the tools to express and store your memories ("souvenirs" in french).
-
-Well, at least trying to do it that way with my amateur android programming skills...
+The goal of this gallery app is to mimic an old fashion photo album though image spacial organisation, text and hand drawings, giving you the tools to express and store your memories ("souvenirs" in french). Well, at least trying to do it that way with my amateur android programming skills... And spice it a bit with some more "modern" items inside your album, like videos or sound/music.
 
 <b>Album modes</b>
 
@@ -21,7 +20,7 @@ Album are composed of several pages where you can include image or text blocs.
 There are two possible album mode available :
 <ul>
 <li>Tile mode : images and text blocs are organised in tiles fully covering the page. You can pan/zoom each images and handwritten annotations over them.</li>
-<li>Free mode : you can resize images and blocs however you want on your page, even overlaid them. This mode need more time to design your album and generally leaves blank area that are not optimized for small smartphone.</li>
+<li>Free mode : you can resize images and blocs however you want on your page, even overlaid them. This mode need more time to design your album and generally leaves blank area that are not optimized for small smartphone. (deprecated)</li>
 </ul>
 
 <i>Permission explained : the application need the following permissions : "INTERNET", "GET_ACCOUNTS". These permissions are used exclusively to upload/download albums from the nextcloud server and using the nextcloud account on the device.
@@ -31,5 +30,6 @@ The following third party libraries are used by this app :
 <li>The media loading library <a href='https://github.com/bumptech/glide'>Glide</a></li>
 <li>The <a href='https://github.com/nextcloud/Android-SingleSignOn'>Nextcloud Single Sign On</a> library</li>
 <li>The <a href='https://square.github.io/retrofit/'>retrofit</a> http client</li>
+<li>The <a href='https://photo-sphere-viewer.js.org/'>photo sphere viewer</a> javascript library</li>
 </ul>
 </i>

@@ -13,8 +13,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -94,7 +92,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
             AlbumViewModel albumVM = albumListViewModel.getAlbum(albumPath);
             if (albumVM != null) {
                 setAlbumVM(albumVM);
-                albumVM.getPages().observe(lifecycleOwner, PageViewModels -> editPageListAdapter.updateList(PageViewModels));
+                albumVM.getLdPages().observe(lifecycleOwner, PageViewModels -> editPageListAdapter.updateList(PageViewModels));
                 getActivity().setTitle(albumVM.getName().getValue());
                 albumVM.getName().observe(lifecycleOwner, s -> getActivity().setTitle(albumVM.getName().getValue()));
                 if (initialPageFocusId != null) {

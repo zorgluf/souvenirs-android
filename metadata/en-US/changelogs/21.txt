@@ -1,0 +1,4 @@
+New Feature: Add audio support. Audio will play on view mode until an audio stop command is set
+New Feature: Add video support.
+Fix: Album list refresh on wifi setting change
+

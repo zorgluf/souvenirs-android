@@ -77,4 +77,7 @@
     <string name="action_menu_image_zoomin">Zoom In</string>
     <string name="action_menu_image_zoomout">Zoom Out</string>
     <string name="toast_no_camera">No camera detected !</string>
+    <string name="edit_page_audio">Add audio</string>
+    <string name="edit_page_audio_remove">Remove audio</string>
+    <string name="edit_page_audio_stop">Stop audio</string>
 </resources>

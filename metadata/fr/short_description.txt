@@ -1,1 +1,1 @@
-Conception d'album photos et partage sur Nextcloud
+Conception d'album photos et partage sur Nextcloud. Supporte l'ajout de video, audio et photopshere.

@@ -57,6 +57,7 @@ public class EditPageFragment extends Fragment {
 
     private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
+    private static final int ACTIVITY_ADD_AUDIO = 12;
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
@@ -113,7 +114,7 @@ public class EditPageFragment extends Fragment {
             }
         });
         //listen to pages changes
-        albumVM.getPages().observe(getViewLifecycleOwner(), pageViewModels -> {
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
             //build new view
             ((ViewGroup) requireView()).removeAllViews();
             ((ViewGroup) requireView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
@@ -126,21 +127,29 @@ public class EditPageFragment extends Fragment {
     private View createView(@NonNull LayoutInflater inflater, ViewGroup container) {
         //inflateview
         FragmentEditPageBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_page, container, false);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setPage(pageVM);
+        binding.executePendingBindings();
 
         pageVM.getLdEditMode().postValue(true);
         binding.pageViewEdit.setPageViewModel(pageVM);
 
+        //listen for audiomode change to change menu
+        pageVM.getLdAudioMode().observe(getViewLifecycleOwner(), audioMode -> {
+            getActivity().invalidateOptionsMenu();
+        });
+
         binding.mainLayout.setOnClickListener(view -> {
             //if we recieve click, means no element has catch it : off page click, unselect all
-            if (pageVM.getElements().getValue() != null) {
-                for (ElementViewModel e : pageVM.getElements().getValue()) {
+            if (pageVM.getLdElements().getValue() != null) {
+                for (ElementViewModel e : pageVM.getLdElements().getValue()) {
                     e.setSelected(false);
                 }
             }
         });
 
         //listen to elements changes
-        pageVM.getElements().observe(getViewLifecycleOwner(), elementViewModels -> {
+        pageVM.getLdElements().observe(getViewLifecycleOwner(), elementViewModels -> {
             //set observers
             if (elementViewModels != null) {
                 for (ElementViewModel e : elementViewModels) {
@@ -159,7 +168,7 @@ public class EditPageFragment extends Fragment {
                                 }
                             }
                         });
-                    } else if (e.getClass() == ImageElementViewModel.class) {
+                    } else if (e instanceof ImageElementViewModel) {
                         ImageElementViewModel ei = (ImageElementViewModel) e;
                         //subscribe to selection
                         ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
@@ -297,12 +306,14 @@ public class EditPageFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_page, menu);
 
-        //set logic to add image
+        //set logic to add image or video
         MenuItem addImageItem = menu.findItem(R.id.edit_page_add_image);
         addImageItem.setOnMenuItemClickListener(menuItem -> {
             //test alternative
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.setType("image/*");
+            intent.setType("*/*");
+            String[] mimetypes = {"image/*", "video/*"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
             startActivityForResult(intent, ACTIVITY_ADD_IMAGE);
@@ -331,6 +342,38 @@ public class EditPageFragment extends Fragment {
 
             return true;
         });
+
+        if (pageVM.getLdAudioMode().getValue() == PageViewModel.AUDIO_MODE_NONE) {
+            //disable remove audio
+            menu.removeItem(R.id.edit_page_audio_remove);
+            //set logic to add audio file
+            MenuItem addAudioItem = menu.findItem(R.id.edit_page_audio);
+            addAudioItem.setOnMenuItemClickListener(menuItem -> {
+                //test alternative
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("audio/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+                startActivityForResult(intent, ACTIVITY_ADD_AUDIO);
+                return true;
+            });
+            //set logic to add audio silence
+            MenuItem addAudioStopItem = menu.findItem(R.id.edit_page_audio_stop);
+            addAudioStopItem.setOnMenuItemClickListener(menuItem -> {
+                pageVM.addAudio(null,null);
+                return true;
+            });
+        } else {
+            //disable audio add
+            menu.removeItem(R.id.edit_page_audio);
+            menu.removeItem(R.id.edit_page_audio_stop);
+            //set logic to remove audio
+            MenuItem addAudioRemoveItem = menu.findItem(R.id.edit_page_audio_remove);
+            addAudioRemoveItem.setOnMenuItemClickListener(menuItem -> {
+                pageVM.removeAudio();
+                return true;
+            });
+        }
 
         //set logic to add text
         MenuItem addTextItem = menu.findItem(R.id.edit_page_add_text);
@@ -398,8 +441,20 @@ public class EditPageFragment extends Fragment {
                         } finally {
                             cursor.close();
                         }
-                        pageVM.addImage(input,mime,displayName,size);
+                        if (mime.startsWith("image")) {
+                            pageVM.addImage(input,mime,displayName,size);
+                        } else {
+                            pageVM.addVideo(input,mime,displayName,size);
+                        }
                     }
+                }
+                break;
+            case ACTIVITY_ADD_AUDIO:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri audioUri = data.getData();
+                    String mime = requireActivity().getContentResolver().getType(audioUri);
+                    InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), audioUri);
+                    pageVM.addAudio(input,mime);
                 }
                 break;
             case ACTIVITY_ADD_PHOTO:

@@ -36,9 +36,9 @@ public class Album {
     public static final String STYLE_TILE = "TILE";
 
     private String albumPath;
-    private MutableLiveData<String> ldName = new MutableLiveData<String>();
+    private MutableLiveData<String> ldName = new MutableLiveData<>();
     private String name;
-    private MutableLiveData<ArrayList<Page>> ldPages = new MutableLiveData<ArrayList<Page>>();
+    private MutableLiveData<ArrayList<Page>> ldPages = new MutableLiveData<>();
     private ArrayList<Page> pages = new ArrayList<Page>();
     private Date pagesLastEditDate;
     private MutableLiveData<Date> ldPagesLastEditDate = new MutableLiveData<>();
@@ -128,11 +128,6 @@ public class Album {
         return defaultStyle;
     }
 
-    public void reload() {
-        if (!unsavedModifications) {
-            load();
-        }
-    }
 
     public boolean load() {
         Log.d(this.getClass().toString(),"Load Album "+albumPath);
@@ -229,7 +224,7 @@ public class Album {
                 }
             }
         } catch (JSONException e) {
-            Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath);
+            Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath,e);
             return false;
         }
         updateAllLiveDataObject();
