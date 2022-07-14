@@ -154,19 +154,9 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
 
         //set logic to edit album title
         MenuItem editItem = menu.findItem(R.id.edit_title_edit_album);
-        ActionAlbumEditNameView actionAlbumEditNameView = (ActionAlbumEditNameView) editItem.getActionView();
-        editItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                actionAlbumEditNameView.setName(albumVM.getName().getValue());
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                albumVM.setName(actionAlbumEditNameView.getName());
-                return true;
-            }
+        editItem.setOnMenuItemClickListener(menuItem -> {
+            new EditAlbumNameDialogFragment(albumVM).show(getParentFragmentManager(),null);
+            return true;
         });
         //set listener to add page
         MenuItem addPageItem = menu.findItem(R.id.add_page_edit_album);

@@ -80,4 +80,5 @@
     <string name="edit_page_audio">Add audio</string>
     <string name="edit_page_audio_remove">Remove audio</string>
     <string name="edit_page_audio_stop">Stop audio</string>
+    <string name="dialog_edit_album_msg">Edit album name and date</string>
 </resources>
