@@ -141,7 +141,7 @@ public class AlbumViewModel extends AndroidViewModel {
                             name.setValue(name2);
                         });
                         ldDate.addSource(album.getLdDate(), date -> {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE)).format(date));
+                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
                         });
                         ldPages = Transformations.map(album.getLiveDataPages(), pagesModel -> {
                             updatePages(pagesModel);
@@ -196,7 +196,7 @@ public class AlbumViewModel extends AndroidViewModel {
                     });
                     ldDate.addSource(albumNC.getLdDate(), date -> {
                         if (album == null) {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE)).format(date));
+                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
                         }
                     });
                     ldNCState.addSource(albumNC.getLdLastEditDate(), date -> {
@@ -356,16 +356,6 @@ public class AlbumViewModel extends AndroidViewModel {
     public void setName(String name) {
         album.setName(name);
     }
-
-/*  should not be used anymore
-    public void update() {
-        if (album != null) {
-            album.load();
-        }
-        if (albumNC != null) {
-            albumNC.load();
-        }
-    }*/
 
     public UUID getId() {
         return id;
