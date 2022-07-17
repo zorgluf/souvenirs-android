@@ -123,7 +123,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         lastOperationPage = p;
         //launch select style dialog
         SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1,albumVM.getDefaultStyle());
-        dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE);
+        dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE);
     }
 
     public void openPageEdition(View v) {
@@ -137,7 +137,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     @Override
     public void onStyleSelected(int style) {
         //check which dialog was launched
-        Fragment dialogChangeStyle = getFragmentManager().findFragmentByTag(DIALOG_CHANGE_STYLE);
+        Fragment dialogChangeStyle = getParentFragmentManager().findFragmentByTag(DIALOG_CHANGE_STYLE);
         if (dialogChangeStyle != null) {
             //dismiss dialog
             DialogFragment df = (DialogFragment) dialogChangeStyle;
