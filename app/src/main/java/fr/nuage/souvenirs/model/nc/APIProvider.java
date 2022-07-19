@@ -77,6 +77,10 @@ public class APIProvider {
         String path;
         int size;
     }
+    public static class AssetSearchResult {
+        String status;
+        String linkCreated;
+    }
 
     public static class AlbumResp {
         UUID id;

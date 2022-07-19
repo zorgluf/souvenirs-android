@@ -261,7 +261,8 @@ public class AlbumNC {
         return ldIsShared;
     }
 
-    public boolean pushAsset(String localAlbumPath, String assetPath) {
+    public boolean pushAsset(String localAlbumPath, String assetPath, String assetName, int assetSize) {
+
         //probe asset
         APIProvider.AssetProbeResult result;
         try {
@@ -287,8 +288,26 @@ public class AlbumNC {
             }
             Log.d(getClass().getName(),String.format("Asset %1$s wrong size on server side, reupload.",assetPath));
         } else {
-            Log.d(getClass().getName(),String.format("Asset %1$s not present.",assetPath));
+            Log.d(getClass().getName(),String.format("Asset %1$s not present in album.",assetPath));
         }
+
+        //check if asset is present elsewhere on server
+        APIProvider.AssetSearchResult resultSearch = null;
+        try {
+            resultSearch = APIProvider.getApi().AssetSearch(getId().toString(),assetPath,assetName,assetSize).execute().body();
+        } catch (Exception e) {
+            Log.i(getClass().getName(),String.format("Error on asset search request for %1$s",assetPath));
+            //we dont raise error, we try to send the asset
+        }
+        if (resultSearch != null && resultSearch.status.equals("found") && resultSearch.linkCreated.equals("OK")) {
+            //asset found and link created : no need to send asset
+            Log.d(getClass().getName(),String.format("Found asset $1$s on server, link created."));
+            setState(STATE_OK);
+            return true;
+        } else {
+            Log.d(getClass().getName(),String.format("Asset %1$s not present on server.",assetPath));
+        }
+
         //get path to push asset
         String path = result.path;
         if (path.equals("")) {

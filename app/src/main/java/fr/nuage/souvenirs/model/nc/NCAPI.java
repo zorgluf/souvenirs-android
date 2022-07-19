@@ -40,6 +40,10 @@ public interface NCAPI {
         @GET("album/{id}/assetprobe/{asset_path}")
         Call<APIProvider.AssetProbeResult> AssetProbe(@Path("id") String id, @Path("asset_path") String assetPath);
 
+        @GET("album/{id}/assetsearch")
+        Call<APIProvider.AssetSearchResult> AssetSearch(@Path("id") String id, @Query("asset") String asset,
+                                                        @Query("asset_name") String assetName, @Query("asset_size") int asset_size);
+
         @PUT("album/{id}/page/{page_pos}")
         Call<String> createPage(@Path("id") String id, @Path("page_pos") int pagePos, @Body APIProvider.PageResp page);
 
