@@ -91,7 +91,7 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         //dismiss progress
         dialog.dismiss();
         //start edit activity
-        EditAlbumFragmentArgs editAlbumFragmentArgs = new EditAlbumFragmentArgs.Builder(album.getAlbumPath(),album.getPage(-1).getId().toString()).build();
+        EditAlbumFragmentArgs editAlbumFragmentArgs = new EditAlbumFragmentArgs.Builder(album.getAlbumPath(),album.getAlbum().getPage(-1).getId().toString()).build();
         new NavDeepLinkBuilder(this)
                 .setGraph(R.navigation.nav_main)
                 .setDestination(R.id.nav_album_edit)
