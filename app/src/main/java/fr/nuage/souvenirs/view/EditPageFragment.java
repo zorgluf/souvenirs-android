@@ -1,5 +1,6 @@
 package fr.nuage.souvenirs.view;
 
+import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
 
 import android.app.Activity;
@@ -45,6 +46,7 @@ import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
@@ -424,27 +426,11 @@ public class EditPageFragment extends Fragment {
                         InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
                         String mime = requireActivity().getContentResolver().getType(uri);
                         //extract name and size
-                        String displayName = null;
-                        int size = 0;
-                        Cursor cursor = getActivity().getContentResolver()
-                                .query(uri, null, null, null, null, null);
-                        try {
-                            if (cursor != null && cursor.moveToFirst()) {
-                                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                                displayName = cursor.getString(nameIndex);
-                                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                                size = 0;
-                                if (!cursor.isNull(sizeIndex)) {
-                                    size = cursor.getInt(sizeIndex);
-                                }
-                            }
-                        } finally {
-                            cursor.close();
-                        }
+                        Div.NameSize nameSize = getNameAndSizeFromUri(uri,getActivity().getContentResolver());
                         if (mime.startsWith("image")) {
-                            pageVM.addImage(input,mime,displayName,size);
+                            pageVM.addImage(input,mime,nameSize.name,nameSize.size);
                         } else {
-                            pageVM.addVideo(input,mime,displayName,size);
+                            pageVM.addVideo(input,mime,nameSize.name,nameSize.size);
                         }
                     }
                 }

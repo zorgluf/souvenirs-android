@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.model;
 
+import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
+
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.util.Log;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 
 public class PageBuilder {
@@ -244,6 +247,9 @@ public class PageBuilder {
                 InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), uri);
                 String mime = albumVM.getApplication().getContentResolver().getType(uri);
                 imageElement.setImage(input, mime);
+                Div.NameSize nameSize = getNameAndSizeFromUri(uri,albumVM.getApplication().getContentResolver());
+                imageElement.setName(nameSize.name);
+                imageElement.setSize(nameSize.size);
                 if (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) {
                     imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
                 }
