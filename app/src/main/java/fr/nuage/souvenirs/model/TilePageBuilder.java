@@ -1,6 +1,10 @@
 package fr.nuage.souvenirs.model;
 
+import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
+
+import android.content.ContentResolver;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +15,16 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 
-public class TilePageBuilder extends PageBuilder {
+public class TilePageBuilder {
 
     private final Object[][][] PAGE_STYLE_MAP_TILE = {
             {
@@ -72,12 +79,10 @@ public class TilePageBuilder extends PageBuilder {
             },
     };
 
-    @Override
     public Object[][][] getPageStyleMap() {
         return PAGE_STYLE_MAP_TILE;
     }
 
-    @Override
     public View genPreview(int style, ViewGroup parentView, LayoutInflater inflater) {
         ConstraintLayout pageView = (ConstraintLayout) inflater.inflate(R.layout.page_preview, parentView,false);
         ConstraintSet cs = new ConstraintSet();
@@ -107,11 +112,61 @@ public class TilePageBuilder extends PageBuilder {
         return pageView;
     }
 
+    public static InputStream getInputStreamFromUri(ContentResolver cr, Uri uri) {
+        InputStream input;
+        try {
+            input = cr.openInputStream(uri);
+        } catch (FileNotFoundException e) {
+            Log.w(TilePageBuilder.class.getName(),e);
+            return null;
+        }
+        return input;
+    }
 
+    public void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
+        Page p = albumVM.createPage(position);
+        if (images != null) {
+            for (Uri uri: images) {
+                ImageElement imageElement = p.createImageElement();
+                InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), uri);
+                String mime = albumVM.getApplication().getContentResolver().getType(uri);
+                imageElement.setImage(input, mime);
+                Div.NameSize nameSize = getNameAndSizeFromUri(uri,albumVM.getApplication().getContentResolver());
+                imageElement.setName(nameSize.name);
+                imageElement.setSize(nameSize.size);
+                imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+            }
+        }
+        if (texts != null) {
+            for (String text: texts) {
+                TextElement textElement = p.createTextElement();
+                textElement.setText(text);
+            }
+        }
+        applyDefaultStyle(p);
+    }
+
+    public void applyDefaultStyle(Page page) {
+        //select default style
+        int defStyle = getDefaultStyle(page);
+        if (defStyle == -1) {
+            //if no default, grid style
+            int columns=(int)Math.ceil(Math.sqrt((double)page.getElements().size()));
+            int rows=(int)Math.ceil((double)page.getElements().size()/(double)columns);
+            for (int i=0;i<page.getElements().size();i++) {
+                Element el = page.getElements().get(i);
+                el.setTop((int)((double)(i/columns)*100/rows));
+                el.setBottom((int)((((double)(i/columns))+1)*100/rows));
+                el.setLeft((int)((double)(i%columns)*(100/columns)));
+                el.setRight((int)((double)((i%columns)+1)*(100/columns)));
+            }
+        } else {
+            applyStyle(defStyle,page);
+        }
+    }
 
     /* create as much as wanted pages with style and text/images provided
      */
-    @Override
     public void create(int style, AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
         if (texts == null) {
             texts = new ArrayList<>();
@@ -157,7 +212,6 @@ public class TilePageBuilder extends PageBuilder {
     /*
     Apply style in place in page
      */
-    @Override
     public void applyStyle(int style, Page page) {
         //seperate txt and im elements
         ArrayList<Element> imageElementArrayList = new ArrayList<>();
@@ -207,7 +261,6 @@ public class TilePageBuilder extends PageBuilder {
         }
     }
 
-    @Override
     public int getDefaultStyle(Page page) {
         int defStyle=-1;
         for (int i=0;i<getPageStyleMap().length;i++) {
@@ -219,12 +272,29 @@ public class TilePageBuilder extends PageBuilder {
         return defStyle;
     }
 
-    @Override
     public boolean isStyleFitted(int style, int imageNb, int textNb) {
         if ((imageNb == -1) || (textNb == -1)) {
             return true;
         }
         return getPageStyleMap()[style].length == (imageNb + textNb);
+    }
+
+    public void switchStyle(int style, AlbumViewModel albumVM, Page page) {
+        //extract texts and images
+        ArrayList<String> texts = new ArrayList<>();
+        ArrayList<Uri> images = new ArrayList<>();
+        //parse page and fill text and image arrays
+        for (Element e : page.getElements()) {
+            if (e.getClass().equals(TextElement.class)) {
+                texts.add(((TextElement)e).getText());
+            }
+            if (e instanceof ImageElement) {
+                //FIXME : will not work with video
+                images.add(Uri.fromFile(new File(((ImageElement)e).getImagePath())));
+            }
+        }
+        int position = albumVM.getPosition(page.getId());
+        create(style,albumVM,position,images,texts);
     }
 
 }

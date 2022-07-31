@@ -13,5 +13,4 @@
         android:inputType="textCapSentences"
         android:singleLine="true" />
 
-   <include layout="@layout/select_album_style"/>
 </LinearLayout>

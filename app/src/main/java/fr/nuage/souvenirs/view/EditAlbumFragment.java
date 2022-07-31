@@ -122,7 +122,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         //save page
         lastOperationPage = p;
         //launch select style dialog
-        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1,albumVM.getDefaultStyle());
+        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1);
         dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE);
     }
 
@@ -174,12 +174,6 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
             RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), colNb);
             pageListRecyclerView.setLayoutManager(mLayoutManager);
             getActivity().invalidateOptionsMenu();
-            return true;
-        });
-        //set listener to change style
-        MenuItem changeAlbumStyle = menu.findItem(R.id.change_style_edit_album);
-        changeAlbumStyle.setOnMenuItemClickListener(menuItem -> {
-            new SelectAlbumStyleDialogFragment(albumVM).show(getParentFragmentManager(),"");
             return true;
         });
     }

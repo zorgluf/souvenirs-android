@@ -15,12 +15,10 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.model.Page;
-import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.PaintElement;
 import fr.nuage.souvenirs.model.TextElement;
 import fr.nuage.souvenirs.model.TilePageBuilder;
@@ -77,7 +75,7 @@ public class PageViewModel extends ViewModel {
                 i++;
             }
         }
-        //create new pages
+        //create new elements
         for (int j = 0; j < elements.size(); j++) {
             Element e = elements.get(j);
             int vmIndex = IntStream.range(0, this.elements.size())
@@ -147,10 +145,8 @@ public class PageViewModel extends ViewModel {
     }
 
     public void addImage(ImageElement imageElement) {
-        if (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) {
-            imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
-        }
-        PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+        TilePageBuilder pageBuilder = new TilePageBuilder();
         pageBuilder.applyDefaultStyle(page);
     }
 
@@ -168,7 +164,7 @@ public class PageViewModel extends ViewModel {
 
     public void addText() {
         page.createTextElement();
-        PageBuilder pageBuilder = (page.getAlbum().getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        TilePageBuilder pageBuilder = new TilePageBuilder();
         pageBuilder.applyDefaultStyle(page);
     }
 

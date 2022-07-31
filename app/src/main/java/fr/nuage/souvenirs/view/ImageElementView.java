@@ -77,11 +77,9 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         super.onDraw(canvas);
         if (isSelected()) {
             getDrawingRect(rect);
-            if (ImageElement.ZOOM_OFFSET != imageElementViewModel.getTransformType().getValue()) {
-                //draw circles for image resize UI
-                canvas.drawCircle(rect.right,rect.bottom,getResources().getDimension(R.dimen.selected_circle_ctl),contourPaint);
-                canvas.drawCircle(rect.left,rect.top,getResources().getDimension(R.dimen.selected_circle_ctl),contourPaint);
-            }
+            //draw circles for image resize UI
+            canvas.drawCircle(rect.right,rect.bottom,getResources().getDimension(R.dimen.selected_circle_ctl),contourPaint);
+            canvas.drawCircle(rect.left,rect.top,getResources().getDimension(R.dimen.selected_circle_ctl),contourPaint);
             //draw box around image area
             int offset = (int) getResources().getDimension(R.dimen.selected_strokewidth)/2;
             rect.left += offset;

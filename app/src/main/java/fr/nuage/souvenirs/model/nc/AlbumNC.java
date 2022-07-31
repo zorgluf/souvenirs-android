@@ -1,6 +1,5 @@
 package fr.nuage.souvenirs.model.nc;
 
-import static fr.nuage.souvenirs.model.Album.STYLE_FREE;
 
 import android.util.Log;
 
@@ -455,7 +454,6 @@ public class AlbumNC {
         setPagesLastEditDate(albumResp.pagesLastEditDate);
         setIsShared(albumResp.isShared);
         setShareToken(albumResp.shareToken);
-        setDefaultStyle(albumResp.defaultStyle);
         if (albumResp.pages != null) {
             ArrayList<PageNC> pageNCArrayList = new ArrayList<>();
             for (APIProvider.PageResp page : albumResp.pages) {
@@ -468,13 +466,6 @@ public class AlbumNC {
         return true;
     }
 
-    public void setDefaultStyle(String defaultStyle) {
-        if (defaultStyle == null) {
-            this.defaultStyle = STYLE_FREE;
-        } else {
-            this.defaultStyle = defaultStyle;
-        }
-    }
 
     public boolean load(boolean full) {
         //reload album from nextcloud

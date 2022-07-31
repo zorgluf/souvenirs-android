@@ -32,9 +32,6 @@ public class Album {
     public static final String DATA_DIR = "data";
     public static final String CONFFILE = "album.json";
 
-    public static final String STYLE_FREE = "FREE";
-    public static final String STYLE_TILE = "TILE";
-
     private String albumPath;
     private MutableLiveData<String> ldName = new MutableLiveData<>();
     private String name;
@@ -50,8 +47,6 @@ public class Album {
     private UUID id;
     private String albumImage;
     private MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
-    private String defaultStyle = STYLE_TILE;
-    private MutableLiveData<String> ldDefaultStyle = new MutableLiveData<>();
     private boolean unsavedModifications = false;
 
 
@@ -73,7 +68,6 @@ public class Album {
         ldPages.postValue(pages);
         ldDate.postValue(date);
         ldAlbumImage.postValue(albumImage);
-        ldDefaultStyle.postValue(defaultStyle);
     }
 
     public String getName(){
@@ -116,7 +110,6 @@ public class Album {
             if (getAlbumImage() != null) {
                 json.put("albumImage", Utils.getRelativePath(getAlbumPath(),getAlbumImage()));
             }
-            json.put("defaultStyle",getDefaultStyle());
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -124,9 +117,6 @@ public class Album {
         return json;
     }
 
-    public String getDefaultStyle() {
-        return defaultStyle;
-    }
 
 
     public boolean load() {
@@ -182,11 +172,6 @@ public class Album {
                 }
             } else {
                 lastEditDate = new Date();
-            }
-            if (json.has("defaultStyle")) {
-                defaultStyle = json.getString("defaultStyle");
-            } else {
-                defaultStyle = STYLE_FREE;
             }
             JSONArray jPages = json.getJSONArray("pages");
             ArrayList<Page> pages = new ArrayList<Page>();
@@ -469,13 +454,6 @@ public class Album {
         onChange();
     }
 
-    public void setDefaultStyle(String style) {
-        defaultStyle = style;
-        ldDefaultStyle.postValue(defaultStyle);
-        setLastEditDate(new Date());
-        onChange();
-    }
-
     public File createEmptyDataFile(String mimeType) {
         //generate file name
         String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
@@ -552,9 +530,5 @@ public class Album {
 
     public LiveData<Date> getLdDate() {
         return ldDate;
-    }
-
-    public MutableLiveData<String> getLdDefaultStyle() {
-        return ldDefaultStyle;
     }
 }

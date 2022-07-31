@@ -6,11 +6,9 @@ import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRA
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,8 +41,6 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
-import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
@@ -396,11 +392,11 @@ public class EditPageFragment extends Fragment {
         MenuItem changeStyle = menu.findItem(R.id.edit_page_change_style);
         changeStyle.setOnMenuItemClickListener(menuItem -> {
             SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> {
-                PageBuilder pageBuilder = (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+                TilePageBuilder pageBuilder = new TilePageBuilder();
                 pageBuilder.applyStyle(style,pageVM.getPage());
             };
             //launch select style dialog
-            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText(),albumVM.getDefaultStyle());
+            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText());
             dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
             return true;
         });
@@ -423,7 +419,7 @@ public class EditPageFragment extends Fragment {
                         }
                     }
                     for (Uri uri: uris) {
-                        InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
+                        InputStream input = TilePageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
                         String mime = requireActivity().getContentResolver().getType(uri);
                         //extract name and size
                         Div.NameSize nameSize = getNameAndSizeFromUri(uri,getActivity().getContentResolver());
@@ -439,7 +435,7 @@ public class EditPageFragment extends Fragment {
                 if (resultCode == Activity.RESULT_OK) {
                     Uri audioUri = data.getData();
                     String mime = requireActivity().getContentResolver().getType(audioUri);
-                    InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), audioUri);
+                    InputStream input = TilePageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), audioUri);
                     pageVM.addAudio(input,mime);
                 }
                 break;

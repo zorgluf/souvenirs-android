@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider;
 public class AlbumListViewModelFactory implements ViewModelProvider.Factory {
 
     private static AlbumListViewModel albumListViewModel;
-    private Application application;
+    private final Application application;
 
     public AlbumListViewModelFactory(Application application) {
         this.application = application;
