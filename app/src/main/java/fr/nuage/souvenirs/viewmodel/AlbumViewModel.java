@@ -385,7 +385,14 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     public void setFocusPage(PageViewModel page) {
-        focusPageId.postValue(page.getId());
+        if (page != null) {
+            focusPageId.postValue(page.getId());
+        } else {
+            focusPageId.postValue(null);
+        }
+    }
+    public void setFocusPage(UUID uuid) {
+        focusPageId.postValue(uuid);
     }
 
 
@@ -443,5 +450,28 @@ public class AlbumViewModel extends AndroidViewModel {
 
     public File createEmptyDataFile(String mimeType) {
         return album.createEmptyDataFile(mimeType);
+    }
+
+    public int getSize() {
+        return album.getSize();
+    }
+
+    public PageViewModel getFocusPage() {
+        return getPage(getFocusPageId().getValue());
+    }
+
+    public void moveElementToPage(UUID elementUuid, @NonNull PageViewModel destPageViewModel) {
+        //get element
+        for (PageViewModel pageViewModel : pages) {
+            ElementViewModel elementViewModel = pageViewModel.getElement(elementUuid);
+            if (elementViewModel != null) {
+                pageViewModel.removeElement(elementViewModel);
+                destPageViewModel.addElement(elementViewModel);
+                TilePageBuilder pageBuilder = new TilePageBuilder();
+                pageBuilder.applyDefaultStyle(pageViewModel.getPage());
+                pageBuilder.applyDefaultStyle(destPageViewModel.getPage());
+                return;
+            }
+        }
     }
 }

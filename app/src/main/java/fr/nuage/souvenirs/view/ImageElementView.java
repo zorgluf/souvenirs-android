@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
@@ -30,9 +31,14 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
     private final Paint contourPaint;
     private final Rect rect = new Rect();
     private final ImageElementViewModel imageElementViewModel;
+    private final PageViewModel pageViewModel;
+    private final ElementMoveDragListener elementMoveDragListener;
+    private boolean isEditMode = false;
 
     public ImageElementView(Context context, PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel) {
         super(context);
+
+        this.pageViewModel = pageViewModel;
 
         contourPaint = new Paint();
         contourPaint.setAntiAlias(true);
@@ -40,29 +46,11 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
 
-        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, (AppCompatActivity)context);
-        Observer<Boolean> activateListenersObserver = aBoolean -> {
-            if ((pageViewModel.getLdEditMode().getValue() != null) && (pageViewModel.getLdPaintMode().getValue() != null)) {
-                if (pageViewModel.getLdEditMode().getValue()) {
-                    if (!pageViewModel.getLdPaintMode().getValue()) {
-                        setOnClickListener(elementMoveDragListener);
-                        setOnTouchListener(elementMoveDragListener);
-                        setOnLongClickListener(elementMoveDragListener);
-                        setOnDragListener(elementMoveDragListener);
-                        setClickable(true);
-                        return;
-                    }
-                }
-            }
-            setOnClickListener(null);
-            setOnTouchListener(null);
-            setOnLongClickListener(null);
-            setOnDragListener(null);
-            setClickable(false);
-            setLongClickable(false);
-        };
-        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, activateListenersObserver);
-        pageViewModel.getLdEditMode().observe((AppCompatActivity)context, activateListenersObserver);
+        AppCompatActivity appCompatActivity = Div.unwrap(getContext());
+        elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, appCompatActivity);
+        pageViewModel.getLdPaintMode().observe(appCompatActivity, (b) -> {
+                    setListeners();
+                });
 
         addOnLayoutChangeListener(this);
 
@@ -70,6 +58,31 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
 
     }
 
+    private void setListeners() {
+        if (pageViewModel.getLdPaintMode().getValue() != null) {
+            if (this.isEditMode) {
+                if (!pageViewModel.getLdPaintMode().getValue()) {
+                    setOnClickListener(elementMoveDragListener);
+                    setOnTouchListener(elementMoveDragListener);
+                    setOnLongClickListener(elementMoveDragListener);
+                    setOnDragListener(elementMoveDragListener);
+                    setClickable(true);
+                    return;
+                }
+            }
+        }
+        setOnClickListener(null);
+        setOnTouchListener(null);
+        setOnLongClickListener(null);
+        setOnDragListener(null);
+        setClickable(false);
+        setLongClickable(false);
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.isEditMode = editMode;
+        setListeners();
+    }
 
 
     @Override

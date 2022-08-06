@@ -1,9 +1,14 @@
 package fr.nuage.souvenirs.view.helpers;
 
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Div {
 
@@ -27,5 +32,13 @@ public class Div {
     public static class NameSize {
         public String name;
         public int size;
+    }
+
+    public static AppCompatActivity unwrap(Context context) {
+        while (!(context instanceof AppCompatActivity) && context instanceof ContextWrapper) {
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+
+        return (AppCompatActivity) context;
     }
 }

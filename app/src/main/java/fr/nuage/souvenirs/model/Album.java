@@ -531,4 +531,8 @@ public class Album {
     public LiveData<Date> getLdDate() {
         return ldDate;
     }
+
+    public int getSize() {
+        return pages.size();
+    }
 }

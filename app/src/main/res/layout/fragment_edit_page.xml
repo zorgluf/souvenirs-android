@@ -18,68 +18,58 @@
             android:focusable="true">
 
 
-            <fr.nuage.souvenirs.view.PageView
-                android:id="@+id/page_view_prev"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="@color/background"
-                android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintBottom_toTopOf="@id/page_view_edit"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-            </fr.nuage.souvenirs.view.PageView>
-
             <ImageView
-                android:id="@+id/AudioIimageView"
+                android:id="@+id/audio_image_view"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                app:tint="@color/secondaryColor"
-                android:visibility="@{(page.ldAudioMode == page.AUDIO_MODE_NONE) ? View.GONE : View.VISIBLE }"
+                android:visibility="@{(page.ldAudioMode == page.AUDIO_MODE_NONE) ? View.INVISIBLE : View.VISIBLE }"
                 app:layout_constraintBottom_toTopOf="@+id/page_view_edit"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@{(page.ldAudioMode == page.AUDIO_MODE_ON) ? @drawable/ic_baseline_audiotrack_24 : @drawable/ic_noaudio }"
-                tools:srcCompat="@drawable/ic_baseline_audiotrack_24" />
+                app:tint="@color/secondaryColor"
+                tools:srcCompat="@drawable/ic_baseline_audiotrack_24"
+                android:background="@drawable/selected_frame" />
 
             <fr.nuage.souvenirs.view.PageView
                 android:id="@+id/page_view_edit"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@color/background"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:editMode="true"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/audio_image_view">
 
             </fr.nuage.souvenirs.view.PageView>
 
-            <fr.nuage.souvenirs.view.PageView
-                android:id="@+id/page_view_next"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/page_recycler"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="@color/background"
-                android:clickable="true"
-                android:focusable="true"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                app:layoutManager=".view.helpers.CenterLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/page_view_edit">
+                app:layout_constraintEnd_toStartOf="@+id/add_page_edit_page"
+                app:layout_constraintStart_toStartOf="@+id/page_view_edit"
+                app:layout_constraintTop_toBottomOf="@+id/page_view_edit"
+                tools:listitem="@layout/page_adapter" />
 
-            </fr.nuage.souvenirs.view.PageView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/add_page_edit_page"
+                style="@style/AppTheme.button.text.icon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                app:icon="@drawable/ic_note_add_page_black_24dp"
+                app:layout_constraintBottom_toBottomOf="@+id/page_recycler"
+                app:layout_constraintTop_toTopOf="@+id/page_recycler"
+                app:layout_constraintRight_toRightOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -2,29 +2,30 @@ package fr.nuage.souvenirs.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.lifecycle.Observer;
-
-import org.w3c.dom.Text;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.view.helpers.ElementMoveDragListener;
-import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
-public class TextElementView extends AppCompatTextView {
+public class TextElementView extends TextView {
 
-    private Paint contourPaint;
-    private Rect rect = new Rect();
+    private final Paint contourPaint;
+    private final Rect rect = new Rect();
+    private final PageViewModel pageViewModel;
+    private final ElementMoveDragListener elementMoveDragListener;
+    private boolean isEditMode = false;
 
     public TextElementView(Context context, PageViewModel pageViewModel, TextElementViewModel textElementViewModel) {
         super(context);
+
+        this.pageViewModel = pageViewModel;
 
         contourPaint = new Paint();
         contourPaint.setAntiAlias(true);
@@ -32,30 +33,38 @@ public class TextElementView extends AppCompatTextView {
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
 
-        ElementMoveDragListener elementMoveDragListener = new ElementMoveDragListener(pageViewModel, textElementViewModel, (AppCompatActivity)context);
-        Observer<Boolean> activateListenersObserver = aBoolean -> {
-            if ((pageViewModel.getLdEditMode().getValue() != null) && (pageViewModel.getLdPaintMode().getValue() != null)) {
-                if (pageViewModel.getLdEditMode().getValue()) {
-                    if (!pageViewModel.getLdPaintMode().getValue()) {
-                        setOnClickListener(elementMoveDragListener);
-                        setOnTouchListener(elementMoveDragListener);
-                        setOnLongClickListener(elementMoveDragListener);
-                        setOnDragListener(elementMoveDragListener);
-                        setClickable(true);
-                        return;
-                    }
+        AppCompatActivity appCompatActivity = Div.unwrap(getContext());
+        elementMoveDragListener = new ElementMoveDragListener(pageViewModel, textElementViewModel, appCompatActivity);
+        pageViewModel.getLdPaintMode().observe(appCompatActivity, (b) -> {
+            setListeners();
+        });
+
+    }
+
+    private void setListeners() {
+        if (pageViewModel.getLdPaintMode().getValue() != null) {
+            if (this.isEditMode) {
+                if (!pageViewModel.getLdPaintMode().getValue()) {
+                    setOnClickListener(elementMoveDragListener);
+                    setOnTouchListener(elementMoveDragListener);
+                    setOnLongClickListener(elementMoveDragListener);
+                    setOnDragListener(elementMoveDragListener);
+                    setClickable(true);
+                    return;
                 }
             }
-            setOnClickListener(null);
-            setOnTouchListener(null);
-            setOnLongClickListener(null);
-            setOnDragListener(null);
-            setClickable(false);
-            setLongClickable(false);
-        };
-        pageViewModel.getLdPaintMode().observe((AppCompatActivity)context, activateListenersObserver);
-        pageViewModel.getLdEditMode().observe((AppCompatActivity)context, activateListenersObserver);
+        }
+        setOnClickListener(null);
+        setOnTouchListener(null);
+        setOnLongClickListener(null);
+        setOnDragListener(null);
+        setClickable(false);
+        setLongClickable(false);
+    }
 
+    public void setEditMode(boolean editMode) {
+        this.isEditMode = editMode;
+        setListeners();
     }
 
 

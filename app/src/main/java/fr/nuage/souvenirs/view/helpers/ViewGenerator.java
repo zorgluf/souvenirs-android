@@ -18,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
@@ -86,7 +87,9 @@ public class ViewGenerator {
     /*
 generate view based on paintElementViewModel
 */
-    public static PaintElementView generateView(PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static PaintElementView generateView(PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel,
+                                                ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
+                                                boolean editMode) {
         //gen paintview
         PaintElementView paintElementView = new PaintElementView(parentViewGroup.getContext(),pageViewModel,paintElementViewModel);
         //apply default params
@@ -113,8 +116,10 @@ generate view based on paintElementViewModel
         return paintElementView;
     }
 
-    public static View generateView(PageViewModel pageViewModel, VideoElementViewModel videoElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
-        View imageView = generateView(pageViewModel,(ImageElementViewModel) videoElementViewModel,parentViewGroup,lifecycleOwner);
+    public static View generateView(PageViewModel pageViewModel, VideoElementViewModel videoElementViewModel,
+                                    ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
+                                    boolean editMode) {
+        View imageView = generateView(pageViewModel,(ImageElementViewModel) videoElementViewModel,parentViewGroup,lifecycleOwner,editMode);
         //gen video icon
         AppCompatImageView imageViewIcon = new AppCompatImageView(parentViewGroup.getContext());
         imageViewIcon.setId(View.generateViewId());
@@ -135,10 +140,13 @@ generate view based on paintElementViewModel
     /*
     generate view based on imageelementviewmodel
     */
-    public static View generateView(PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static View generateView(PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel,
+                                    ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
+                                    boolean editMode) {
         //gen imageview
         ImageElementView imageView = new ImageElementView(parentViewGroup.getContext(),pageViewModel,imageElementViewModel);
         imageView.setScrollContainer(true);
+        imageView.setEditMode(editMode);
         //apply default params
         applyDefaultElementView(parentViewGroup,imageView,imageElementViewModel,lifecycleOwner);
         //define observables for data binding
@@ -195,10 +203,13 @@ generate view based on paintElementViewModel
     /*
     generate view based on viewmodel
     */
-    public static View generateView(PageViewModel pageViewModel, TextElementViewModel textElementViewModel, ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner) {
+    public static View generateView(PageViewModel pageViewModel, TextElementViewModel textElementViewModel,
+                                    ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
+                                    boolean editMode) {
         //gen textview
-        TextView textView = new TextElementView(parentViewGroup.getContext(),pageViewModel,textElementViewModel);
+        TextElementView textView = new TextElementView(parentViewGroup.getContext(),pageViewModel,textElementViewModel);
         textView.setClickable(true);
+        textView.setEditMode(editMode);
         textView.setHint(R.string.text_element_hint);
         textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         //apply default params

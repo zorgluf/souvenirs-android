@@ -3,9 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/edit_page_add_image"
-        android:icon="@drawable/ic_add_image"
-        android:title="@string/add_image"
+        android:id="@+id/edit_page_add_file"
+        android:icon="@drawable/ic_baseline_attach_file_24"
+        android:title="@string/add_file"
         app:showAsAction="always" />
     <item
         android:id="@+id/edit_page_add_photo"
@@ -21,25 +21,20 @@
         android:id="@+id/edit_page_draw"
         android:icon="@drawable/ic_brush_black_24dp"
         android:title="@string/edit_page_draw"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
-        android:id="@+id/edit_page_audio"
-        android:icon="@drawable/ic_baseline_audiotrack_24"
-        android:title="@string/edit_page_audio"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/edit_page_change_style"
+        android:icon="@drawable/ic_view_compact_black_24dp"
+        android:title="@string/edit_page_change_style"
+        app:showAsAction="always" />
     <item
         android:id="@+id/edit_page_audio_stop"
         android:icon="@drawable/ic_noaudio"
         android:title="@string/edit_page_audio_stop"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/edit_page_audio_remove"
-        android:icon="@drawable/ic_noaudio"
-        android:title="@string/edit_page_audio_remove"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/edit_page_change_style"
-        android:icon="@drawable/ic_view_compact_black_24dp"
-        android:title="@string/edit_page_change_style"
+        android:id="@+id/edit_page_delete"
+        android:icon="@drawable/ic_delete_forever_black_24dp"
+        android:title="@string/menu_page_edit_detele"
         app:showAsAction="ifRoom" />
 </menu>

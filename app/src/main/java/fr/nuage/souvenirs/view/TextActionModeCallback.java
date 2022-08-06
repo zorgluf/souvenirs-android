@@ -28,12 +28,9 @@ public class TextActionModeCallback implements ActionMode.Callback {
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.menu_edit_page_select_text, menu);
         //subscribe to element selection
-        textIsSelectedObserver = new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isSelected) {
-                if (isSelected.equals(false)) {
-                    mode.finish();
-                }
+        textIsSelectedObserver = isSelected -> {
+            if (isSelected.equals(false)) {
+                mode.finish();
             }
         };
         textElementViewModel.getIsSelected().observeForever(textIsSelectedObserver);

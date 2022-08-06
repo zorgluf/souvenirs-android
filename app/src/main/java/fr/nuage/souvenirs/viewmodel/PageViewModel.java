@@ -35,14 +35,12 @@ public class PageViewModel extends ViewModel {
     private final LiveData<ArrayList<ElementViewModel>> ldElements;
     private final ArrayList<ElementViewModel> elements = new ArrayList<>();
     private final MutableLiveData<Boolean> paintMode = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> editMode = new MutableLiveData<>();
     private final LiveData<Integer> audioMode;
 
 
     public PageViewModel(Page page) {
         super();
         this.page = page;
-        editMode.postValue(false);
         paintMode.postValue(false);
         ldElements = Transformations.map(page.getLiveDataElements(), elementsModel -> {
             updateElements(elementsModel);
@@ -122,10 +120,6 @@ public class PageViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> getLdPaintMode() {
         return paintMode;
-    }
-
-    public MutableLiveData<Boolean> getLdEditMode() {
-        return editMode;
     }
 
     public LiveData<Integer> getLdAudioMode() {
@@ -273,5 +267,28 @@ public class PageViewModel extends ViewModel {
             }
         }
         return out;
+    }
+
+    public void unselectAll() {
+        for (ElementViewModel elementViewModel: elements) {
+            elementViewModel.setSelected(false);
+        }
+    }
+
+    public void removeElement(ElementViewModel elementViewModel) {
+        page.delElement(elementViewModel.element);
+    }
+
+    public void addElement(ElementViewModel elementViewModel) {
+        page.addElement(elementViewModel.element);
+    }
+
+    public AudioElementViewModel getAudioElementViewModel() {
+        for (ElementViewModel element : elements) {
+            if (element.getClass().equals(AudioElementViewModel.class)) {
+                return (AudioElementViewModel)element;
+            }
+        }
+        return null;
     }
 }

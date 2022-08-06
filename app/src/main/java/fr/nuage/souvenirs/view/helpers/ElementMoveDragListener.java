@@ -24,7 +24,7 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class ElementMoveDragListener implements View.OnDragListener, View.OnLongClickListener, View.OnClickListener, View.OnTouchListener {
 
-    public final static String SWITCH_DRAG = "SWITCH_DRAG";
+    public final static String MOVE_DRAG = "SWITCH_DRAG";
     public final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
     public final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
 
@@ -105,7 +105,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     public boolean onDrag(View view, DragEvent dragEvent) {
 
         String dragType = (String)dragEvent.getLocalState();
-        if (dragType.equals(SWITCH_DRAG)) {
+        if (dragType.equals(MOVE_DRAG)) {
             //handle switch elements drag action
             int action = dragEvent.getAction();
             switch(action) {
@@ -195,7 +195,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
         if (!pageVM.getPaintMode()) {
             if (!view.isSelected()) {
                 ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
-                view.startDragAndDrop(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+                view.startDragAndDrop(dragData, new View.DragShadowBuilder(view), MOVE_DRAG, 0);
                 return true;
             }
         }

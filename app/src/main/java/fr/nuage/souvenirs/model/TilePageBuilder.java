@@ -264,7 +264,13 @@ public class TilePageBuilder {
     public int getDefaultStyle(Page page) {
         int defStyle=-1;
         for (int i=0;i<getPageStyleMap().length;i++) {
-            if (getPageStyleMap()[i].length == page.getElements().size()) {
+            int visibleElements = 0;
+            for (Element element: page.getElements()) {
+                if ((element instanceof ImageElement) || (element instanceof VideoElement)) {
+                    visibleElements += 1;
+                }
+            }
+            if (getPageStyleMap()[i].length == visibleElements) {
                 defStyle = i;
                 break;
             }
