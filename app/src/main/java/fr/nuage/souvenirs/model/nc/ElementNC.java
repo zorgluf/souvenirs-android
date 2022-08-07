@@ -2,24 +2,10 @@ package fr.nuage.souvenirs.model.nc;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.UUID;
-
-import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.Page;
-import fr.nuage.souvenirs.model.PageBuilder;
-import fr.nuage.souvenirs.model.UnknownElement;
 
 public abstract class ElementNC {
 

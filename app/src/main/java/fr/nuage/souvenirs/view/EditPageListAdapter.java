@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ActionMode;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -63,7 +64,7 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
     public EditPageListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         EditItemPageListBinding binding = DataBindingUtil.inflate(inflater, R.layout.edit_item_page_list,parent,false);
-        binding.setLifecycleOwner(mFragment);
+        binding.setLifecycleOwner(mFragment.getViewLifecycleOwner());
         return new EditPageListAdapter.ViewHolder(binding);
     }
 
@@ -73,38 +74,36 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
         PageViewModel page = mPages.get(position);
         holder.bind(page,(EditAlbumFragment) this.mFragment);
         //listen to elements changes
-        page.getLdElements().observe(mFragment, new Observer<ArrayList<ElementViewModel>>() {
-            @Override
-            public void onChanged(@Nullable ArrayList<ElementViewModel> elementViewModels) {
-                //remove all view
-                FrameLayout layout = holder.itemView.findViewById(R.id.page_layout);
-                layout.removeAllViewsInLayout();
-                //rebuild layout
-                if (elementViewModels != null) {
-                    LayoutInflater inflater = LayoutInflater.from(holder.itemView.getContext());
-                    for (final ElementViewModel e : elementViewModels) {
-                        if (e.getClass() == TextElementViewModel.class) {
-                            //load xml layout and bind data
-                            TextElementViewShowBinding binding = DataBindingUtil.inflate(inflater, R.layout.text_element_view_show,layout,false);
-                            layout.addView(binding.getRoot());
-                            binding.setLifecycleOwner(mFragment);
-                            binding.setElement((TextElementViewModel) e);
-                            binding.executePendingBindings();
-                        } else if (e instanceof ImageElementViewModel) {
-                            ImageElementViewModel ei = (ImageElementViewModel)e;
-                            //load xml layout and bind data
-                            ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);
-                            layout.addView(binding.getRoot());
-                            binding.setLifecycleOwner(mFragment);
-                            binding.setElement(ei);
-                            binding.executePendingBindings();
-                        } else if (e.getClass() == AudioElementViewModel.class) {
-                            continue;
-                        } else {
-                                //unknown element : display default view
-                                inflater.inflate(R.layout.unknown_element_view,layout,true);
-                                ImageView unknownImage = layout.findViewById(R.id.unknown_imageview);
-                        }
+        page.getLdElements().observe(mFragment.getViewLifecycleOwner(), elementViewModels -> {
+            //remove all view
+            FrameLayout layout = holder.itemView.findViewById(R.id.page_layout);
+            layout.removeAllViewsInLayout();
+            //rebuild layout
+            if (elementViewModels != null) {
+                LayoutInflater inflater = LayoutInflater.from(holder.itemView.getContext());
+                LifecycleOwner lifecycleOwner = mFragment.getViewLifecycleOwner();
+                for (final ElementViewModel e : elementViewModels) {
+                    if (e.getClass() == TextElementViewModel.class) {
+                        //load xml layout and bind data
+                        TextElementViewShowBinding binding = DataBindingUtil.inflate(inflater, R.layout.text_element_view_show,layout,false);
+                        layout.addView(binding.getRoot());
+                        binding.setLifecycleOwner(lifecycleOwner);
+                        binding.setElement((TextElementViewModel) e);
+                        binding.executePendingBindings();
+                    } else if (e instanceof ImageElementViewModel) {
+                        ImageElementViewModel ei = (ImageElementViewModel)e;
+                        //load xml layout and bind data
+                        ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);
+                        layout.addView(binding.getRoot());
+                        binding.setLifecycleOwner(lifecycleOwner);
+                        binding.setElement(ei);
+                        binding.executePendingBindings();
+                    } else if (e.getClass() == AudioElementViewModel.class) {
+                        continue;
+                    } else {
+                            //unknown element : display default view
+                            inflater.inflate(R.layout.unknown_element_view,layout,true);
+                            ImageView unknownImage = layout.findViewById(R.id.unknown_imageview);
                     }
                 }
             }

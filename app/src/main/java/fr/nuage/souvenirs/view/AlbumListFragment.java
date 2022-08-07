@@ -79,7 +79,7 @@ public class AlbumListFragment extends Fragment implements AlbumsRecyclerViewAda
         addAlbumActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new CreateAlbumDialogFragment().show(getFragmentManager(),null);
+                new CreateAlbumDialogFragment().show(getParentFragmentManager(),null);
             }
         });
 

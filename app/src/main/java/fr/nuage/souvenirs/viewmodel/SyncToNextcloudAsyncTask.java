@@ -111,7 +111,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     //asset path
                     String assetPath = Utils.getRelativePath(album.getAlbumPath(),album.getAlbumImage());
                     //push image asset
-                    if (!albumNC.pushAsset(album.getAlbumPath(),assetPath)) {
+                    if (!albumNC.pushAsset(album.getAlbumPath(),assetPath,"",0)) {
                         return RESULT_NC_ERR;
                     }
                     albumNC.setAlbumImage(assetPath);
@@ -186,7 +186,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     int index = album.getIndex(page);
                     PageNC pageNC = new PageNC();
                     pageNC.update(page);
-                    notificationMsg = context.getString(R.string.sync_album_create_remote_page,index+"/"+nbPage);
+                    notificationMsg = context.getString(R.string.sync_album_create_remote_page,(index+1)+"/"+nbPage);
                     Log.d("SYNC",notificationMsg);
                     publishProgress(nbPage,index);
                     if(!albumNC.createPage(pageNC,index,album.getAlbumPath())) {

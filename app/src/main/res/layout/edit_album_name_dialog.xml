@@ -13,4 +13,9 @@
         android:inputType="textCapSentences"
         android:singleLine="true" />
 
+    <CalendarView
+        android:id="@+id/calendarViewAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

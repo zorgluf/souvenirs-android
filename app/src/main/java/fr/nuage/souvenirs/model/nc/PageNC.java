@@ -172,20 +172,20 @@ public class PageNC {
         for (ElementNC e : getElements()) {
             if (e instanceof ImageElementNC) {
                 ImageElementNC ime = (ImageElementNC)e;
-                if (!albumNC.pushAsset(localAlbumPath,ime.getImagePath())) {
+                if (!albumNC.pushAsset(localAlbumPath,ime.getImagePath(),ime.getName(),ime.getSize())) {
                     return false;
                 }
             } else if (e instanceof AudioElementNC) { //push audio
                 AudioElementNC aue = (AudioElementNC) e;
                 if (!aue.getAudioPath().equals("")) {
-                    if (!albumNC.pushAsset(localAlbumPath, aue.getAudioPath())) {
+                    if (!albumNC.pushAsset(localAlbumPath, aue.getAudioPath(),"",0)) {
                         return false;
                     }
                 }
             }
             if (e instanceof VideoElementNC) {
                 VideoElementNC ve = (VideoElementNC) e;
-                if (!albumNC.pushAsset(localAlbumPath,ve.getVideoPath())) {
+                if (!albumNC.pushAsset(localAlbumPath,ve.getVideoPath(),ve.getName(),ve.getSize())) {
                     return false;
                 }
             }

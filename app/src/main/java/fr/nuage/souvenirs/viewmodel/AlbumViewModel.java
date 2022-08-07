@@ -26,7 +26,6 @@ import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.SyncService;
 import fr.nuage.souvenirs.model.Album;
 import fr.nuage.souvenirs.model.Page;
-import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.model.nc.AlbumNC;
 import fr.nuage.souvenirs.model.nc.AlbumsNC;
@@ -54,7 +53,6 @@ public class AlbumViewModel extends AndroidViewModel {
     private boolean syncInProgress = false;
     private final MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
     private final MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
-    private final MediatorLiveData<String> ldDefaultStyle = new MediatorLiveData<>();
     private int albumsNCState = AlbumsNC.STATE_NOT_LOADED;
 
     public AlbumViewModel(Application app) {
@@ -130,7 +128,6 @@ public class AlbumViewModel extends AndroidViewModel {
                         ldDate.removeSource(oldAlbum.getLdDate());
                         ldPages = new MutableLiveData<>();
                         ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
-                        ldDefaultStyle.removeSource(oldAlbum.getLdDefaultStyle());
                         ldNCState.removeSource(oldAlbum.getLdLastEditDate());
                         ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
                     }
@@ -141,7 +138,7 @@ public class AlbumViewModel extends AndroidViewModel {
                             name.setValue(name2);
                         });
                         ldDate.addSource(album.getLdDate(), date -> {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE)).format(date));
+                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
                         });
                         ldPages = Transformations.map(album.getLiveDataPages(), pagesModel -> {
                             updatePages(pagesModel);
@@ -149,9 +146,6 @@ public class AlbumViewModel extends AndroidViewModel {
                         });
                         ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
                             ldAlbumImage.setValue(imagePath);
-                        });
-                        ldDefaultStyle.addSource(album.getLdDefaultStyle(), style -> {
-                            ldDefaultStyle.setValue(style);
                         });
                         ldNCState.addSource(album.getLdLastEditDate(), date -> {
                             ldNCState.postValue(getNCState());
@@ -196,7 +190,7 @@ public class AlbumViewModel extends AndroidViewModel {
                     });
                     ldDate.addSource(albumNC.getLdDate(), date -> {
                         if (album == null) {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE)).format(date));
+                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
                         }
                     });
                     ldNCState.addSource(albumNC.getLdLastEditDate(), date -> {
@@ -357,16 +351,6 @@ public class AlbumViewModel extends AndroidViewModel {
         album.setName(name);
     }
 
-/*  should not be used anymore
-    public void update() {
-        if (album != null) {
-            album.load();
-        }
-        if (albumNC != null) {
-            albumNC.load();
-        }
-    }*/
-
     public UUID getId() {
         return id;
     }
@@ -383,7 +367,7 @@ public class AlbumViewModel extends AndroidViewModel {
 
     public void switchStyle(PageViewModel page, int style) {
         //create new pages
-        PageBuilder pageBuilder = (getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        TilePageBuilder pageBuilder = new TilePageBuilder();
         pageBuilder.switchStyle(style,this,page.getPage());
         //deleteLocalAlbum old pages
         album.delPage(getPosition(page));
@@ -401,7 +385,14 @@ public class AlbumViewModel extends AndroidViewModel {
     }
 
     public void setFocusPage(PageViewModel page) {
-        focusPageId.postValue(page.getId());
+        if (page != null) {
+            focusPageId.postValue(page.getId());
+        } else {
+            focusPageId.postValue(null);
+        }
+    }
+    public void setFocusPage(UUID uuid) {
+        focusPageId.postValue(uuid);
     }
 
 
@@ -441,18 +432,6 @@ public class AlbumViewModel extends AndroidViewModel {
         return syncInProgress;
     }
 
-    public void setDefaultStyle(String style) {
-        album.setDefaultStyle(style);
-    }
-
-    public String getDefaultStyle() {
-        return album.getDefaultStyle();
-    }
-
-    public MediatorLiveData<String> getLdDefaultStyle() {
-        return ldDefaultStyle;
-    }
-
     public PageViewModel getNextPage(PageViewModel pageVM) {
         int pos = getPosition(pageVM);
         if (pos < pages.size()-1) {
@@ -471,5 +450,28 @@ public class AlbumViewModel extends AndroidViewModel {
 
     public File createEmptyDataFile(String mimeType) {
         return album.createEmptyDataFile(mimeType);
+    }
+
+    public int getSize() {
+        return album.getSize();
+    }
+
+    public PageViewModel getFocusPage() {
+        return getPage(getFocusPageId().getValue());
+    }
+
+    public void moveElementToPage(UUID elementUuid, @NonNull PageViewModel destPageViewModel) {
+        //get element
+        for (PageViewModel pageViewModel : pages) {
+            ElementViewModel elementViewModel = pageViewModel.getElement(elementUuid);
+            if (elementViewModel != null) {
+                pageViewModel.removeElement(elementViewModel);
+                destPageViewModel.addElement(elementViewModel);
+                TilePageBuilder pageBuilder = new TilePageBuilder();
+                pageBuilder.applyDefaultStyle(pageViewModel.getPage());
+                pageBuilder.applyDefaultStyle(destPageViewModel.getPage());
+                return;
+            }
+        }
     }
 }

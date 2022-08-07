@@ -122,8 +122,8 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         //save page
         lastOperationPage = p;
         //launch select style dialog
-        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1,albumVM.getDefaultStyle());
-        dialog.show(getFragmentManager(),DIALOG_CHANGE_STYLE);
+        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1);
+        dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE);
     }
 
     public void openPageEdition(View v) {
@@ -137,7 +137,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     @Override
     public void onStyleSelected(int style) {
         //check which dialog was launched
-        Fragment dialogChangeStyle = getFragmentManager().findFragmentByTag(DIALOG_CHANGE_STYLE);
+        Fragment dialogChangeStyle = getParentFragmentManager().findFragmentByTag(DIALOG_CHANGE_STYLE);
         if (dialogChangeStyle != null) {
             //dismiss dialog
             DialogFragment df = (DialogFragment) dialogChangeStyle;
@@ -154,19 +154,9 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
 
         //set logic to edit album title
         MenuItem editItem = menu.findItem(R.id.edit_title_edit_album);
-        ActionAlbumEditNameView actionAlbumEditNameView = (ActionAlbumEditNameView) editItem.getActionView();
-        editItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                actionAlbumEditNameView.setName(albumVM.getName().getValue());
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                albumVM.setName(actionAlbumEditNameView.getName());
-                return true;
-            }
+        editItem.setOnMenuItemClickListener(menuItem -> {
+            new EditAlbumNameDialogFragment(albumVM).show(getParentFragmentManager(),null);
+            return true;
         });
         //set listener to add page
         MenuItem addPageItem = menu.findItem(R.id.add_page_edit_album);
@@ -184,12 +174,6 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
             RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), colNb);
             pageListRecyclerView.setLayoutManager(mLayoutManager);
             getActivity().invalidateOptionsMenu();
-            return true;
-        });
-        //set listener to change style
-        MenuItem changeAlbumStyle = menu.findItem(R.id.change_style_edit_album);
-        changeAlbumStyle.setOnMenuItemClickListener(menuItem -> {
-            new SelectAlbumStyleDialogFragment(albumVM).show(getParentFragmentManager(),"");
             return true;
         });
     }

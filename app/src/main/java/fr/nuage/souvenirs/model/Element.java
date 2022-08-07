@@ -198,7 +198,7 @@ public abstract class Element {
             Page previousPage = album.getPage(album.getIndex(actualPage)-1);
             previousPage.addElement(this);
             actualPage.delElement(this);
-            PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+            TilePageBuilder pageBuilder = new TilePageBuilder();
             pageBuilder.applyDefaultStyle(actualPage);
             pageBuilder.applyDefaultStyle(previousPage);
         }
@@ -211,7 +211,7 @@ public abstract class Element {
             Page nextPage = album.getPage(album.getIndex(actualPage)+1);
             nextPage.addElement(this);
             actualPage.delElement(this);
-            PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+            TilePageBuilder pageBuilder = new TilePageBuilder();
             pageBuilder.applyDefaultStyle(actualPage);
             pageBuilder.applyDefaultStyle(nextPage);
         }

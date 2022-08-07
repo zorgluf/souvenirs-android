@@ -13,7 +13,6 @@ import java.util.Arrays;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 
 public class SelectPageStyleFragment extends Fragment {
@@ -27,7 +26,6 @@ public class SelectPageStyleFragment extends Fragment {
     private OnSelectPageStyleListener listener;
     private int imageFilter;
     private int textFilter;
-    private String albumStyle;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -36,15 +34,14 @@ public class SelectPageStyleFragment extends Fragment {
     public SelectPageStyleFragment() {
     }
 
-    public SelectPageStyleFragment(OnSelectPageStyleListener listener,int imageFilter, int textFilter, String albumStyle) {
+    public SelectPageStyleFragment(OnSelectPageStyleListener listener,int imageFilter, int textFilter) {
         this.listener = listener;
         this.imageFilter = imageFilter;
         this.textFilter = textFilter;
-        this.albumStyle = albumStyle;
     }
 
     public SelectPageStyleFragment(OnSelectPageStyleListener listener) {
-        this(listener,-1,-1, Album.STYLE_FREE);
+        this(listener,-1,-1);
     }
 
 
@@ -66,12 +63,7 @@ public class SelectPageStyleFragment extends Fragment {
         Arrays.fill(weights,(float)1);
 
         //init pagebuilder
-        PageBuilder pageBuilder;
-        if (albumStyle.equals(Album.STYLE_TILE)) {
-            pageBuilder = new TilePageBuilder();
-        } else {
-            pageBuilder = new PageBuilder();
-        }
+        TilePageBuilder pageBuilder = new TilePageBuilder();
         for (int i=0;i<pageBuilder.getPageStyleMap().length;i++) {
             //filter style
             if (!pageBuilder.isStyleFitted(i,imageFilter,textFilter)) {

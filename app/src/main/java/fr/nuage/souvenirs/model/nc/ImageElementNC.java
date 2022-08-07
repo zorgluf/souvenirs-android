@@ -156,5 +156,11 @@ public class ImageElementNC extends ElementNC {
 
     public int getTransformType() { return transformType; }
 
+    public String getName() {
+        return name;
+    }
 
+    public int getSize() {
+        return size;
+    }
 }

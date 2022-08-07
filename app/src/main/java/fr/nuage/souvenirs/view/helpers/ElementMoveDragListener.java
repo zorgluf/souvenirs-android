@@ -24,8 +24,7 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class ElementMoveDragListener implements View.OnDragListener, View.OnLongClickListener, View.OnClickListener, View.OnTouchListener {
 
-    public final static String SWITCH_DRAG = "SWITCH_DRAG";
-    public final static String MOVE_DRAG = "MOVE_DRAG";
+    public final static String MOVE_DRAG = "SWITCH_DRAG";
     public final static String RESIZE_DRAG_RIGHT_BOTTOM = "RESIZE_DRAG_RIGHT_BOTTOM";
     public final static String RESIZE_DRAG_LEFT_TOP = "RESIZE_DRAG_LEFT_TOP";
 
@@ -106,7 +105,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     public boolean onDrag(View view, DragEvent dragEvent) {
 
         String dragType = (String)dragEvent.getLocalState();
-        if (dragType.equals(SWITCH_DRAG)) {
+        if (dragType.equals(MOVE_DRAG)) {
             //handle switch elements drag action
             int action = dragEvent.getAction();
             switch(action) {
@@ -132,7 +131,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
             }
         }
 
-        if (dragType.equals(MOVE_DRAG) || (dragType.startsWith("RESIZE_DRAG"))) {
+        if (dragType.startsWith("RESIZE_DRAG")) {
             //handle move element drag action
             int action = dragEvent.getAction();
             switch(action) {
@@ -149,13 +148,6 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                     return false;
                 case DragEvent.ACTION_DRAG_LOCATION:
                     if (activateMoveViewId == view.getId()) {
-                        if (dragType.equals(MOVE_DRAG)) {
-                            //move image
-                            float x = dragEvent.getX();
-                            float y = dragEvent.getY();
-                            view.setX(view.getX()+x- initialX);
-                            view.setY(view.getY()+y- initialY);
-                        }
                         if (dragType.equals(RESIZE_DRAG_RIGHT_BOTTOM)) {
                             //change height/width of image
                             float x = dragEvent.getX();
@@ -171,8 +163,6 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                             float y = dragEvent.getY();
                             view.setLeft(Math.round(view.getLeft()+x- initialX));
                             view.setTop(Math.round(view.getTop()+y- initialY));
-                            initialX = x;
-                            initialY = y;
                         }
                     }
                     return true;
@@ -189,7 +179,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         int bottom = Math.round((view.getY()+view.getHeight())/parentY*100);
                         int right = Math.round((view.getX()+view.getWidth())/parentX*100);
                         elVM.setPosition(top,left,bottom,right);
-                        elVM.bringToFront();
+                        //elVM.bringToFront();
                     }
                     return true;
                 default:
@@ -205,7 +195,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
         if (!pageVM.getPaintMode()) {
             if (!view.isSelected()) {
                 ClipData dragData = ClipData.newPlainText(ClipDescription.MIMETYPE_TEXT_PLAIN, view.getTag().toString());
-                view.startDragAndDrop(dragData, new View.DragShadowBuilder(view), SWITCH_DRAG, 0);
+                view.startDragAndDrop(dragData, new View.DragShadowBuilder(view), MOVE_DRAG, 0);
                 return true;
             }
         }
@@ -241,19 +231,19 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
             if (view.isSelected()) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        if (!((elVM instanceof ImageElementViewModel) && (((ImageElementViewModel) elVM).getTransformType().getValue() == ImageElement.ZOOM_OFFSET))) {
-                            //check if resize
-                            int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
-                            String dragAction = MOVE_DRAG;
-                            if (motionEvent.getX() < resize_radius) {
-                                if (motionEvent.getY() < resize_radius) {
-                                    dragAction = RESIZE_DRAG_LEFT_TOP;
-                                }
-                            } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
-                                if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
-                                    dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
-                                }
+                        //check if resize
+                        int resize_radius = (int) (view.getResources().getDimension(R.dimen.selected_circle_ctl));
+                        String dragAction = null;
+                        if (motionEvent.getX() < resize_radius) {
+                            if (motionEvent.getY() < resize_radius) {
+                                dragAction = RESIZE_DRAG_LEFT_TOP;
                             }
+                        } else if ((view.getWidth() - motionEvent.getX()) < resize_radius) {
+                            if ((view.getHeight() - motionEvent.getY()) < resize_radius) {
+                                dragAction = RESIZE_DRAG_RIGHT_BOTTOM;
+                            }
+                        }
+                        if (dragAction != null) {
                             //do drag
                             //move view to front before drag
                             view.bringToFront();

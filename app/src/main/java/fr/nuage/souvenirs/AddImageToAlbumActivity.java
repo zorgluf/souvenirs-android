@@ -5,28 +5,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDeepLinkBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.PageBuilder;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.AlbumsRecyclerViewAdapter;
 import fr.nuage.souvenirs.view.EditAlbumFragmentArgs;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
-import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 
 public class AddImageToAlbumActivity extends AppCompatActivity implements AlbumsRecyclerViewAdapter.OnListFragmentInteractionListener{
 
@@ -85,13 +79,13 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
                 .setView(new ProgressBar(this,null,android.R.attr.progressBarStyleLarge)).create();
         dialog.show();
         //create page according to style
-        PageBuilder pageBuilder = (album.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
+        TilePageBuilder pageBuilder = new TilePageBuilder();
         pageBuilder.create(album,-1,imageUris, null);
 
         //dismiss progress
         dialog.dismiss();
         //start edit activity
-        EditAlbumFragmentArgs editAlbumFragmentArgs = new EditAlbumFragmentArgs.Builder(album.getAlbumPath(),album.getPage(-1).getId().toString()).build();
+        EditAlbumFragmentArgs editAlbumFragmentArgs = new EditAlbumFragmentArgs.Builder(album.getAlbumPath(),album.getAlbum().getPage(-1).getId().toString()).build();
         new NavDeepLinkBuilder(this)
                 .setGraph(R.navigation.nav_main)
                 .setDestination(R.id.nav_album_edit)

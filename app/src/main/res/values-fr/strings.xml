@@ -76,4 +76,9 @@
     <string name="toast_no_camera">Aucun appareil photo détecté !</string>
     <string name="action_menu_image_zoomin">Zoom avant</string>
     <string name="action_menu_image_zoomout">Zoom arrière</string>
+    <string name="edit_page_audio">Ajouter du son</string>
+    <string name="edit_page_audio_remove">Supprimer le son</string>
+    <string name="edit_page_audio_stop">Arrêter le son</string>
+    <string name="dialog_edit_album_msg">Modifier le nom de l\'album et la date</string>
+    <string name="add_file">Ajouter un fichier</string>
 </resources>

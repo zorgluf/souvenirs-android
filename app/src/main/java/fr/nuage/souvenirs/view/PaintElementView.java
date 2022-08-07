@@ -14,6 +14,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 
@@ -58,7 +59,7 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
-        AppCompatActivity activity = (AppCompatActivity)getContext();
+        AppCompatActivity activity = Div.unwrap(getContext());
         //listen to color change
         paintElementViewModel.getLdColor().observe(activity, color ->  { setColor(color); });
         //listen to paint mode

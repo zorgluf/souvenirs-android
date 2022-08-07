@@ -1,53 +1,47 @@
 package fr.nuage.souvenirs.view;
 
-import static fr.nuage.souvenirs.view.helpers.ElementMoveDragListener.SWITCH_DRAG;
+import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.transition.Scene;
-import androidx.transition.Transition;
-import androidx.transition.TransitionInflater;
-import androidx.transition.TransitionManager;
-import androidx.transition.TransitionSet;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
-import fr.nuage.souvenirs.model.Album;
-import fr.nuage.souvenirs.model.PageBuilder;
+import fr.nuage.souvenirs.model.AudioElement;
+import fr.nuage.souvenirs.model.Page;
 import fr.nuage.souvenirs.model.TilePageBuilder;
+import fr.nuage.souvenirs.view.helpers.Div;
+import fr.nuage.souvenirs.view.helpers.EditItemTouchHelper;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModel;
 import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
+import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
@@ -55,31 +49,29 @@ import fr.nuage.souvenirs.viewmodel.TextElementViewModel;
 
 public class EditPageFragment extends Fragment {
 
-    private static final int ACTIVITY_ADD_IMAGE = 10;
     private static final int ACTIVITY_ADD_PHOTO = 11;
-    private static final int ACTIVITY_ADD_AUDIO = 12;
+    private static final int ACTIVITY_ADD_FILE = 13;
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
-    private PageViewModel pageVM;
+    //private PageViewModel pageVM;
     private AlbumViewModel albumVM;
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
     private File pendingPhotoFile;
-    private final MutableLiveData<Integer> switchPageDelta = new MutableLiveData<>();
+    private int audioMode = PageViewModel.AUDIO_MODE_NONE;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        switchPageDelta.postValue(0);
         //load album path in args
         if (getArguments() != null) {
             String albumPath = EditPageFragmentArgs.fromBundle(getArguments()).getAlbumPath();
             String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
             //load view model
             albumVM = new ViewModelProvider(requireActivity(),new AlbumListViewModelFactory(requireActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
-            pageVM = albumVM.getPage(UUID.fromString(pageId));
+            PageViewModel pageVM = albumVM.getPage(UUID.fromString(pageId));
             //set focus on that page
             albumVM.setFocusPage(pageVM);
         }
@@ -102,189 +94,122 @@ public class EditPageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //set title
-        requireActivity().setTitle(R.string.edit_page_title);
-        //listen to page switch
-        switchPageDelta.observe(getViewLifecycleOwner(), integer -> {
-            if (integer == 1) {
-                moveToNext();
-            }
-            if (integer == -1) {
-                moveToPrev();
-            }
-        });
-        //listen to pages changes
-        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
-            //build new view
-            ((ViewGroup) requireView()).removeAllViews();
-            ((ViewGroup) requireView()).addView(createView(getLayoutInflater(), (ViewGroup) getView()));
-        });
+        //remove title
+        requireActivity().setTitle("");
 
-        return new LinearLayout(Objects.requireNonNull(container).getContext());
-
-    }
-
-    private View createView(@NonNull LayoutInflater inflater, ViewGroup container) {
-        //inflateview
+        //load layout
         FragmentEditPageBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_page, container, false);
         binding.setLifecycleOwner(getViewLifecycleOwner());
-        binding.setPage(pageVM);
-        binding.executePendingBindings();
+        PageEditAdapter pageEditAdapter = new PageEditAdapter(albumVM,getParentFragment());
+        binding.pageRecycler.setAdapter(pageEditAdapter);
+        //add touch helper to move pages
+        EditItemTouchHelper editItemTouchHelper = new EditItemTouchHelper(pageEditAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(editItemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(binding.pageRecycler);
 
-        pageVM.getLdEditMode().postValue(true);
-        binding.pageViewEdit.setPageViewModel(pageVM);
+        //add new page creation logic
+        binding.addPageEditPage.setOnClickListener((view -> {
+            Page page = albumVM.createPage(albumVM.getPosition(albumVM.getFocusPage())+1);
+            albumVM.setFocusPage(page.getId());
+        }));
+        //add selection logic on audio
+        binding.audioImageView.setOnClickListener((view -> {
+            albumVM.getFocusPage().getAudioElementViewModel().setSelected(true);
+            binding.audioImageView.setSelected(true);
+        }));
 
-        //listen for audiomode change to change menu
-        pageVM.getLdAudioMode().observe(getViewLifecycleOwner(), audioMode -> {
-            getActivity().invalidateOptionsMenu();
+        //listen to pages list change
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
+            pageEditAdapter.setPages(pageViewModels);
         });
-
+        //listen to page change
+        albumVM.getFocusPageId().observe(getViewLifecycleOwner(), uuid -> {
+            //clean old page events
+            if (binding.getPage() != null) binding.getPage().unselectAll();
+            //set new page on UI
+            PageViewModel pageVM = albumVM.getPage(uuid);
+            binding.setPage(pageVM);
+            binding.pageViewEdit.setPageViewModel(pageVM);
+            binding.executePendingBindings();
+            if (pageVM != null) {
+                //listen for audiomode change to change menu
+                pageVM.getLdAudioMode().observe(getViewLifecycleOwner(), audioModeChange -> {
+                    audioMode = audioModeChange;
+                    requireActivity().invalidateOptionsMenu();
+                });
+                //listen to elements changes
+                pageVM.getLdElements().observe(getViewLifecycleOwner(), elementViewModels -> {
+                    //set observers
+                    if (elementViewModels != null) {
+                        for (ElementViewModel e : elementViewModels) {
+                            if (e.getClass() == TextElementViewModel.class) {
+                                TextElementViewModel et = (TextElementViewModel) e;
+                                //subscribe to selection
+                                e.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
+                                    if (isSelected) {
+                                        if (!et.equals(actionModeElement)) {
+                                            requireActivity().startActionMode(new TextActionModeCallback(et));
+                                            actionModeElement = et;
+                                        }
+                                    } else {
+                                        if (et.equals(actionModeElement)) {
+                                            actionModeElement = null;
+                                        }
+                                    }
+                                });
+                            } else if (e instanceof ImageElementViewModel) {
+                                ImageElementViewModel ei = (ImageElementViewModel) e;
+                                //subscribe to selection
+                                ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
+                                    if (isSelected) {
+                                        if (!ei.equals(actionModeElement)) {
+                                            requireActivity().startActionMode(new ImageActionModeCallback(ei));
+                                            actionModeElement = ei;
+                                        }
+                                    } else {
+                                        if (ei.equals(actionModeElement)) {
+                                            actionModeElement = null;
+                                        }
+                                    }
+                                });
+                            } else if (e instanceof AudioElementViewModel) {
+                                AudioElementViewModel ea = (AudioElementViewModel) e;
+                                //subscribe to selection
+                                ea.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
+                                    if (isSelected) {
+                                        if (!ea.equals(actionModeElement)) {
+                                            requireActivity().startActionMode(new AudioActionModeCallback(ea));
+                                            actionModeElement = ea;
+                                        }
+                                    } else {
+                                        if (ea.equals(actionModeElement)) {
+                                            actionModeElement = null;
+                                        }
+                                        binding.audioImageView.setSelected(false);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+                //listen to paint mode
+                pageVM.getLdPaintMode().observe(getViewLifecycleOwner(), isPaintMode -> {
+                    if (isPaintMode) {
+                        //activate submenu
+                        requireActivity().startActionMode(new PaintActionModeCallback(requireActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
+                    }
+                });
+                //scroll on recyclerview
+                binding.pageRecycler.smoothScrollToPosition(albumVM.getPosition(uuid));
+            }
+        });
         binding.mainLayout.setOnClickListener(view -> {
             //if we recieve click, means no element has catch it : off page click, unselect all
-            if (pageVM.getLdElements().getValue() != null) {
-                for (ElementViewModel e : pageVM.getLdElements().getValue()) {
-                    e.setSelected(false);
-                }
-            }
+            binding.getPage().unselectAll();
         });
-
-        //listen to elements changes
-        pageVM.getLdElements().observe(getViewLifecycleOwner(), elementViewModels -> {
-            //set observers
-            if (elementViewModels != null) {
-                for (ElementViewModel e : elementViewModels) {
-                    if (e.getClass() == TextElementViewModel.class) {
-                        TextElementViewModel et = (TextElementViewModel) e;
-                        //subscribe to selection
-                        e.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
-                            if (isSelected) {
-                                if (!et.equals(actionModeElement)) {
-                                    requireActivity().startActionMode(new TextActionModeCallback(et));
-                                    actionModeElement = et;
-                                }
-                            } else {
-                                if (et.equals(actionModeElement)) {
-                                    actionModeElement = null;
-                                }
-                            }
-                        });
-                    } else if (e instanceof ImageElementViewModel) {
-                        ImageElementViewModel ei = (ImageElementViewModel) e;
-                        //subscribe to selection
-                        ei.getIsSelected().observe(getViewLifecycleOwner(),(isSelected)-> {
-                            if (isSelected) {
-                                if (!ei.equals(actionModeElement)) {
-                                    requireActivity().startActionMode(new ImageActionModeCallback(ei));
-                                    actionModeElement = ei;
-                                }
-                            } else {
-                                if (ei.equals(actionModeElement)) {
-                                    actionModeElement = null;
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
-
-        //listen to paint mode
-        pageVM.getLdPaintMode().observe(getViewLifecycleOwner(), isPaintMode -> {
-            if (isPaintMode) {
-                //activate submenu
-                requireActivity().startActionMode(new PaintActionModeCallback(requireActivity().getSupportFragmentManager(),pageVM, pageVM.getPaintElement()));
-            }
-        });
-
-        //set prev page
-        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
-        if (prevPage == null) {
-            binding.pageViewPrev.setVisibility(View.GONE);
-        } else {
-            binding.pageViewPrev.setVisibility(View.VISIBLE);
-            prevPage.getLdEditMode().postValue(false);
-            binding.pageViewPrev.setPageViewModel(prevPage);
-            binding.pageViewPrev.setOnClickListener(view -> switchPageDelta.postValue(-1));
-            //set drag event if an element is moved to this page
-            binding.pageViewPrev.setOnDragListener((v, event) -> {
-                String dragType = (String)event.getLocalState();
-                if (dragType.equals(SWITCH_DRAG)) {
-                    //handle switch elements drag action
-                    int action = event.getAction();
-                    switch(action) {
-                        case DragEvent.ACTION_DRAG_STARTED:
-                        case DragEvent.ACTION_DRAG_EXITED:
-                            v.setAlpha((float)0.5);
-                            return true;
-                        case DragEvent.ACTION_DRAG_ENTERED:
-                        case DragEvent.ACTION_DRAG_ENDED:
-                            v.setAlpha(1);
-                            return true;
-                        case DragEvent.ACTION_DRAG_LOCATION:
-                            return true;
-                        case DragEvent.ACTION_DROP:
-                            // Gets the page id to move
-                            ClipData.Item item = event.getClipData().getItemAt(0);
-                            UUID oriElementUUID = UUID.fromString((String)item.getText());
-                            ElementViewModel oriElementViewModel = pageVM.getElement(oriElementUUID);
-                            if (oriElementViewModel != null) {
-                                oriElementViewModel.moveToPreviousPage();
-                            }
-                            return true;
-                        default:
-                            break;
-                    }
-                }
-                return false;
-            });
-        }
-
-        //set next page
-        PageViewModel nextPage = albumVM.getNextPage(pageVM);
-        binding.pageViewNext.setPageViewModel(nextPage);
-        if (nextPage == null) {
-            binding.pageViewNext.setOnClickListener(view -> {
-                albumVM.createPage(albumVM.getPosition(pageVM)+1);
-                switchPageDelta.postValue(1);
-            });
-        } else {
-            nextPage.getLdEditMode().postValue(false);
-            binding.pageViewNext.setOnClickListener(view -> switchPageDelta.postValue(1));
-            //set drag event if an element is moved to this page
-            binding.pageViewNext.setOnDragListener((v, event) -> {
-                String dragType = (String)event.getLocalState();
-                if (dragType.equals(SWITCH_DRAG)) {
-                    //handle switch elements drag action
-                    int action = event.getAction();
-                    switch(action) {
-                        case DragEvent.ACTION_DRAG_STARTED:
-                        case DragEvent.ACTION_DRAG_EXITED:
-                            v.setAlpha((float)0.5);
-                            return true;
-                        case DragEvent.ACTION_DRAG_ENTERED:
-                        case DragEvent.ACTION_DRAG_ENDED:
-                            v.setAlpha(1);
-                            return true;
-                        case DragEvent.ACTION_DRAG_LOCATION:
-                            return true;
-                        case DragEvent.ACTION_DROP:
-                            // Gets the page id to move
-                            ClipData.Item item = event.getClipData().getItemAt(0);
-                            UUID oriElementUUID = UUID.fromString((String)item.getText());
-                            ElementViewModel oriElementViewModel = pageVM.getElement(oriElementUUID);
-                            if (oriElementViewModel != null) {
-                                oriElementViewModel.moveToNextPage();
-                            }
-                            return true;
-                        default:
-                            break;
-                    }
-                }
-                return false;
-            });
-        }
 
         return binding.getRoot();
+
     }
 
     @Override
@@ -306,17 +231,17 @@ public class EditPageFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_page, menu);
 
-        //set logic to add image or video
-        MenuItem addImageItem = menu.findItem(R.id.edit_page_add_image);
-        addImageItem.setOnMenuItemClickListener(menuItem -> {
+        //set logic to add file (audio, image, video)
+        MenuItem addFileItem = menu.findItem(R.id.edit_page_add_file);
+        addFileItem.setOnMenuItemClickListener(menuItem -> {
             //test alternative
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
-            String[] mimetypes = {"image/*", "video/*"};
+            String[] mimetypes = {"image/*", "video/*", "audio/*"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(intent, ACTIVITY_ADD_IMAGE);
+            startActivityForResult(intent, ACTIVITY_ADD_FILE);
             return true;
         });
 
@@ -343,42 +268,25 @@ public class EditPageFragment extends Fragment {
             return true;
         });
 
-        if (pageVM.getLdAudioMode().getValue() == PageViewModel.AUDIO_MODE_NONE) {
+        //set logic to add audio silence
+        MenuItem addAudioStopItem = menu.findItem(R.id.edit_page_audio_stop);
+        addAudioStopItem.setOnMenuItemClickListener(menuItem -> {
+            albumVM.getFocusPage().addAudio(null, null);
+            return true;
+        });
+        if (audioMode == PageViewModel.AUDIO_MODE_NONE) {
             //disable remove audio
-            menu.removeItem(R.id.edit_page_audio_remove);
-            //set logic to add audio file
-            MenuItem addAudioItem = menu.findItem(R.id.edit_page_audio);
-            addAudioItem.setOnMenuItemClickListener(menuItem -> {
-                //test alternative
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("audio/*");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
-                startActivityForResult(intent, ACTIVITY_ADD_AUDIO);
-                return true;
-            });
-            //set logic to add audio silence
-            MenuItem addAudioStopItem = menu.findItem(R.id.edit_page_audio_stop);
-            addAudioStopItem.setOnMenuItemClickListener(menuItem -> {
-                pageVM.addAudio(null,null);
-                return true;
-            });
+            addAudioStopItem.getIcon().setAlpha(255);
         } else {
             //disable audio add
-            menu.removeItem(R.id.edit_page_audio);
-            menu.removeItem(R.id.edit_page_audio_stop);
-            //set logic to remove audio
-            MenuItem addAudioRemoveItem = menu.findItem(R.id.edit_page_audio_remove);
-            addAudioRemoveItem.setOnMenuItemClickListener(menuItem -> {
-                pageVM.removeAudio();
-                return true;
-            });
+            addAudioStopItem.setEnabled(false);
+            addAudioStopItem.getIcon().setAlpha(128);
         }
 
         //set logic to add text
         MenuItem addTextItem = menu.findItem(R.id.edit_page_add_text);
         addTextItem.setOnMenuItemClickListener(menuItem -> {
-            pageVM.addText();
+            albumVM.getFocusPage().addText();
             return true;
         });
 
@@ -386,7 +294,7 @@ public class EditPageFragment extends Fragment {
         MenuItem drawItem = menu.findItem(R.id.edit_page_draw);
         drawItem.setOnMenuItemClickListener(menuItem -> {
             //start paint mode
-            pageVM.startPaintMode();
+            albumVM.getFocusPage().startPaintMode();
             return true;
         });
 
@@ -394,12 +302,30 @@ public class EditPageFragment extends Fragment {
         MenuItem changeStyle = menu.findItem(R.id.edit_page_change_style);
         changeStyle.setOnMenuItemClickListener(menuItem -> {
             SelectPageStyleFragment.OnSelectPageStyleListener selectPageStyleListener = style -> {
-                PageBuilder pageBuilder = (albumVM.getDefaultStyle().equals(Album.STYLE_TILE)) ? new TilePageBuilder() : new PageBuilder();
-                pageBuilder.applyStyle(style,pageVM.getPage());
+                TilePageBuilder pageBuilder = new TilePageBuilder();
+                pageBuilder.applyStyle(style,albumVM.getFocusPage().getPage());
             };
             //launch select style dialog
-            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,pageVM.getNbImage(),pageVM.getNbText(),albumVM.getDefaultStyle());
+            SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(selectPageStyleListener,
+                    albumVM.getFocusPage().getNbImage(),albumVM.getFocusPage().getNbText());
             dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE_PAGE);
+            return true;
+        });
+
+        //set logic to delete page
+        MenuItem deletePage = menu.findItem(R.id.edit_page_delete);
+        deletePage.setOnMenuItemClickListener(menuItem -> {
+            int focusPagePos = albumVM.getPosition(albumVM.getFocusPage().getId());
+            albumVM.getFocusPage().delete();
+            if (albumVM.getSize() == 1) {
+                albumVM.setFocusPage((PageViewModel) null);
+            } else {
+                if (focusPagePos == 0) {
+                    albumVM.setFocusPage(albumVM.getPage(1));
+                } else {
+                    albumVM.setFocusPage(albumVM.getPage(focusPagePos-1));
+                }
+            }
             return true;
         });
 
@@ -408,7 +334,7 @@ public class EditPageFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case ACTIVITY_ADD_IMAGE:
+            case ACTIVITY_ADD_FILE:
                 if (resultCode == Activity.RESULT_OK) {
                     ArrayList<Uri> uris = new ArrayList<>();
                     ClipData clipdata = data.getClipData();
@@ -421,99 +347,27 @@ public class EditPageFragment extends Fragment {
                         }
                     }
                     for (Uri uri: uris) {
-                        InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
+                        InputStream input = TilePageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
                         String mime = requireActivity().getContentResolver().getType(uri);
                         //extract name and size
-                        String displayName = null;
-                        int size = 0;
-                        Cursor cursor = getActivity().getContentResolver()
-                                .query(uri, null, null, null, null, null);
-                        try {
-                            if (cursor != null && cursor.moveToFirst()) {
-                                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                                displayName = cursor.getString(nameIndex);
-                                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                                size = 0;
-                                if (!cursor.isNull(sizeIndex)) {
-                                    size = cursor.getInt(sizeIndex);
-                                }
-                            }
-                        } finally {
-                            cursor.close();
-                        }
+                        Div.NameSize nameSize = getNameAndSizeFromUri(uri,getActivity().getContentResolver());
                         if (mime.startsWith("image")) {
-                            pageVM.addImage(input,mime,displayName,size);
-                        } else {
-                            pageVM.addVideo(input,mime,displayName,size);
+                            albumVM.getFocusPage().addImage(input,mime,nameSize.name,nameSize.size);
+                        } else if (mime.startsWith("video")) {
+                            albumVM.getFocusPage().addVideo(input,mime,nameSize.name,nameSize.size);
+                        } else if (mime.startsWith("audio")) {
+                            albumVM.getFocusPage().addAudio(input,mime);
                         }
                     }
                 }
                 break;
-            case ACTIVITY_ADD_AUDIO:
-                if (resultCode == Activity.RESULT_OK) {
-                    Uri audioUri = data.getData();
-                    String mime = requireActivity().getContentResolver().getType(audioUri);
-                    InputStream input = PageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), audioUri);
-                    pageVM.addAudio(input,mime);
-                }
-                break;
             case ACTIVITY_ADD_PHOTO:
                 if (resultCode == Activity.RESULT_OK) {
-                    pageVM.addImage(pendingPhotoFile);
+                    albumVM.getFocusPage().addImage(pendingPhotoFile);
                 }
         }
 
 
     }
 
-    private void moveToNext() {
-        PageViewModel nextPage = albumVM.getNextPage(pageVM);
-        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
-        if (nextPage != null) {
-            //build transition
-            TransitionSet transition = new TransitionSet();
-            Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
-            tMove.addTarget(pageVM.getId().toString());
-            tMove.addTarget(nextPage.getId().toString());
-            transition.addTransition(tMove);
-            if (prevPage != null) {
-                Transition fade = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.fade);
-                fade.addTarget(prevPage.getId().toString());
-                transition.addTransition(fade);
-            }
-            //change main page
-            pageVM = nextPage;
-            //build new view
-            View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
-            //change view
-            Scene destScene = new Scene((ViewGroup) requireView(),nextView);
-            TransitionManager.go(destScene,transition);
-        }
-    }
-
-    private void moveToPrev() {
-        PageViewModel prevPage = albumVM.getPrevPage(pageVM);
-        PageViewModel nextPage = albumVM.getNextPage(pageVM);
-        if (prevPage != null) {
-            //build transition
-            TransitionSet transition = new TransitionSet();
-            Transition tMove = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move);
-            tMove.addTarget(pageVM.getId().toString());
-            tMove.addTarget(prevPage.getId().toString());
-            transition.addTransition(tMove);
-            if (nextPage != null) {
-                Transition fade = TransitionInflater.from(getContext()).inflateTransition(android.R.transition.fade);
-                fade.addTarget(nextPage.getId().toString());
-                transition.addTransition(fade);
-            }
-            //change main page
-            pageVM = prevPage;
-            //build new view
-            View nextView = createView(getLayoutInflater(), (ViewGroup) getView());
-            //change view
-            Scene destScene = new Scene((ViewGroup) requireView(),nextView);
-            TransitionManager.go(destScene,transition);
-        }
-
-    }
 }

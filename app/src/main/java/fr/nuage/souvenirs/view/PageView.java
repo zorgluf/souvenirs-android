@@ -1,17 +1,23 @@
 package fr.nuage.souvenirs.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LifecycleOwner;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.PageViewBinding;
+import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.view.helpers.ViewGenerator;
 import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
@@ -27,6 +33,7 @@ public class PageView extends ConstraintLayout {
     public static final int SWING_DIRECTION_DOWN = 2;
 
     private PageViewModel pageViewModel;
+    private boolean editMode;
 
     public PageView(@NonNull Context context) {
         super(context);
@@ -34,6 +41,15 @@ public class PageView extends ConstraintLayout {
 
     public PageView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.PageView,
+                0, 0);
+        try {
+            editMode = a.getBoolean(R.styleable.PageView_editMode, false);
+        } finally {
+            a.recycle();
+        }
     }
 
     public PageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -50,9 +66,7 @@ public class PageView extends ConstraintLayout {
     }
 
     private void initView() {
-        if (pageViewModel == null) {
-            DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view_add,this,true);
-        } else {
+        if (pageViewModel != null) {
             PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
             binding.setPage(pageViewModel);
 
@@ -61,7 +75,8 @@ public class PageView extends ConstraintLayout {
 
             ConstraintLayout pageLayout = binding.pageLayout;
             //listen to elements changes
-            pageViewModel.getLdElements().observe((AppCompatActivity)getContext(), elementViewModels -> {
+            LifecycleOwner lifecycleOwner = (LifecycleOwner) Div.unwrap(getContext());
+            pageViewModel.getLdElements().observe(lifecycleOwner, elementViewModels -> {
                 //remove all
                 pageLayout.removeAllViewsInLayout();
                 //rebuild layout
@@ -70,16 +85,16 @@ public class PageView extends ConstraintLayout {
                     for (ElementViewModel e : elementViewModels) {
                         if (e.getClass() == TextElementViewModel.class) {
                             TextElementViewModel et = (TextElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, et, pageLayout, (AppCompatActivity)getContext());
+                            ViewGenerator.generateView(pageViewModel, et, pageLayout, lifecycleOwner,editMode);
                         } else if (e.getClass() == ImageElementViewModel.class) {
                             ImageElementViewModel ei = (ImageElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ei, pageLayout, (AppCompatActivity)getContext());
+                            ViewGenerator.generateView(pageViewModel, ei, pageLayout, lifecycleOwner, editMode);
                         } else if (e.getClass() == PaintElementViewModel.class) {
                             PaintElementViewModel ep = (PaintElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
+                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, lifecycleOwner, editMode);
                         } else if (e.getClass() == VideoElementViewModel.class) {
                             VideoElementViewModel ep = (VideoElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, (AppCompatActivity)getContext());
+                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, lifecycleOwner, editMode);
                         } else if (e.getClass() == AudioElementViewModel.class) {
                             continue;
                         } else {
@@ -89,9 +104,10 @@ public class PageView extends ConstraintLayout {
                     }
                 }
             });
+        } else {
+            removeAllViewsInLayout();
         }
 
     }
-
 
 }
