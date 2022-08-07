@@ -1,0 +1,8 @@
+New Feature: Now check if file exists on nextcloud server before uploading it
+New Feature: Enable date change on album's date
+Change: large refactoring of UI on page edition
+Change: Disable free mode on album, integrate the specificties of this mode (custom layout) on the tile mode (which is now the unique move)
+Fix: localisation of album date on UI
+Fix: asset (video, image) reuse from nextcloud server when importing asset through share intent
+Fix: mem leak on lifecycle livedata
+Fix: random crash when importing asset though share intent
