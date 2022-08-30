@@ -170,6 +170,16 @@ public class PageNC {
     public boolean pushAssets(String localAlbumPath, AlbumNC  albumNC) {
         //push images
         for (ElementNC e : getElements()) {
+            if (e instanceof VideoElementNC) {
+                VideoElementNC ve = (VideoElementNC) e;
+                if (!albumNC.pushAsset(localAlbumPath,ve.getVideoPath(),ve.getName(),ve.getSize())) {
+                    return false;
+                }
+                if (!albumNC.pushAsset(localAlbumPath,ve.getImagePath(),"",0)) {
+                    return false;
+                }
+                continue; //we continue, since we dont want to handle the push of preview image with links feature
+            }
             if (e instanceof ImageElementNC) {
                 ImageElementNC ime = (ImageElementNC)e;
                 if (!albumNC.pushAsset(localAlbumPath,ime.getImagePath(),ime.getName(),ime.getSize())) {
@@ -181,12 +191,6 @@ public class PageNC {
                     if (!albumNC.pushAsset(localAlbumPath, aue.getAudioPath(),"",0)) {
                         return false;
                     }
-                }
-            }
-            if (e instanceof VideoElementNC) {
-                VideoElementNC ve = (VideoElementNC) e;
-                if (!albumNC.pushAsset(localAlbumPath,ve.getVideoPath(),ve.getName(),ve.getSize())) {
-                    return false;
                 }
             }
         }
