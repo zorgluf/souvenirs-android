@@ -266,7 +266,7 @@ public class TilePageBuilder {
         for (int i=0;i<getPageStyleMap().length;i++) {
             int visibleElements = 0;
             for (Element element: page.getElements()) {
-                if ((element instanceof ImageElement) || (element instanceof VideoElement)) {
+                if ((element instanceof ImageElement) || (element instanceof TextElement)) {
                     visibleElements += 1;
                 }
             }
