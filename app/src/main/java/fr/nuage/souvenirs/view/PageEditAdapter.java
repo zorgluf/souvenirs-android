@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,8 +34,6 @@ public class PageEditAdapter extends RecyclerView.Adapter<PageEditAdapter.ViewHo
 
         public ViewHolder(View view) {
             super(view);
-            // Define click listener for the ViewHolder's View
-
             pageView = view.findViewById(R.id.pageview);
         }
 
@@ -43,14 +42,14 @@ public class PageEditAdapter extends RecyclerView.Adapter<PageEditAdapter.ViewHo
         }
     }
 
-    public PageEditAdapter(AlbumViewModel albumViewModel, Fragment fragment) {
+    public PageEditAdapter(AlbumViewModel albumViewModel, Fragment fragment, ArrayList<PageViewModel> pages) {
         super();
-        this.pages = new ArrayList<>();
+        this.pages = pages;
         this.albumViewModel = albumViewModel;
         this.fragment = fragment;
     }
 
-    public void setPages(ArrayList<PageViewModel> pageViewModels) {
+    public void setPages(@NonNull ArrayList<PageViewModel> pageViewModels) {
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new PageDiffUtilCallback(pages, pageViewModels));
         pages = pageViewModels;
         diffResult.dispatchUpdatesTo(this);

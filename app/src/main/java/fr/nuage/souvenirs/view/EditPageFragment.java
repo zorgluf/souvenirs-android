@@ -7,6 +7,8 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,12 +19,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 
@@ -54,12 +59,12 @@ public class EditPageFragment extends Fragment {
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
 
-    //private PageViewModel pageVM;
     private AlbumViewModel albumVM;
     private int activityScrollStatus;
     private ElementViewModel actionModeElement = null;
     private File pendingPhotoFile;
     private int audioMode = PageViewModel.AUDIO_MODE_NONE;
+    private PageEditAdapter pageEditAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,7 +105,7 @@ public class EditPageFragment extends Fragment {
         //load layout
         FragmentEditPageBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_page, container, false);
         binding.setLifecycleOwner(getViewLifecycleOwner());
-        PageEditAdapter pageEditAdapter = new PageEditAdapter(albumVM,getParentFragment());
+        pageEditAdapter = new PageEditAdapter(albumVM,getParentFragment(),albumVM.getLdPages().getValue());
         binding.pageRecycler.setAdapter(pageEditAdapter);
         //add touch helper to move pages
         EditItemTouchHelper editItemTouchHelper = new EditItemTouchHelper(pageEditAdapter);
@@ -115,22 +120,31 @@ public class EditPageFragment extends Fragment {
         //add selection logic on audio
         binding.audioImageView.setOnClickListener((view -> {
             albumVM.getFocusPage().getAudioElementViewModel().setSelected(true);
-            binding.audioImageView.setSelected(true);
         }));
+        binding.mainLayout.setOnClickListener(view -> {
+            //if we recieve click, means no element has catch it : off page click, unselect all
+            binding.getPage().unselectAll();
+        });
 
         //listen to pages list change
-        albumVM.getLdPages().observe(getViewLifecycleOwner(), pageViewModels -> {
-            pageEditAdapter.setPages(pageViewModels);
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), pages -> {
+            pageEditAdapter.setPages(pages);
         });
         //listen to page change
         albumVM.getFocusPageId().observe(getViewLifecycleOwner(), uuid -> {
             //clean old page events
-            if (binding.getPage() != null) binding.getPage().unselectAll();
+            if (binding.getPage() != null) {
+                PageViewModel oldPage = binding.getPage();
+                oldPage.unselectAll();
+                oldPage.getLdAudioMode().removeObservers(getViewLifecycleOwner());
+                oldPage.getLdPaintMode().removeObservers(getViewLifecycleOwner());
+                oldPage.getLdElements().removeObservers(getViewLifecycleOwner());
+            }
             //set new page on UI
             PageViewModel pageVM = albumVM.getPage(uuid);
             binding.setPage(pageVM);
             binding.pageViewEdit.setPageViewModel(pageVM);
-            binding.executePendingBindings();
+            //binding.executePendingBindings();
             if (pageVM != null) {
                 //listen for audiomode change to change menu
                 pageVM.getLdAudioMode().observe(getViewLifecycleOwner(), audioModeChange -> {
@@ -200,12 +214,12 @@ public class EditPageFragment extends Fragment {
                     }
                 });
                 //scroll on recyclerview
-                binding.pageRecycler.smoothScrollToPosition(albumVM.getPosition(uuid));
+                //FIXME : dirty fix with delay : pbm when pages are first set on adapter
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    binding.pageRecycler.smoothScrollToPosition(albumVM.getPosition(uuid));
+                }, 100);
+
             }
-        });
-        binding.mainLayout.setOnClickListener(view -> {
-            //if we recieve click, means no element has catch it : off page click, unselect all
-            binding.getPage().unselectAll();
         });
 
         return binding.getRoot();
