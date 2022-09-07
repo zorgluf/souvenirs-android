@@ -2,6 +2,7 @@ package fr.nuage.souvenirs.view;
 
 import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -241,6 +243,7 @@ public class EditPageFragment extends Fragment {
         super.onStop();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_edit_page, menu);
@@ -342,6 +345,12 @@ public class EditPageFragment extends Fragment {
             }
             return true;
         });
+
+        //make overflow menu icons visible
+        if(menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
 
     }
 
