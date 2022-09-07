@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs.view;
 
+import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
@@ -8,6 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.VideoView;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
@@ -16,12 +19,16 @@ import androidx.databinding.BindingAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
+import fr.nuage.souvenirs.view.helpers.BlurTransformation;
 import fr.nuage.souvenirs.view.helpers.ZoomOffsetTransformation;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 
@@ -45,6 +52,20 @@ public class DataBindingAdapters {
             } else {
                 if (view.getScaleType() == ImageView.ScaleType.MATRIX) {
                     Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY,scaleX)).into(view);
+                    if (scaleX < 100) {
+                        //if image smaller than layout, display blured background
+                        Glide.with(view.getContext()).load(new File(imagePath))
+                                .transform(new BlurTransformation(25,view.getContext()))
+                                .into(new CustomTarget<Drawable>() {
+                                    @Override
+                                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                        view.setBackground(resource);
+                                    }
+                                    @Override
+                                    public void onLoadCleared(@Nullable @org.jetbrains.annotations.Nullable Drawable placeholder) {  }
+                                });
+                    }
+
                 } else {
                     Glide.with(view.getContext()).load(new File(imagePath)).into(view);
                 }
