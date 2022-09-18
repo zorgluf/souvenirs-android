@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -101,9 +102,9 @@ public class PageEditAdapter extends RecyclerView.Adapter<PageEditAdapter.ViewHo
         //set view as selected if page in edit frame
         albumViewModel.getFocusPageId().observe(fragment.getViewLifecycleOwner(),(uuid -> {
             if (pageViewModel.getId().equals(uuid)) {
-                pageView.setAlpha(0.5F);
-            } else {
                 pageView.setAlpha(1);
+            } else {
+                pageView.setAlpha(0.4f);
             }
         }));
     }
