@@ -25,6 +25,10 @@
         android:title="@string/action_menu_image_delete"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_menu_image_move_back"
+        android:title="@string/action_menu_image_move_back"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_menu_image_move_toprevious"
         android:title="@string/action_menu_image_move_toprevious"
         app:showAsAction="never" />

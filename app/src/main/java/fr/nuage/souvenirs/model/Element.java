@@ -217,7 +217,11 @@ public abstract class Element {
         }
     }
 
-    public void bringToFront() {
-        pageParent.bringToFront(this);
+    public void moveToFront() {
+        pageParent.moveToFront(this);
+    }
+
+    public void moveToBack() {
+        pageParent.moveToBack(this);
     }
 }

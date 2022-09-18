@@ -227,11 +227,20 @@ public class Page {
         return null;
     }
 
-    public void bringToFront(Element element) {
+    public void moveToFront(Element element) {
         if (getElements().contains(element)) {
             ArrayList<Element> tmp = getElements();
             tmp.remove(element);
             tmp.add(element);
+            setElements(tmp);
+        }
+    }
+
+    public void moveToBack(Element element) {
+        if (getElements().contains(element)) {
+            ArrayList<Element> tmp = getElements();
+            tmp.remove(element);
+            tmp.add(0,element);
             setElements(tmp);
         }
     }

@@ -30,7 +30,7 @@ public class ImageActionModeCallback implements ActionMode.Callback {
         menu.findItem(R.id.action_menu_image_ratio).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.findItem(R.id.action_menu_image_zoomin).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.findItem(R.id.action_menu_image_zoomout).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.findItem(R.id.action_menu_image_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.findItem(R.id.action_menu_image_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         //subscribe to element selection
         imageIsSelectedObserver = isSelected -> {
             if (isSelected.equals(false)) {
@@ -72,6 +72,9 @@ public class ImageActionModeCallback implements ActionMode.Callback {
                 return true;
             case R.id.action_menu_image_zoomout:
                 imageElementViewModel.zoomOut(ZOOM_FACTOR);
+                return true;
+            case R.id.action_menu_image_move_back:
+                imageElementViewModel.moveToBack();
                 return true;
             default:
                 return false;

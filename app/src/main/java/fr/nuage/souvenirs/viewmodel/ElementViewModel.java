@@ -89,12 +89,15 @@ public abstract class ElementViewModel extends ViewModel {
         element.setRight(right);
     }
 
-    public void bringToFront() {
-        element.bringToFront();
+    public void moveToFront() {
+        element.moveToFront();
     }
 
     public Element getElement() {
         return element;
     }
 
+    public void moveToBack() {
+        element.moveToBack();
+    }
 }

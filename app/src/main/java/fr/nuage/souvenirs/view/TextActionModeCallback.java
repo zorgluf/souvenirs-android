@@ -57,6 +57,10 @@ public class TextActionModeCallback implements ActionMode.Callback {
                 textElementViewModel.moveToNextPage();
                 mode.finish();
                 return true;
+            case R.id.action_menu_image_move_back:
+                textElementViewModel.moveToBack();
+                mode.finish();
+                return true;
             default:
                 return false;
         }
