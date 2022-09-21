@@ -82,4 +82,28 @@ public class AudioElement extends Element {
             setAudioPath("",true);
         }
     }
+
+    public void setAudio(File audioFile) {
+        setAudioPath(audioFile.getPath(),true);
+    }
+
+    private void deleteAudioFile() {
+        if (getAudioPath() != null) {
+            File audioFile = new File(getAudioPath());
+            if (audioFile.exists()) {
+                audioFile.delete();
+            }
+        }
+    }
+
+    @Override
+    public void clear() {
+        deleteAudioFile();
+    }
+
+    @Override
+    public void delete() {
+        clear();
+        super.delete();
+    }
 }

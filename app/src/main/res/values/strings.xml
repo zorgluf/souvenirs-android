@@ -83,4 +83,8 @@
     <string name="dialog_edit_album_msg">Edit album name and date</string>
     <string name="add_file">Add file</string>
     <string name="action_menu_image_move_back">Move to background</string>
+    <string name="edit_page_micro">Record sound</string>
+    <string name="ask_record_perm_toast">The Souvenir application need to access to your microphone to record sound. Please allow this permission on the next screen.</string>
+    <string name="record_sound_textView">Tap on the microphone to stop recording.</string>
+    <string name="record_sound_onair_textView">Now recroding...</string>
 </resources>

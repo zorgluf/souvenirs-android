@@ -28,6 +28,11 @@
         android:title="@string/edit_page_change_style"
         app:showAsAction="always" />
     <item
+        android:id="@+id/edit_page_micro"
+        android:icon="@drawable/ic_baseline_mic_24"
+        android:title="@string/edit_page_micro"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/edit_page_audio_stop"
         android:icon="@drawable/ic_noaudio"
         android:title="@string/edit_page_audio_stop"

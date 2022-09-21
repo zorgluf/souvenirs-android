@@ -28,4 +28,8 @@ public class AudioElementViewModel extends ElementViewModel{
     public boolean isStop() {
         return ((AudioElement)element).isStop();
     }
+
+    public void delete() {
+        element.delete();
+    }
 }

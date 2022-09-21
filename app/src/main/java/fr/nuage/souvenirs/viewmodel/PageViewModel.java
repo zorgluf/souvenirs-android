@@ -3,6 +3,7 @@ package fr.nuage.souvenirs.viewmodel;
 import android.graphics.Bitmap;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -236,6 +237,11 @@ public class PageViewModel extends ViewModel {
         } else {
             audioElement.setAudio(inputAudio,mimeType);
         }
+    }
+
+    public void addAudio(File audioFile) {
+        AudioElement audioElement = page.createAudioElement();
+        audioElement.setAudio(audioFile);
     }
 
     public void removeAudio() {

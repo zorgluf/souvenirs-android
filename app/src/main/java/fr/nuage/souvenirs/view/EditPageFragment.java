@@ -2,10 +2,12 @@ package fr.nuage.souvenirs.view;
 
 import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,10 +21,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.content.PermissionChecker;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -60,6 +68,7 @@ public class EditPageFragment extends Fragment {
     private static final int ACTIVITY_ADD_FILE = 13;
 
     private static final String DIALOG_CHANGE_STYLE_PAGE = "DIALOG_CHANGE_STYLE_PAGE";
+    private static final int RECORD_REQUEST = 2;
 
     private AlbumViewModel albumVM;
     private int activityScrollStatus;
@@ -67,6 +76,7 @@ public class EditPageFragment extends Fragment {
     private File pendingPhotoFile;
     private int audioMode = PageViewModel.AUDIO_MODE_NONE;
     private PageEditAdapter pageEditAdapter;
+    private ActivityResultLauncher<String> requestRecordLauncher;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +98,15 @@ public class EditPageFragment extends Fragment {
         if (savedInstanceState != null) {
             pendingPhotoFile = (File) savedInstanceState.getSerializable("pendingPhotoFile");
         }
+
+        //permission request handling
+        requestRecordLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        startRecording();
+                    }
+                }
+        );
 
     }
 
@@ -285,6 +304,18 @@ public class EditPageFragment extends Fragment {
             return true;
         });
 
+        //set logic to record sound
+        MenuItem recordSoundItem = menu.findItem(R.id.edit_page_micro);
+        recordSoundItem.setOnMenuItemClickListener(menuItem -> {
+            if (getActivity().checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getActivity(),R.string.ask_record_perm_toast,Toast.LENGTH_LONG).show();
+                requestRecordLauncher.launch(Manifest.permission.RECORD_AUDIO);
+                return true;
+            }
+            startRecording();
+            return true;
+        });
+
         //set logic to add audio silence
         MenuItem addAudioStopItem = menu.findItem(R.id.edit_page_audio_stop);
         addAudioStopItem.setOnMenuItemClickListener(menuItem -> {
@@ -292,12 +323,15 @@ public class EditPageFragment extends Fragment {
             return true;
         });
         if (audioMode == PageViewModel.AUDIO_MODE_NONE) {
-            //disable remove audio
+            //enable audio add
             addAudioStopItem.getIcon().setAlpha(255);
+            recordSoundItem.getIcon().setAlpha(255);
         } else {
             //disable audio add
             addAudioStopItem.setEnabled(false);
             addAudioStopItem.getIcon().setAlpha(128);
+            recordSoundItem.setEnabled(false);
+            recordSoundItem.getIcon().setAlpha(128);
         }
 
         //set logic to add text
@@ -352,6 +386,15 @@ public class EditPageFragment extends Fragment {
             m.setOptionalIconsVisible(true);
         }
 
+    }
+
+    private void startRecording() {
+        //create dest file for audio
+        File recordFile = albumVM.createEmptyDataFile("audio/mpeg");
+        //add audio element
+        albumVM.getFocusPage().addAudio(recordFile);
+        RecordSoundDialogFragment recordSoundDialogFragment = new RecordSoundDialogFragment(recordFile);
+        recordSoundDialogFragment.show(getParentFragmentManager(),null);
     }
 
     @Override

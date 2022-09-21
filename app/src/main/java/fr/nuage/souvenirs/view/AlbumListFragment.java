@@ -96,6 +96,8 @@ public class AlbumListFragment extends Fragment implements AlbumsRecyclerViewAda
         return view;
     }
 
+
+
     @Override
     public void onStart() {
         super.onStart();
