@@ -96,18 +96,10 @@ public class ShowAlbumFragment extends Fragment {
         //fill recyclerview
         pageListAdapter =  new ShowPageListAdapter(albumVM.getLdPages(),this,albumVM);
         pageListRecyclerView.setAdapter(pageListAdapter);
-        albumVM.getLdPages().observe(getViewLifecycleOwner(), new Observer<ArrayList<PageViewModel>>() {
-            @Override
-            public void onChanged(@Nullable ArrayList<PageViewModel> PageViewModels) {
-                pageListAdapter.updateList(PageViewModels);
-            }
-        });
-        albumVM.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                //change title toolbar handling
-                getActivity().setTitle(albumVM.getName().getValue());
-            }
+        albumVM.getLdPages().observe(getViewLifecycleOwner(), PageViewModels -> pageListAdapter.updateList(PageViewModels));
+        albumVM.getName().observe(getViewLifecycleOwner(), s -> {
+            //change title toolbar handling
+            getActivity().setTitle(albumVM.getName().getValue());
         });
 
         return v;

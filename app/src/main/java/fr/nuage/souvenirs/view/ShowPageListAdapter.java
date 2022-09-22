@@ -1,7 +1,6 @@
 package fr.nuage.souvenirs.view;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import fr.nuage.souvenirs.PanoViewerActivity;
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
+import fr.nuage.souvenirs.databinding.ImagePanoElementViewBinding;
 import fr.nuage.souvenirs.databinding.ShowItemPageListBinding;
 import fr.nuage.souvenirs.databinding.TextElementViewShowBinding;
 import fr.nuage.souvenirs.databinding.VideoElementViewBinding;
@@ -145,16 +145,19 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             });
                             layout.addView(binding.getRoot());
                         } else if (e instanceof ImageElementViewModel) {
-                            //load xml layout and bind data
-                            ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view,layout,false);
-                            binding.setLifecycleOwner(mFragment);
-                            binding.setElement((ImageElementViewModel) e);
-                            binding.executePendingBindings();
-                            //do not listen to click if paintelement
-                            if (e.getClass() != PaintElementViewModel.class) {
-                                binding.imageImageview.setOnClickListener(view -> {
-                                    //special handling for panorama
-                                    if (((ImageElementViewModel) e).getIsPano().getValue()) {
+                            //if pano, get special layout
+                            if (((ImageElementViewModel) e).getIsPano()) {
+                                //load xml layout and bind data
+                                ImagePanoElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_pano_element_view,layout,false);
+                                binding.setLifecycleOwner(mFragment);
+                                binding.setElement((ImageElementViewModel) e);
+                                binding.executePendingBindings();
+                                ((ImageElementViewModel)e).getImagePath().observe(binding.getLifecycleOwner(), path -> {
+                                    binding.imagePanoview.setPanoUri(Uri.fromFile(new File(path)));
+                                });
+                                //do not listen to click if paintelement
+                                if (e.getClass() != PaintElementViewModel.class) {
+                                    binding.imagePanoview.setOnClickListener(view -> {
                                         //open PanoViewerActivity
                                         Intent intent = new Intent();
                                         intent.setClass(mFragment.getContext().getApplicationContext(), PanoViewerActivity.class);
@@ -164,7 +167,18 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                         intent.setType(ImageElement.GOOGLE_PANORAMA_360_MIMETYPE);
                                         intent.putExtra(Intent.EXTRA_STREAM,imUri);
                                         mFragment.getActivity().startActivity(intent);
-                                    } else {
+                                    });
+                                }
+                                layout.addView(binding.getRoot());
+                            } else {
+                                //load xml layout and bind data
+                                ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view, layout, false);
+                                binding.setLifecycleOwner(mFragment);
+                                binding.setElement((ImageElementViewModel) e);
+                                binding.executePendingBindings();
+                                //do not listen to click if paintelement
+                                if (e.getClass() != PaintElementViewModel.class) {
+                                    binding.imageImageview.setOnClickListener(view -> {
                                         //open view intent on image
                                         Intent intent = new Intent();
                                         intent.setAction(Intent.ACTION_VIEW);
@@ -172,10 +186,10 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                         Uri imUri = FileProvider.getUriForFile(mFragment.getContext(), mFragment.getContext().getPackageName() + ".provider", new File(((ImageElementViewModel) e).getImagePath().getValue()));
                                         intent.setDataAndType(imUri, "image/*");
                                         mFragment.getActivity().startActivity(intent);
-                                    }
-                                });
+                                    });
+                                }
+                                layout.addView(binding.getRoot());
                             }
-                            layout.addView(binding.getRoot());
                         } else if (e.getClass() == AudioElementViewModel.class) {
                             continue;
                         } else {

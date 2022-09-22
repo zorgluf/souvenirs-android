@@ -5,7 +5,6 @@
 
     <data>
         <import type="fr.nuage.souvenirs.model.ImageElement" />
-        <import type="fr.nuage.souvenirs.viewmodel.VideoElementViewModel" />
         <import type="android.view.View"/>
         <variable name="element" type="fr.nuage.souvenirs.viewmodel.ImageElementViewModel"/>
     </data>
@@ -31,51 +30,14 @@
             app:layout_constraintGuide_percent="@{element.top}"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/image_imageview"
+        <fr.nuage.souvenirs.view.PanoView
+            android:id="@+id/image_panoview"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha='@{element.imagePath == "" ? 0.1f : 1.0f }'
-            android:scaleType="@{element.transformType}"
-            android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'
-            android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
-            android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }'
             app:layout_constraintBottom_toBottomOf="@+id/guideline_bottom"
             app:layout_constraintEnd_toEndOf="@+id/guideline_right"
             app:layout_constraintStart_toEndOf="@+id/guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/guideline_top"
-            app:srcCompat="@{element.imagePath}"
-            tools:srcCompat="@drawable/ic_image_black_24dp" />
-
-        <ImageView
-            android:id="@+id/image_panorama"
-            android:layout_width="48dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:alpha="0.5"
-            android:visibility="@{(element.ldIsPano == true) ? View.VISIBLE : View.GONE }"
-            app:layout_constraintDimensionRatio="h,1:1"
-            app:layout_constraintStart_toEndOf="@+id/guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/guideline_top"
-            app:srcCompat="@drawable/ic_baseline_panorama_horizontal_24"
-            app:tint="@color/secondaryColor"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/image_video"
-            android:layout_width="48dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:alpha="0.5"
-            android:visibility="@{(element instanceof VideoElementViewModel) ? View.VISIBLE : View.GONE }"
-            app:layout_constraintDimensionRatio="h,1:1"
-            app:layout_constraintStart_toEndOf="@+id/guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/guideline_top"
-            app:srcCompat="@drawable/ic_baseline_videocam_24"
-            app:tint="@color/secondaryColor"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toBottomOf="@+id/guideline_top" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_bottom"

@@ -20,6 +20,10 @@
     'autorotate',
     ],
     autorotateDelay: 1,
+    defaultLong: 130,
+  });
+  viewer.on('dblclick', (e, data) => {
+     Android.fullScreen();
   });
 </script>
 </body>

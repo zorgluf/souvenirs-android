@@ -139,7 +139,7 @@ public class ImageElement extends Element {
         return false;
     }
 
-    private boolean isPhotosphere() {
+    public boolean isPhotosphere() {
         return (mimeType.equals(GOOGLE_PANORAMA_360_MIMETYPE));
     }
 
@@ -381,4 +381,5 @@ public class ImageElement extends Element {
         }
         return options.outHeight;
     }
+
 }

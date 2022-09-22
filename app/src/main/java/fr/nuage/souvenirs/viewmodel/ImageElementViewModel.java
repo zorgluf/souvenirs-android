@@ -49,8 +49,12 @@ public class ImageElementViewModel extends ElementViewModel {
         return transformType;
     }
 
-    public LiveData<Boolean> getIsPano() {
+    public LiveData<Boolean> getLdIsPano() {
         return isPano;
+    }
+
+    public boolean getIsPano() {
+        return ((ImageElement)element).isPhotosphere();
     }
 
     public void clearImage() {

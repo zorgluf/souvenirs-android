@@ -18,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
-import androidx.core.widget.TextViewCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
@@ -180,7 +179,7 @@ generate view based on paintElementViewModel
         imageElementViewModel.getOffsetX().observe(lifecycleOwner, zoomOffsetObserver);
         imageElementViewModel.getOffsetY().observe(lifecycleOwner, zoomOffsetObserver);
         imageElementViewModel.getZoom().observe(lifecycleOwner, zoomOffsetObserver);
-        imageElementViewModel.getIsPano().observe(lifecycleOwner, aBoolean -> {
+        imageElementViewModel.getLdIsPano().observe(lifecycleOwner, aBoolean -> {
             if (aBoolean) {
                 //gen pano icon
                 AppCompatImageView imageViewIcon = new AppCompatImageView(parentViewGroup.getContext());
