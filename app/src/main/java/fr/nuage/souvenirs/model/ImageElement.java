@@ -144,6 +144,9 @@ public class ImageElement extends Element {
     }
 
     public void setImage(InputStream input, String mimeType) {
+        if (!getImagePath().equals("")) { //if image already exists, delete old one and replace
+            deleteImageFile();
+        }
         String imPath = pageParent.getAlbum().createDataFile(input,mimeType);
         if (imPath != null) {
             if (isPhotosphere(imPath)) {

@@ -20,14 +20,14 @@ import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 
 public class PaintElementView extends AppCompatImageView implements View.OnTouchListener {
 
-    private PaintElementViewModel paintElementViewModel;
+    private final PaintElementViewModel paintElementViewModel;
 
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    private Path mPath;
-    private Paint mBitmapPaint;
-    private Paint penPaint;
-    private Paint eraserPaint;
+    private final Path mPath;
+    private final Paint mBitmapPaint;
+    private final Paint penPaint;
+    private final Paint eraserPaint;
     private float mX, mY;
     private Bitmap mBitmapToAdd;
     private static final float TOUCH_TOLERANCE = 4;
@@ -61,12 +61,10 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
 
         AppCompatActivity activity = Div.unwrap(getContext());
         //listen to color change
-        paintElementViewModel.getLdColor().observe(activity, color ->  { setColor(color); });
+        paintElementViewModel.getLdColor().observe(activity, this::setColor);
         //listen to paint mode
-        pageViewModel.getLdPaintMode().observe(activity, isPaintMode -> {
-            //activate/deactivate draw on page
-            setPaintMode(isPaintMode);
-        });
+        //activate/deactivate draw on page
+        pageViewModel.getLdPaintMode().observe(activity, this::setPaintMode);
     }
 
     public void setColor(int color) {
