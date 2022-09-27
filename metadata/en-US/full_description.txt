@@ -9,21 +9,24 @@ To upload an album to a Nextcloud instance, you will need:
 
 <b>Yet an other gallery app</b>
 
-From a personal point of view, an album is not just a collection of time ordered photos, they are visuals and texts organised to tell a story, to help you remember moment and feelings from the past.
+Old school paper albums are not just a collection of time ordered photos, they are visuals and texts organised to tell a story, make you remember a moment in the past.
 
-The goal of this gallery app is to mimic an old fashion photo album though image spacial organisation, text and hand drawings, giving you the tools to express and store your memories ("souvenirs" in french). Well, at least trying to do it that way with my amateur android programming skills... And spice it a bit with some more "modern" items inside your album, like videos or sound/music.
+The goal of this app is to mimic a full photo album though image spacial organisation, text and hand drawings, giving you the tools to express and store your memories ("souvenirs" in french). With a touch of more modern items such as video and sound.
 
-<b>Album modes</b>
+Well, at least trying to do it that way with my amateur android programming skills...
+
+<b>Album structure</b>
 
 Album are composed of several pages where you can include image or text blocs.
 
-There are two possible album mode available :
-<ul>
-<li>Tile mode : images and text blocs are organised in tiles fully covering the page. You can pan/zoom each images and handwritten annotations over them.</li>
-<li>Free mode : you can resize images and blocs however you want on your page, even overlaid them. This mode need more time to design your album and generally leaves blank area that are not optimized for small smartphone. (deprecated)</li>
-</ul>
+Images and text blocs are organised in tiles fully covering the page. You can pan/zoom each images and handwritten annotations over them. You can also manually resize the tiles for a more custom layout.
 
-<i>Permission explained : the application need the following permissions : "INTERNET", "GET_ACCOUNTS". These permissions are used exclusively to upload/download albums from the nextcloud server and using the nextcloud account on the device.
+<i>Permission explained : the application need the following permissions :
+<ul>
+<li>"INTERNET" : used exclusively to upload/download albums from the nextcloud server.</li>
+<li>"WRITE_EXTERNAL_STORAGE" : optional, used only if you want to export your album in a PDF file.</li>
+<li>"RECORD_AUDIO" : optional, only used if you want to insert sound from your microphone.</li>
+</ul>
 
 The following third party libraries are used by this app :
 <ul>

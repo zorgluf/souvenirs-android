@@ -17,13 +17,14 @@ L'objectif de cette application est de reproduire cet objet traditionnel à trav
 
 Les albums sont constitués de pages sur lesquels on peut insérer des photos ou des blocs de texte.
 
-Deux styles d'album sont disponibles :
-<ul>
-<li>Le style tuile : les photo et blocs de texte sont agencés sous forme de tuiles contigues sur toute la page. Vous pouvez déplacer et zoomer les images à l'intérieur des tuiles et ajouter des annotations manuscrites.</li>
-<li>Le style libre : vous pouvez redimensionner les photos et les blocs comme vous le désirez sur la page, même les superposer. Ce style vous demandera plus de temps de conception de l'ablum et laisse souvent du vide entre les éléments, ce qui n'optimise pas la lecture sur un petit smartphone. (plus supporté, deprecated)</li>
-</ul>
+Les photos et blocs de texte sont agencés sous forme de tuiles contigues sur toute la page. Vous pouvez déplacer et zoomer les images à l'intérieur des tuiles et ajouter des annotations manuscrites.
 
-<i>Explication des permissions : l'application a besoins des permissions suivantes : "INTERNET", "GET_ACCOUNTS". Ces permissions sont utilisées exclisivement pour télécharger des albums depuis le serveur Nextcloud et utiliser le compte nextcloud sur l'appareil.
+<i>Explication des permissions : l'application a besoin des autorisations suivantes :
+<ul>
+<li>"INTERNET" : utilisé exclusivement pour télécharger des albums depuis ou vers votre serveur Nextcloud.</li>
+<li>"WRITE_EXTERNAL_STORAGE" : optionel, utilisé uniquement si vous exportez un album au format PDF.</li>
+<li>"RECORD_AUDIO" : optionel, utilisé uniquement quand vous désirez enregistrer un son avec votre microphone.</li>
+</ul>
 
 Cette application utilise les libraries tierces suivantes :
 <ul>
