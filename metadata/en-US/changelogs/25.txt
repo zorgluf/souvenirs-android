@@ -1,0 +1,6 @@
+New Feature: Record sound directly to an album using the microphone.
+New Feature: It's now possible to force some element on the background.
+Change: Photosphere preview when scrolling album.
+Change: Fill empty gap between images using blured background.
+Fix: Previous image not cleared when drawing.
+
