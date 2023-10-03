@@ -26,6 +26,7 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
 
     public static final String IMAGE_SHARE = "fr.nuage.souvenirs.AddImageToAlbumActivity.IMAGE_SHARE";
     private ArrayList<Uri> imageUris;
+    private ArrayList<Uri> videoUris;
     private AlbumListViewModel albumsVM;
     private AlbumsRecyclerViewAdapter mAdapter;
 
@@ -43,10 +44,15 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
             if (type.startsWith("image/")) {
                 imageUris = new ArrayList<>();
                 imageUris.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+            } else if (type.startsWith("video/")) {
+                videoUris = new ArrayList<>();
+                videoUris.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             if (type.startsWith("image/")) {
                 imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            } else if (type.startsWith("video/")) {
+                videoUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             }
         }
         //load view model
@@ -80,7 +86,7 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         dialog.show();
         //create page according to style
         TilePageBuilder pageBuilder = new TilePageBuilder();
-        pageBuilder.create(album,-1,imageUris, null);
+        pageBuilder.create(album,-1,imageUris, null, videoUris);
 
         //dismiss progress
         dialog.dismiss();

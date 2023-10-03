@@ -123,7 +123,7 @@ public class TilePageBuilder {
         return input;
     }
 
-    public void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
+    public void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts, ArrayList<Uri> videos) {
         if (images != null) {
             for (Uri uri: images) {
                 Page p = albumVM.createPage(position);
@@ -135,6 +135,20 @@ public class TilePageBuilder {
                 imageElement.setName(nameSize.name);
                 imageElement.setSize(nameSize.size);
                 imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+                applyDefaultStyle(p);
+            }
+        }
+        if (videos != null) {
+            for (Uri uri: videos) {
+                Page p = albumVM.createPage(position);
+                VideoElement videoElement = p.createVideoElement();
+                InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), uri);
+                String mime = albumVM.getApplication().getContentResolver().getType(uri);
+                videoElement.setVideo(input, mime);
+                Div.NameSize nameSize = getNameAndSizeFromUri(uri,albumVM.getApplication().getContentResolver());
+                videoElement.setName(nameSize.name);
+                videoElement.setSize(nameSize.size);
+                videoElement.setTransformType(ImageElement.ZOOM_OFFSET);
                 applyDefaultStyle(p);
             }
         }
