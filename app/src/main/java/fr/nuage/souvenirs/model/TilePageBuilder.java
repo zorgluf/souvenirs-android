@@ -124,9 +124,9 @@ public class TilePageBuilder {
     }
 
     public void create(AlbumViewModel albumVM, int position, ArrayList<Uri> images, ArrayList<String> texts) {
-        Page p = albumVM.createPage(position);
         if (images != null) {
             for (Uri uri: images) {
+                Page p = albumVM.createPage(position);
                 ImageElement imageElement = p.createImageElement();
                 InputStream input = getInputStreamFromUri(albumVM.getApplication().getContentResolver(), uri);
                 String mime = albumVM.getApplication().getContentResolver().getType(uri);
@@ -135,15 +135,17 @@ public class TilePageBuilder {
                 imageElement.setName(nameSize.name);
                 imageElement.setSize(nameSize.size);
                 imageElement.setTransformType(ImageElement.ZOOM_OFFSET);
+                applyDefaultStyle(p);
             }
         }
         if (texts != null) {
             for (String text: texts) {
+                Page p = albumVM.createPage(position);
                 TextElement textElement = p.createTextElement();
                 textElement.setText(text);
+                applyDefaultStyle(p);
             }
         }
-        applyDefaultStyle(p);
     }
 
     public void applyDefaultStyle(Page page) {
