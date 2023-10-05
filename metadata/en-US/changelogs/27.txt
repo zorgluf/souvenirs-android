@@ -1,0 +1,3 @@
+Change: When recieving shared files, use one image/video per page.
+Change: Enable recieving shared video type.
+
