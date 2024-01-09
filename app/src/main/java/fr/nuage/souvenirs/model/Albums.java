@@ -73,6 +73,16 @@ public class Albums {
                 }
             }
         }
+        //sort by date
+        albumList.sort((lhs, rhs) -> {
+            if (rhs.getDate() == null) {
+                return -1;
+            }
+            if (lhs.getDate() == null) {
+                return 1;
+            }
+            return rhs.getDate().compareTo(lhs.getDate());
+        });
         setAlbumList(albumList);
     }
 

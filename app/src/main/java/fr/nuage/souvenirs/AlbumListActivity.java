@@ -46,6 +46,7 @@ public class AlbumListActivity extends AppCompatActivity  {
 
     public static final String CHANNEL_ID = "1";
     public static final int DIRECT_SHARE_MAX_DAYS = 30;
+    private static final int MAX_SHORTCUTS = 4;
 
     @SuppressLint("ApplySharedPref")
     @Override
@@ -73,7 +74,7 @@ public class AlbumListActivity extends AppCompatActivity  {
         File albumsPath = new File(getApplication().getApplicationContext().getExternalFilesDir(null),"albums");
         Albums albums = Albums.getInstance(albumsPath.getPath());
         ArrayList<ShortcutInfoCompat> shorcutsList = new ArrayList<>();
-        for (Album a : albums.getAlbumList()) {
+        for (Album a : albums.getAlbumList().subList(0,MAX_SHORTCUTS-1)) {
             //we exclude albums edited more than 30 days ago
             long deltaDays = TimeUnit.DAYS.convert((new Date()).getTime() - a.getPagesLastEditDate().getTime(), TimeUnit.MILLISECONDS);
             if (deltaDays > DIRECT_SHARE_MAX_DAYS) {
