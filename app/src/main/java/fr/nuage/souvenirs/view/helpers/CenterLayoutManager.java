@@ -2,6 +2,7 @@ package fr.nuage.souvenirs.view.helpers;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -25,7 +26,14 @@ public class CenterLayoutManager extends LinearLayoutManager {
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
         RecyclerView.SmoothScroller smoothScroller = new CenterSmoothScroller(recyclerView.getContext());
         smoothScroller.setTargetPosition(position);
-        startSmoothScroll(smoothScroller);
+        try {
+            startSmoothScroll(smoothScroller);
+        } catch (Exception e) {
+            //might happen on new album, time to populate first page
+            Log.i(this.getClass().toString(),"bad position for page scroll");
+        }
+
+
     }
 
     private static class CenterSmoothScroller extends LinearSmoothScroller {

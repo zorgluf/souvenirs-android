@@ -35,6 +35,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -368,13 +369,14 @@ public class EditPageFragment extends Fragment {
         deletePage.setOnMenuItemClickListener(menuItem -> {
             int focusPagePos = albumVM.getPosition(albumVM.getFocusPage().getId());
             albumVM.getFocusPage().delete();
-            if (albumVM.getSize() == 1) {
-                albumVM.setFocusPage((PageViewModel) null);
+            if (albumVM.getSize() == 0) {
+                //exit fragment
+                Navigation.findNavController(getView()).popBackStack();
             } else {
-                if (focusPagePos == 0) {
-                    albumVM.setFocusPage(albumVM.getPage(1));
-                } else {
+                if (focusPagePos > 0) {
                     albumVM.setFocusPage(albumVM.getPage(focusPagePos-1));
+                } else {
+                    albumVM.setFocusPage(albumVM.getPage(0));
                 }
             }
             return true;
