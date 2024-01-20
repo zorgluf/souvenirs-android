@@ -1,5 +1,7 @@
 package fr.nuage.souvenirs;
 
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -74,7 +76,7 @@ public class AlbumListActivity extends AppCompatActivity  {
         File albumsPath = new File(getApplication().getApplicationContext().getExternalFilesDir(null),"albums");
         Albums albums = Albums.getInstance(albumsPath.getPath());
         ArrayList<ShortcutInfoCompat> shorcutsList = new ArrayList<>();
-        for (Album a : albums.getAlbumList().subList(0,MAX_SHORTCUTS-1)) {
+        for (Album a : albums.getAlbumList().subList(0,min(MAX_SHORTCUTS-1,albums.getAlbumList().size()))) {
             //we exclude albums edited more than 30 days ago
             long deltaDays = TimeUnit.DAYS.convert((new Date()).getTime() - a.getPagesLastEditDate().getTime(), TimeUnit.MILLISECONDS);
             if (deltaDays > DIRECT_SHARE_MAX_DAYS) {
