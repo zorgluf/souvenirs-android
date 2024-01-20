@@ -16,11 +16,11 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdk 33
     defaultConfig {
         applicationId "fr.nuage.souvenirs"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 30
         versionName "2.8.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

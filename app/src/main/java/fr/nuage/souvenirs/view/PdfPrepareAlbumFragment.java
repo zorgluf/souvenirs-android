@@ -150,7 +150,7 @@ public class PdfPrepareAlbumFragment extends Fragment {
         Uri pdfUri = FileProvider.getUriForFile(getContext(),getContext().getApplicationContext().getPackageName() + ".provider", new File(pdfPath));
         shareIntent.setDataAndType(pdfUri, "application/pdf");
         shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, shareIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, shareIntent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(getContext(), AlbumListActivity.CHANNEL_ID);
         nBuilder.setContentText(getContext().getString(R.string.notification_pdf_creation_text_end))
                 .setContentIntent(pendingIntent)
