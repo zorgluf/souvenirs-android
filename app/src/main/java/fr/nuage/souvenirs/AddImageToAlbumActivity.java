@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import fr.nuage.souvenirs.model.TilePageBuilder;
@@ -51,8 +53,10 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             if (type.startsWith("image/")) {
                 imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                Collections.reverse(imageUris);
             } else if (type.startsWith("video/")) {
                 videoUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                Collections.reverse(videoUris);
             }
         }
         //load view model
