@@ -3,6 +3,7 @@ package fr.nuage.souvenirs;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AlertDialog;
@@ -51,13 +52,18 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
                 videoUris.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            if (type.startsWith("image/")) {
-                imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                Collections.reverse(imageUris);
-            } else if (type.startsWith("video/")) {
-                videoUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                Collections.reverse(videoUris);
+            imageUris = new ArrayList<>();
+            videoUris = new ArrayList<>();
+            for (Parcelable uri : intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)) {
+                String mimeType = getContentResolver().getType((Uri) uri);
+                if (mimeType.startsWith("image/")) {
+                    imageUris.add((Uri) uri);
+                } else if (mimeType.startsWith("video/")) {
+                    videoUris.add((Uri) uri);
+                }
             }
+            Collections.reverse(imageUris);
+            Collections.reverse(videoUris);
         }
         //load view model
         albumsVM = new ViewModelProvider(this,new AlbumListViewModelFactory(getApplication())).get(AlbumListViewModel.class);
