@@ -132,15 +132,23 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                 mFragment.getActivity().startActivity(intent);
                             });
                             //scale to fill/crop canvas
-                            binding.imageVideoview.setOnPreparedListener(mp -> {
-                                float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
-                                float screenRatio = binding.imageVideoview.getWidth() / (float)
-                                        binding.imageVideoview.getHeight();
-                                float scaleX = videoRatio / screenRatio;
-                                if (scaleX >= 1f) {
-                                    binding.imageVideoview.setScaleX(scaleX);
+                            ((VideoElementViewModel) e).getZoom().observe(mFragment.getViewLifecycleOwner(), integer -> {
+                                if (integer == 100) {
+                                    binding.imageVideoview.setOnPreparedListener(mp -> {
+                                        float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
+                                        float screenRatio = binding.imageVideoview.getWidth() / (float)
+                                                binding.imageVideoview.getHeight();
+                                        float scaleX = videoRatio / screenRatio;
+                                        if (scaleX >= 1f) {
+                                            binding.imageVideoview.setScaleX(scaleX);
+                                            binding.imageVideoview.setScaleY(scaleX);
+                                        } else {
+                                            binding.imageVideoview.setScaleX(1f / scaleX);
+                                            binding.imageVideoview.setScaleY(1f / scaleX);
+                                        }
+                                    });
                                 } else {
-                                    binding.imageVideoview.setScaleY(1f / scaleX);
+                                    binding.imageVideoview.setOnPreparedListener(null);
                                 }
                             });
                             layout.addView(binding.getRoot());

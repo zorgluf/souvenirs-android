@@ -41,13 +41,10 @@
 
                 <VideoView
                     android:id="@+id/image_videoview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentEnd="true"
-                    tools:srcCompat="@drawable/ic_image_black_24dp"/>
+                    android:layout_centerInParent="true"
+                    tools:srcCompat="@drawable/ic_image_black_24dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
 
         </RelativeLayout>
 
@@ -62,6 +59,10 @@
             app:layout_constraintDimensionRatio="h,1:1"
             app:layout_constraintStart_toEndOf="@+id/guideline_left"
             app:layout_constraintTop_toBottomOf="@+id/guideline_top"
+            android:scaleType="@{element.transformType}"
+            android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'
+            android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
+            android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }'
             app:srcCompat="@drawable/ic_baseline_videocam_24"
             app:tint="@color/secondaryColor"
             tools:visibility="visible" />
