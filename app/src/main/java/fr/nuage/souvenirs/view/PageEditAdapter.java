@@ -45,7 +45,11 @@ public class PageEditAdapter extends RecyclerView.Adapter<PageEditAdapter.ViewHo
 
     public PageEditAdapter(AlbumViewModel albumViewModel, Fragment fragment, ArrayList<PageViewModel> pages) {
         super();
-        this.pages = pages;
+        if (pages == null) {
+            this.pages = new ArrayList<>();
+        } else {
+            this.pages = pages;
+        }
         this.albumViewModel = albumViewModel;
         this.fragment = fragment;
     }
