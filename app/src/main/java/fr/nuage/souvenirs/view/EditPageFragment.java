@@ -150,7 +150,9 @@ public class EditPageFragment extends Fragment {
 
         //listen to pages list change
         albumVM.getLdPages().observe(getViewLifecycleOwner(), pages -> {
-            pageEditAdapter.setPages(pages);
+            if (pages != null) {
+                pageEditAdapter.setPages(pages);
+            }
         });
         //listen to page change
         albumVM.getFocusPageId().observe(getViewLifecycleOwner(), uuid -> {

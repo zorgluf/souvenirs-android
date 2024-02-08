@@ -250,7 +250,11 @@ public class ImageElement extends Element {
     }
 
     private void deleteImageFile() {
-        if ((getImagePath() != null) && !(pageParent.getAlbum().getAlbumImage().equals(getImagePath()) )) {
+        if (getImagePath() != null) {
+            //check if the image is the album image, in that case, do not delete image
+            if ((pageParent.getAlbum().getAlbumImage() != null) && (pageParent.getAlbum().getAlbumImage().equals(getImagePath()) )) {
+                return;
+            }
             File imageFile = new File(getImagePath());
             if (imageFile.exists()) {
                 imageFile.delete();
@@ -356,7 +360,7 @@ public class ImageElement extends Element {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     return options.outHeight;
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return options.outWidth;
     }
@@ -380,7 +384,7 @@ public class ImageElement extends Element {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     return options.outWidth;
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return options.outHeight;
     }

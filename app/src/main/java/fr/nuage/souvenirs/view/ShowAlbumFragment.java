@@ -120,11 +120,12 @@ public class ShowAlbumFragment extends Fragment {
                 return true;
             case R.id.export_to_pdf:
                 //check for user permissions to write
+                /*
                 if (getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getActivity(),R.string.ask_write_perm_toast,Toast.LENGTH_LONG).show();
                     ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},WRITE_REQUEST);
                     return true;
-                }
+                }*/
                 //start activity to choose resolution
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.pick_resolution)
