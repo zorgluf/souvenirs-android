@@ -46,6 +46,8 @@ public class ShareAlbumAsyncTask extends AsyncTask<Void, Integer, Integer> {
         } catch (IOException e) {
             return RESULT_ERR;
         }
+        //refresh album state
+        albumViewModel.getAlbumNC().load(true);
         return RESULT_OK;
     }
 
