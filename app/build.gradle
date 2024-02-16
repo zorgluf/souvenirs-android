@@ -5,12 +5,11 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.7.6"
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.7.7"
     }
 }
 
@@ -52,7 +51,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.webkit:webkit:1.9.0'
+    implementation 'androidx.webkit:webkit:1.10.0'
     def lifecycle_version = "2.7.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -65,7 +64,7 @@ dependencies {
     implementation "com.github.nextcloud:Android-SingleSignOn:0.6.1"
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 
-    def nav_version = '2.7.6'
+    def nav_version = '2.7.7'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -77,6 +76,6 @@ dependencies {
 
 buildscript {
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
+        classpath 'com.android.tools.build:gradle:8.2.2'
     }
 }
