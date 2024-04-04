@@ -94,6 +94,14 @@ public class AlbumViewModel extends AndroidViewModel {
         while (i < this.pages.size()) {
             PageViewModel pvm = this.pages.get(i);
             if (pages.stream().filter(page -> page.getId().equals(pvm.getId())).count() == 0) {
+                //if page as focus, change focus
+                if (pvm.equals(getFocusPage())) {
+                    if (i > 0) {
+                        setFocusPage(getPage(i-1));
+                    } else if (this.pages.size() > 1) {
+                        setFocusPage(getPage(i + 1));
+                    }
+                }
                 this.pages.remove(i);
             } else {
                 i++;
@@ -118,46 +126,43 @@ public class AlbumViewModel extends AndroidViewModel {
     public void setAlbum(Album album) {
         Album oldAlbum = getAlbum();
         this.album = album;
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (album != oldAlbum) {
-                    if (oldAlbum != null) {
-                        //remove previous livedata observers for Album
-                        name.removeSource(oldAlbum.getLiveDataName());
-                        ldDate.removeSource(oldAlbum.getLdDate());
-                        ldPages = new MutableLiveData<>();
-                        ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
-                        ldNCState.removeSource(oldAlbum.getLdLastEditDate());
-                        ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
-                    }
-                    if (album != null) {
-                        ldHasAlbum.postValue(true);
-                        //set livedata observers for Album
-                        name.addSource(album.getLiveDataName(), name2 -> {
-                            name.setValue(name2);
-                        });
-                        ldDate.addSource(album.getLdDate(), date -> {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
-                        });
-                        ldPages = Transformations.map(album.getLiveDataPages(), pagesModel -> {
-                            updatePages(pagesModel);
-                            return new ArrayList<>(pages);
-                        });
-                        ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
-                            ldAlbumImage.setValue(imagePath);
-                        });
-                        ldNCState.addSource(album.getLdLastEditDate(), date -> {
-                            ldNCState.postValue(getNCState());
-                        });
-                        ldNCState.addSource(album.getLdPageLastEditDate(), date -> {
-                            ldNCState.postValue(getNCState());
-                        });
-                    } else {
-                        ldHasAlbum.postValue(false);
-                        if (albumNC != null) { //reset date to trigger ldIsSyncNC
-                            albumNC.setLastEditDate(albumNC.getLastEditDate());
-                        }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (album != oldAlbum) {
+                if (oldAlbum != null) {
+                    //remove previous livedata observers for Album
+                    name.removeSource(oldAlbum.getLiveDataName());
+                    ldDate.removeSource(oldAlbum.getLdDate());
+                    ldPages = new MutableLiveData<>();
+                    ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
+                    ldNCState.removeSource(oldAlbum.getLdLastEditDate());
+                    ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
+                }
+                if (album != null) {
+                    ldHasAlbum.postValue(true);
+                    //set livedata observers for Album
+                    name.addSource(album.getLiveDataName(), name2 -> {
+                        name.setValue(name2);
+                    });
+                    ldDate.addSource(album.getLdDate(), date -> {
+                        ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
+                    });
+                    ldPages = Transformations.map(album.getLiveDataPages(), pagesModel -> {
+                        updatePages(pagesModel);
+                        return new ArrayList<>(pages);
+                    });
+                    ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
+                        ldAlbumImage.setValue(imagePath);
+                    });
+                    ldNCState.addSource(album.getLdLastEditDate(), date -> {
+                        ldNCState.postValue(getNCState());
+                    });
+                    ldNCState.addSource(album.getLdPageLastEditDate(), date -> {
+                        ldNCState.postValue(getNCState());
+                    });
+                } else {
+                    ldHasAlbum.postValue(false);
+                    if (albumNC != null) { //reset date to trigger ldIsSyncNC
+                        albumNC.setLastEditDate(albumNC.getLastEditDate());
                     }
                 }
             }
@@ -168,48 +173,45 @@ public class AlbumViewModel extends AndroidViewModel {
         AlbumNC oldAlbum = getAlbumNC();
         this.albumNC = albumNC;
         ldNCState.postValue(NC_STATE_UNKNOWN);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if ((albumNC != oldAlbum) && (oldAlbum != null)) {
-                    //remove previous livedata observers for Album
-                    name.removeSource(oldAlbum.getLdName());
-                    ldDate.removeSource(oldAlbum.getLdDate());
-                    ldNCState.removeSource(oldAlbum.getLdLastEditDate());
-                    ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
-                    ldNCState.removeSource(oldAlbum.getLdState());
-                    ldIsShared.removeSource(oldAlbum.getLdIsShared());
-                }
-                if (albumNC != null) {
-                    ldHasAlbumNC.postValue(true);
-                    //set livedata observers for AlbumNC
-                    name.addSource(albumNC.getLdName(), name2 -> {
-                        if (album == null) {
-                            name.setValue(name2);
-                        }
-                    });
-                    ldDate.addSource(albumNC.getLdDate(), date -> {
-                        if (album == null) {
-                            ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
-                        }
-                    });
-                    ldNCState.addSource(albumNC.getLdLastEditDate(), date -> {
-                        ldNCState.postValue(getNCState());
-                    });
-                    ldNCState.addSource(albumNC.getLdPageLastEditDate(), date -> {
-                        ldNCState.postValue(getNCState());
-                    });
-                    ldNCState.addSource(albumNC.getLdState(), state -> {
-                        ldNCState.postValue(getNCState());
-                    });
-                    ldIsShared.addSource(albumNC.getLdIsShared(), isShared -> {
-                        ldIsShared.setValue(isShared);
-                    });
-                } else {
-                    ldHasAlbumNC.postValue(false);
-                    if (album != null) { //reset date to trigger ldIsSyncNC
-                        album.setLastEditDate(album.getLastEditDate());
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if ((albumNC != oldAlbum) && (oldAlbum != null)) {
+                //remove previous livedata observers for Album
+                name.removeSource(oldAlbum.getLdName());
+                ldDate.removeSource(oldAlbum.getLdDate());
+                ldNCState.removeSource(oldAlbum.getLdLastEditDate());
+                ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
+                ldNCState.removeSource(oldAlbum.getLdState());
+                ldIsShared.removeSource(oldAlbum.getLdIsShared());
+            }
+            if (albumNC != null) {
+                ldHasAlbumNC.postValue(true);
+                //set livedata observers for AlbumNC
+                name.addSource(albumNC.getLdName(), name2 -> {
+                    if (album == null) {
+                        name.setValue(name2);
                     }
+                });
+                ldDate.addSource(albumNC.getLdDate(), date -> {
+                    if (album == null) {
+                        ldDate.setValue((new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())).format(date));
+                    }
+                });
+                ldNCState.addSource(albumNC.getLdLastEditDate(), date -> {
+                    ldNCState.postValue(getNCState());
+                });
+                ldNCState.addSource(albumNC.getLdPageLastEditDate(), date -> {
+                    ldNCState.postValue(getNCState());
+                });
+                ldNCState.addSource(albumNC.getLdState(), state -> {
+                    ldNCState.postValue(getNCState());
+                });
+                ldIsShared.addSource(albumNC.getLdIsShared(), isShared -> {
+                    ldIsShared.setValue(isShared);
+                });
+            } else {
+                ldHasAlbumNC.postValue(false);
+                if (album != null) { //reset date to trigger ldIsSyncNC
+                    album.setLastEditDate(album.getLastEditDate());
                 }
             }
         });
@@ -468,8 +470,12 @@ public class AlbumViewModel extends AndroidViewModel {
                 pageViewModel.removeElement(elementViewModel);
                 destPageViewModel.addElement(elementViewModel);
                 TilePageBuilder pageBuilder = new TilePageBuilder();
-                pageBuilder.applyDefaultStyle(pageViewModel.getPage());
                 pageBuilder.applyDefaultStyle(destPageViewModel.getPage());
+                if (pageViewModel.getPage().getElements().size() == 0) {
+                    getAlbum().delPage(pageViewModel.getPage());
+                } else {
+                    pageBuilder.applyDefaultStyle(pageViewModel.getPage());
+                }
                 return;
             }
         }

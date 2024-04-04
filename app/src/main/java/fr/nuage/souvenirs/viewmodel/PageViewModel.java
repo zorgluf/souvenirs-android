@@ -70,6 +70,10 @@ public class PageViewModel extends ViewModel {
             ElementViewModel evm = this.elements.get(i);
             if (elements.stream().filter(element -> element.getId().equals(evm.getId())).count() == 0) {
                 this.elements.remove(i);
+                //if no more elements, delete page
+                if (elements.size() == 0) {
+                    delete();
+                }
             } else {
                 i++;
             }
@@ -296,5 +300,17 @@ public class PageViewModel extends ViewModel {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        PageViewModel c = (PageViewModel) obj;
+        return c.getPage().getId().equals(getPage().getId());
     }
 }
