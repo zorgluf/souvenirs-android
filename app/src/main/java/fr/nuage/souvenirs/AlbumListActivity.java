@@ -87,18 +87,21 @@ public class AlbumListActivity extends AppCompatActivity  {
             if (deltaDays > DIRECT_SHARE_MAX_DAYS) {
                 continue;
             }
-            ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(getApplicationContext(),a.getId().toString())
-                    .setShortLabel(a.getName())
-                    .setRank((int)deltaDays+1)
-                    .setLongLived(true)
-                    .setIcon(IconCompat.createWithResource(getApplicationContext(),R.drawable.ic_launcher_foreground))
-                    .setIntent(new Intent(Intent.ACTION_MAIN))
-                    .setCategories(new HashSet<>(Arrays.asList(AddImageToAlbumActivity.IMAGE_SHARE)))
-                    .setPerson(new Person.Builder()
-                            .setName(a.getName())
-                            .build())
-                    .build();
-            shorcutsList.add(shortcutInfo);
+            if ((a.getName() != null) && !(a.getName().equals(""))) { //if album has no name, do not create shortcut
+                ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(getApplicationContext(),a.getId().toString())
+                        .setShortLabel(a.getName())
+                        .setRank((int)deltaDays+1)
+                        .setLongLived(true)
+                        .setIcon(IconCompat.createWithResource(getApplicationContext(),R.drawable.ic_launcher_foreground))
+                        .setIntent(new Intent(Intent.ACTION_MAIN))
+                        .setCategories(new HashSet<>(Arrays.asList(AddImageToAlbumActivity.IMAGE_SHARE)))
+                        .setPerson(new Person.Builder()
+                                .setName(a.getName())
+                                .build())
+                        .build();
+                shorcutsList.add(shortcutInfo);
+            }
+
         }
         ShortcutManagerCompat.addDynamicShortcuts(getApplicationContext(),shorcutsList);
     }
