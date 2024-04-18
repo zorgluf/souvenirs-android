@@ -4,6 +4,7 @@ import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ public class TilePageBuilder {
                     { 0, 0, 100, 100 }
             },
             {
-                    // 2 V (1 small)
+                    // 2 V (1 small) -> title style
                     { 0, 0, 100, 80 },
                     { 0, 80, 100, 100 }
             },
@@ -278,14 +279,38 @@ public class TilePageBuilder {
     }
 
     public int getDefaultStyle(Page page) {
-        int defStyle=-1;
-        for (int i=0;i<getPageStyleMap().length;i++) {
-            int visibleElements = 0;
-            for (Element element: page.getElements()) {
-                if ((element instanceof ImageElement) || (element instanceof TextElement)) {
-                    visibleElements += 1;
+        int visibleElements = 0;
+        boolean hasTextElement = false;
+        boolean areAllPortrait = true;
+        for (Element element: page.getElements()) {
+            if ((element instanceof ImageElement) || (element instanceof TextElement) || (element instanceof VideoElement)) {
+                visibleElements += 1;
+            }
+            if (element instanceof TextElement) {
+                hasTextElement = true;
+            }
+            if (element instanceof ImageElement) {
+                if (!Utils.isImagePortrait((ImageElement)element)) {
+                    areAllPortrait = false;
                 }
             }
+        }
+        //for 2 elements
+        if (visibleElements == 2) {
+            //if text, apply title style
+            if (hasTextElement) {
+                return 1;
+            }
+            //if images, test if portrait or landscape
+            if (areAllPortrait) {
+                return 3;
+            } else {
+                return 2;
+            }
+        }
+        //generic : choose first matching style in list
+        int defStyle=-1;
+        for (int i=0;i<getPageStyleMap().length;i++) {
             if (getPageStyleMap()[i].length == visibleElements) {
                 defStyle = i;
                 break;

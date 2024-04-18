@@ -87,6 +87,7 @@ public class Page {
             tmp.remove(element);
             setElements(tmp);
         }
+        new TilePageBuilder().applyDefaultStyle(this);
     }
 
     public ImageElement createImageElement() {

@@ -38,11 +38,15 @@ public class Utils {
         }
     }
 
+    public static boolean isImagePortrait(ImageElement element) {
+        return element.getImageHeight() > element.getImageWidth();
+    }
+
     public static class NextcloudFile {
 
-        private String filePath;
-        private boolean isDir;
-        private long modDate;
+        private final String filePath;
+        private final boolean isDir;
+        private final long modDate;
 
         public NextcloudFile(String filePath, boolean isDir, long modDate) {
             this.filePath = filePath;
