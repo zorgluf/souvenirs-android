@@ -3,6 +3,7 @@
     <color name="primaryColor">#e2f6ff</color>
     <color name="primaryLightColor">#ffffff</color>
     <color name="primaryDarkColor">#b0c3cc</color>
+    <color name="colorOnPrimary">#000000</color>
     <color name="secondaryColor">#81d4fa</color>
     <color name="primaryTextColor">#000000</color>
     <color name="primaryInvalidateTextColor">#888888</color>

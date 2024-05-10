@@ -87,4 +87,5 @@
     <string name="ask_record_perm_toast">The Souvenir application need to access to your microphone to record sound. Please allow this permission on the next screen.</string>
     <string name="record_sound_textView">Tap on the microphone to stop recording.</string>
     <string name="record_sound_onair_textView">Now recroding...</string>
+    <string name="string_album_margin_settings">Margin size between elements</string>
 </resources>

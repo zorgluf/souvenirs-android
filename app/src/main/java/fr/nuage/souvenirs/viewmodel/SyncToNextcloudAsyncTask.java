@@ -122,6 +122,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     }
                     albumNC.setAlbumImage(assetPath);
                 }
+                albumNC.setElementMargin(album.getElementMargin());
                 albumNC.setLastEditDate(album.getLastEditDate());
                 if (!albumNC.save()) {
                     return RESULT_NC_ERR;
@@ -139,6 +140,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
                     }
                     album.setAlbumImage(new File(album.getAlbumPath(),albumNC.getAlbumImage()).getPath());
                 }
+                album.setElementMargin(albumNC.getElementMargin());
                 if (albumNC.getLastEditDate()!=null) { album.setLastEditDate(albumNC.getLastEditDate()); }
                 //implicite save on local album
             }

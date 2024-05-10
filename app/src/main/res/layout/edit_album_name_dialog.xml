@@ -18,4 +18,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/string_album_margin_settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/marginSliderViewAlbum"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:valueFrom="0"
+        android:valueTo="20" />
+
 </LinearLayout>

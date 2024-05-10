@@ -1,36 +1,28 @@
 package fr.nuage.souvenirs.view;
 
-import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
-
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.VideoView;
 
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.model.ImageElement;
-import fr.nuage.souvenirs.view.helpers.BlurTransformation;
-import fr.nuage.souvenirs.view.helpers.ZoomOffsetTransformation;
-import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
+import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 
 public class DataBindingAdapters {
 
@@ -45,33 +37,38 @@ public class DataBindingAdapters {
 
 
     @BindingAdapter(value = { "srcCompat", "android:scrollX", "android:scrollY", "android:scaleX"}, requireAll=false)
-    public static void setSrcCompatZoomOffset(ImageView view, String imagePath, int offsetX, int offsetY, int scaleX) {
+    public static void setSrcCompatZoomOffset(ImageElementView view, String imagePath, int offsetX, int offsetY, int scaleX) {
         if (imagePath != null) {
             if (imagePath.equals("")) {
                 view.setImageDrawable(ContextCompat.getDrawable(view.getContext(),R.drawable.ic_image_black_24dp));
             } else {
-                if (view.getScaleType() == ImageView.ScaleType.MATRIX) {
-                    Glide.with(view.getContext()).load(new File(imagePath)).dontTransform().transform(new ZoomOffsetTransformation(offsetX, offsetY,scaleX)).into(view);
-                    if (scaleX < 100) {
-                        //if image smaller than layout, display blured background
-                        Glide.with(view.getContext()).load(new File(imagePath))
-                                .transform(new BlurTransformation(25,view.getContext()))
-                                .into(new CustomTarget<Drawable>() {
-                                    @Override
-                                    public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                        view.setBackground(resource);
-                                    }
-                                    @Override
-                                    public void onLoadCleared(@Nullable @org.jetbrains.annotations.Nullable Drawable placeholder) {  }
-                                });
-                    }
-
-                } else {
-                    Glide.with(view.getContext()).load(new File(imagePath)).into(view);
-                }
+                view.setOffsetX(offsetX);
+                view.setOffsetY(offsetY);
+                view.setZoom(scaleX);
+                Glide.with(view.getContext()).load(new File(imagePath)).into(view);
             }
         } else {
             view.setImageDrawable(null);
+        }
+    }
+
+    @BindingAdapter(value = { "srcCompat" }, requireAll=false)
+    public static void setSrcCompatZoomOffset(PaintElementView view, String imagePath) {
+        if (imagePath != null) {
+            if (!imagePath.equals("")) {
+                Glide.with(view.getContext())
+                        .asBitmap()
+                        .load(new File(imagePath))
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                                view.setFirstBitmap(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {   }
+                        });
+            }
         }
     }
 
@@ -112,11 +109,33 @@ public class DataBindingAdapters {
         v.setColorFilter(color);
     }
 
-    @BindingAdapter(value = { "android:layout_marginLeft", "android:layout_marginBottom", "android:layout_marginRight", "android:layout_marginTop" })
-    public static void setLayoutMarginLeft(MaterialCardView v, float marginLeft, float marginTop, float marginRight, float marginBottom) {
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) v.getLayoutParams();
-        params.setMargins((int)marginLeft, (int)marginTop, (int)marginRight, (int)marginBottom);
-        v.setLayoutParams(params);
+    @BindingAdapter(value = { "android:layout_marginStart", "android:layout_marginTop", "android:layout_marginEnd", "android:layout_marginBottom"}, requireAll=false)
+    public static void setLayoutMarginLeft(View v, int marginLeft, int marginTop, int marginRight, int marginBottom) {
+        if ((v.getParent() != null) && !(v instanceof PaintElementView)) {
+            int height = ((View)(v.getParent())).getHeight();
+            int width = ((View)(v.getParent())).getWidth();
+            if ((height > 0) && (width > 0)) {
+                ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) v.getLayoutParams();
+                params.setMargins((int)width * marginLeft / 100,
+                        (int)height * marginTop / 100,
+                        (int)(100 - marginRight) * width / 100,
+                        (int)(100 - marginBottom) * height / 100);
+                v.setLayoutParams(params);
+            }
+            ImageElementView imageElementView = v.findViewById(R.id.image_imageview);
+            if (imageElementView != null) {
+                imageElementView.updateMatrix();
+            }
+        }
+    }
+
+    public static void onLayoutChange(View view, int left, int top, int right, int bottom) {
+        setLayoutMarginLeft(view, left, top, right, bottom);
+    }
+
+    @BindingAdapter("is_selected")
+    public static void setSelected(View view, boolean selected) {
+        view.setSelected(selected);
     }
 
 }

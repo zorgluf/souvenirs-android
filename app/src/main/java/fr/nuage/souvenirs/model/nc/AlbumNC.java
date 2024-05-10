@@ -29,6 +29,7 @@ public class AlbumNC {
     private Date lastEditDate;
     private final MutableLiveData<Date> ldLastEditDate = new MutableLiveData<>();
     private String albumImage;
+    private int elementMargin;
     private Date pagesLastEditDate;
     private final MutableLiveData<Date> ldPageLastEditDate = new MutableLiveData<>();
     private ArrayList<PageNC> pages = new ArrayList<>();
@@ -155,6 +156,7 @@ public class AlbumNC {
             albumResp.name = getName();
             albumResp.pagesLastEditDate = getPagesLastEditDate();
             albumResp.defaultStyle = getDefaultStyle();
+            albumResp.elementMargin = getElementMargin();
             String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
             if ((result != null) && (result.equals("OK"))) {
                 setState(STATE_OK);
@@ -167,6 +169,10 @@ public class AlbumNC {
             setState(STATE_ERROR);
             return false;
         }
+    }
+
+    public int getElementMargin() {
+        return elementMargin;
     }
 
     private String getDefaultStyle() {
@@ -451,6 +457,7 @@ public class AlbumNC {
         setDate(albumResp.date);
         setLastEditDate(albumResp.lastEditDate);
         setAlbumImage(albumResp.albumImage);
+        setElementMargin(albumResp.elementMargin);
         setPagesLastEditDate(albumResp.pagesLastEditDate);
         setIsShared(albumResp.isShared);
         setShareToken(albumResp.shareToken);
@@ -464,6 +471,10 @@ public class AlbumNC {
             setPages(pageNCArrayList);
         }
         return true;
+    }
+
+    public void setElementMargin(int elementMargin) {
+        this.elementMargin = elementMargin;
     }
 
 

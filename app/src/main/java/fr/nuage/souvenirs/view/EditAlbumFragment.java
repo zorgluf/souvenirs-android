@@ -62,6 +62,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
 
     public void setAlbumVM(AlbumViewModel albumVM) {
         this.albumVM = albumVM;
+        editPageListAdapter.setAlbum(albumVM);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         pageListRecyclerView.setLayoutManager(mLayoutManager);
 
         //fill recyclerview
-        editPageListAdapter =  new EditPageListAdapter(this);
+        editPageListAdapter =  new EditPageListAdapter(this, albumVM);
         pageListRecyclerView.setAdapter(editPageListAdapter);
 
         //add touch helper to move pages

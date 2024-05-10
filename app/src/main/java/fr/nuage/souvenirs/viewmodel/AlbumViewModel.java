@@ -47,6 +47,7 @@ public class AlbumViewModel extends AndroidViewModel {
     private LiveData<ArrayList<PageViewModel>> ldPages = new MutableLiveData<>();
     private final MediatorLiveData<String> ldDate = new MediatorLiveData<>();
     private final MediatorLiveData<String> ldAlbumImage = new MediatorLiveData<>();
+    private final MediatorLiveData<Integer> ldElementMargin = new MediatorLiveData<>();
     private final MutableLiveData<UUID> focusPageId = new MutableLiveData<>();
     private final MutableLiveData<Boolean> ldHasAlbumNC = new MutableLiveData<>();
     private final MutableLiveData<Boolean> ldHasAlbum = new MutableLiveData<>();
@@ -134,6 +135,7 @@ public class AlbumViewModel extends AndroidViewModel {
                     ldDate.removeSource(oldAlbum.getLdDate());
                     ldPages = new MutableLiveData<>();
                     ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
+                    ldElementMargin.removeSource(oldAlbum.getLiveDataElementMargin());
                     ldNCState.removeSource(oldAlbum.getLdLastEditDate());
                     ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
                 }
@@ -152,6 +154,9 @@ public class AlbumViewModel extends AndroidViewModel {
                     });
                     ldAlbumImage.addSource(album.getLdAlbumImage(), imagePath -> {
                         ldAlbumImage.setValue(imagePath);
+                    });
+                    ldElementMargin.addSource(album.getLiveDataElementMargin(), margin -> {
+                        ldElementMargin.setValue(margin);
                     });
                     ldNCState.addSource(album.getLdLastEditDate(), date -> {
                         ldNCState.postValue(getNCState());
@@ -275,6 +280,8 @@ public class AlbumViewModel extends AndroidViewModel {
     public LiveData<String> getLdAlbumImage() {
         return ldAlbumImage;
     }
+
+    public LiveData<Integer> getLdElementMargin() { return ldElementMargin; }
 
 
     public void addPage(Page p) {

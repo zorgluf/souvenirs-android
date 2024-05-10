@@ -8,36 +8,32 @@
         <import type="fr.nuage.souvenirs.viewmodel.VideoElementViewModel" />
         <import type="android.view.View"/>
         <variable name="element" type="fr.nuage.souvenirs.viewmodel.VideoElementViewModel"/>
+        <variable name="album" type="fr.nuage.souvenirs.viewmodel.AlbumViewModel" />
+        <import type="fr.nuage.souvenirs.view.DataBindingAdapters" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout"
+        android:layout_marginTop="@{element.top + album.ldElementMargin}"
+        android:layout_marginBottom="@{element.bottom - album.ldElementMargin}"
+        android:layout_marginStart="@{element.left + album.ldElementMargin}"
+        android:layout_marginEnd="@{element.right - album.ldElementMargin}"
+        android:onLayoutChange="@{(view, a, b, c, d, e, f, g, h) -> DataBindingAdapters.onLayoutChange(view, element.left + album.ldElementMargin, element.top + album.ldElementMargin, element.right - album.ldElementMargin, element.bottom - album.ldElementMargin)}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
         >
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="@{element.left}"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_top"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="@{element.top}"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/guideline_bottom"
-            app:layout_constraintEnd_toEndOf="@+id/guideline_right"
-            app:layout_constraintStart_toEndOf="@+id/guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/guideline_top">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="parent">
 
                 <VideoView
                     android:id="@+id/image_videoview"
@@ -57,8 +53,8 @@
             android:alpha="0.5"
             android:visibility="@{(element instanceof VideoElementViewModel) ? View.VISIBLE : View.GONE }"
             app:layout_constraintDimensionRatio="h,1:1"
-            app:layout_constraintStart_toEndOf="@+id/guideline_left"
-            app:layout_constraintTop_toBottomOf="@+id/guideline_top"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:scaleType="@{element.transformType}"
             android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'
             android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
@@ -67,21 +63,6 @@
             app:tint="@color/secondaryColor"
             tools:visibility="visible" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintGuide_percent="@{element.bottom}" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintGuide_percent="@{element.right}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

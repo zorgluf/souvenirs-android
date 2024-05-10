@@ -237,7 +237,7 @@ public class TilePageBuilder {
             if (e.getClass().equals(TextElement.class)) {
                 textElementArrayList.add((TextElement)e);
             }
-            if (e instanceof ImageElement) {
+            if ((e instanceof ImageElement) && !(e instanceof PaintElement)) {
                 imageElementArrayList.add(e);
             }
         }
@@ -283,6 +283,9 @@ public class TilePageBuilder {
         boolean hasTextElement = false;
         boolean areAllPortrait = true;
         for (Element element: page.getElements()) {
+            if (element instanceof PaintElement) {
+                continue;
+            }
             if ((element instanceof ImageElement) || (element instanceof TextElement) || (element instanceof VideoElement)) {
                 visibleElements += 1;
             }

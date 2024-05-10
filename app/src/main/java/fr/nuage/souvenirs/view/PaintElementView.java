@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -20,27 +21,33 @@ import fr.nuage.souvenirs.viewmodel.PaintElementViewModel;
 
 public class PaintElementView extends AppCompatImageView implements View.OnTouchListener {
 
-    private final PaintElementViewModel paintElementViewModel;
+    private PaintElementViewModel paintElementViewModel;
 
     private Bitmap mBitmap;
     private Canvas mCanvas;
-    private final Path mPath;
-    private final Paint mBitmapPaint;
-    private final Paint penPaint;
-    private final Paint eraserPaint;
+    private Path mPath;
+    private Paint mBitmapPaint;
+    private Paint penPaint;
+    private Paint eraserPaint;
     private float mX, mY;
     private Bitmap mBitmapToAdd;
     private static final float TOUCH_TOLERANCE = 4;
 
     public PaintElementView(Context context) {
-        this(context,null,null);
+        super(context);
+        init();
     }
 
-    public PaintElementView(Context context, PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel) {
-        super(context);
+    public PaintElementView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        init();
+    }
+    public PaintElementView(Context context, AttributeSet attributeSet, int defStyleAttr) {
+        super(context, attributeSet, defStyleAttr);
+        init();
+    }
 
-        this.paintElementViewModel = paintElementViewModel;
-
+    private void init() {
         //initialize pen paint
         penPaint = new Paint();
         penPaint.setAntiAlias(true);
@@ -58,6 +65,11 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
 
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+    }
+
+    public void setViewModels(PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel) {
+
+        this.paintElementViewModel = paintElementViewModel;
 
         AppCompatActivity activity = Div.unwrap(getContext());
         //listen to color change
@@ -97,7 +109,6 @@ public class PaintElementView extends AppCompatImageView implements View.OnTouch
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         canvas.drawColor(0x00FFFFFF);
 
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);

@@ -47,6 +47,8 @@ public class Album {
     private UUID id;
     private String albumImage;
     private MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
+    private int elementMargin = 1;
+    private MutableLiveData<Integer> ldElementMargin = new MutableLiveData<>();
     private boolean unsavedModifications = false;
 
 
@@ -68,6 +70,7 @@ public class Album {
         ldPages.postValue(pages);
         ldDate.postValue(date);
         ldAlbumImage.postValue(albumImage);
+        ldElementMargin.postValue(elementMargin);
     }
 
     public String getName(){
@@ -111,6 +114,7 @@ public class Album {
             if (getAlbumImage() != null) {
                 json.put("albumImage", Utils.getRelativePath(getAlbumPath(),getAlbumImage()));
             }
+            json.put("elementMargin", getElementMargin());
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -208,6 +212,9 @@ public class Album {
                         }
                     }
                 }
+            }
+            if (json.has("elementMargin")) {
+                setElementMargin(json.getInt("elementMargin"));
             }
         } catch (JSONException e) {
             Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath,e);
@@ -536,4 +543,16 @@ public class Album {
     public int getSize() {
         return pages.size();
     }
+
+    public int getElementMargin() {
+        return elementMargin;
+    }
+
+    public void setElementMargin(int elementMargin) {
+        this.elementMargin = elementMargin;
+        this.ldElementMargin.postValue(elementMargin);
+        onChange();
+    }
+
+    public LiveData<Integer> getLiveDataElementMargin() { return ldElementMargin; }
 }

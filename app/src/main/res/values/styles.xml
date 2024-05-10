@@ -11,10 +11,11 @@
         <item name="android:textColorPrimary">@color/primaryTextColor</item>
         <item name="android:textColor">@color/textDefault</item>
         <item name="actionModeBackground">@color/primaryLightColor</item>
-        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorOnSecondary">@color/secondaryTextColor</item>
         <item name="preferenceTheme">@style/AppTheme.preference</item>
         <item name="alertDialogTheme">@style/AppTheme.MaterialDialog.Alert</item>
+        <item name="backgroundTint">@color/background</item>
     </style>
 
     <style name="AppTheme.preference" parent="PreferenceThemeOverlay">

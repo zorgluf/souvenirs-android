@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white">
 
-        <ImageView
+        <fr.nuage.souvenirs.view.ImageElementView
             android:id="@+id/imageView11"
             android:layout_width="0dp"
             android:layout_height="0dp"

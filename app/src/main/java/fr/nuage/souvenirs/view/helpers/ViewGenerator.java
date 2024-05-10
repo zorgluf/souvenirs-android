@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
@@ -28,10 +30,12 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.view.ImageElementView;
 import fr.nuage.souvenirs.view.PaintElementView;
 import fr.nuage.souvenirs.view.TextElementView;
+import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
@@ -47,6 +51,16 @@ public class ViewGenerator {
 
     private  static View applyDefaultElementView(ConstraintLayout parentView, View view, ElementViewModel elementViewModel,
                                                  LifecycleOwner lifecycleOwner) {
+        return applyDefaultElementView(parentView,
+                view,
+                elementViewModel,
+                lifecycleOwner,
+                0);
+    }
+
+
+    private  static View applyDefaultElementView(ConstraintLayout parentView, View view, ElementViewModel elementViewModel,
+                                                 LifecycleOwner lifecycleOwner, int elementMargin) {
         view.setId(View.generateViewId());
         //add to parent
         parentView.addView(view);
@@ -57,7 +71,7 @@ public class ViewGenerator {
         ConstraintSet set = new ConstraintSet();
         set.clone(parentView);
         set.connect(view.getId(),ConstraintSet.LEFT,ConstraintSet.PARENT_ID,ConstraintSet.LEFT,0);
-        set.connect(view.getId(),ConstraintSet.RIGHT,ConstraintSet.PARENT_ID,ConstraintSet.RIGHT,0);
+        set.connect(view.getId(),ConstraintSet.RIGHT,ConstraintSet.PARENT_ID,ConstraintSet.RIGHT, 0);
         set.connect(view.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID,ConstraintSet.TOP,0);
         set.connect(view.getId(),ConstraintSet.BOTTOM,ConstraintSet.PARENT_ID,ConstraintSet.BOTTOM,0);
         set.applyTo(parentView);
@@ -85,7 +99,7 @@ public class ViewGenerator {
 
     /*
 generate view based on paintElementViewModel
-*/
+*/ /*
     public static PaintElementView generateView(PageViewModel pageViewModel, PaintElementViewModel paintElementViewModel,
                                                 ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
                                                 boolean editMode) {
@@ -113,8 +127,8 @@ generate view based on paintElementViewModel
             }
         });
         return paintElementView;
-    }
-
+    } */
+/*
     public static View generateView(PageViewModel pageViewModel, VideoElementViewModel videoElementViewModel,
                                     ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
                                     boolean editMode) {
@@ -135,21 +149,26 @@ generate view based on paintElementViewModel
 
         return imageView;
     }
-
+*/
     /*
     generate view based on imageelementviewmodel
-    */
+
     public static View generateView(PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel,
                                     ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
                                     boolean editMode) {
         //gen imageview
-        ImageElementView imageView = new ImageElementView(parentViewGroup.getContext(),pageViewModel,imageElementViewModel);
+        ImageElementView imageView = new ImageElementView(parentViewGroup.getContext());
+        imageView.setPageViewModel(pageViewModel);
+        imageView.setImageElementViewModel(imageElementViewModel);
         imageView.setScrollContainer(true);
         imageView.setEditMode(editMode);
         //apply default params
-        applyDefaultElementView(parentViewGroup,imageView,imageElementViewModel,lifecycleOwner);
+        int elementMargin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                        pageViewModel.getPage().getAlbum().getElementMargin(),
+                       imageView.getResources().getDisplayMetrics()));
+        applyDefaultElementView(parentViewGroup, imageView, imageElementViewModel, lifecycleOwner, elementMargin);
         //define observables for data binding
-        imageElementViewModel.getTransformType().observe(lifecycleOwner, (Observer<Integer>) i -> {
+        imageElementViewModel.getTransformType().observe(lifecycleOwner, i -> {
             if (i != null) {
                 if (i == ImageElement.CENTERCROP) {
                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -196,17 +215,26 @@ generate view based on paintElementViewModel
                 constraintSet.applyTo(parentViewGroup);
             }
         });
+        //set margin between images
+        //ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) imageView.getLayoutParams();
+        //int px = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        //        pageViewModel.getPage().getAlbum().getElementMargin(),
+        //       imageView.getResources().getDisplayMetrics()));
+        //layoutParams.setMargins(px, px, px, px);
+
         return imageView;
     }
-
+*/
     /*
     generate view based on viewmodel
-    */
+
     public static View generateView(PageViewModel pageViewModel, TextElementViewModel textElementViewModel,
                                     ConstraintLayout parentViewGroup, LifecycleOwner lifecycleOwner,
                                     boolean editMode) {
         //gen textview
-        TextElementView textView = new TextElementView(parentViewGroup.getContext(),pageViewModel,textElementViewModel);
+        TextElementView textView = new TextElementView(parentViewGroup.getContext());
+        textView.setPageViewModel(pageViewModel);
+        textView.setTextElementViewModel(textElementViewModel);
         textView.setClickable(true);
         textView.setEditMode(editMode);
         textView.setHint(R.string.text_element_hint);
@@ -227,6 +255,6 @@ generate view based on paintElementViewModel
         });
         return textView;
     }
-
+*/
 
 }

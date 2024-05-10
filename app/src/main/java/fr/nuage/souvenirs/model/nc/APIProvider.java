@@ -93,6 +93,7 @@ public class APIProvider {
         String shareToken;
         String defaultStyle;
         List<PageResp> pages;
+        int elementMargin;
     }
 
     public static class PageResp {

@@ -7,11 +7,14 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
@@ -25,37 +28,63 @@ import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 
 
-@SuppressLint("ViewConstructor")
+
 public class ImageElementView extends AppCompatImageView implements View.OnLayoutChangeListener {
 
-    private final Paint contourPaint;
+    private Paint contourPaint;
     private final Rect rect = new Rect();
-    private final ImageElementViewModel imageElementViewModel;
-    private final PageViewModel pageViewModel;
-    private final ElementMoveDragListener elementMoveDragListener;
+    private ImageElementViewModel imageElementViewModel;
+    private PageViewModel pageViewModel;
+    private ElementMoveDragListener elementMoveDragListener;
     private boolean isEditMode = false;
+    private int offsetX = 0;
+    private int offsetY = 0;
+    private int zoom = 100;
 
-    public ImageElementView(Context context, PageViewModel pageViewModel, ImageElementViewModel imageElementViewModel) {
+    public ImageElementView(Context context) {
         super(context);
+        initView();
+    }
 
-        this.pageViewModel = pageViewModel;
+    public ImageElementView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        initView();
+    }
+    public ImageElementView(Context context, AttributeSet attributeSet, int defStyleAttr) {
+        super(context, attributeSet, defStyleAttr);
+        initView();
+    }
 
+    private void initView() {
         contourPaint = new Paint();
         contourPaint.setAntiAlias(true);
-        contourPaint.setColor(ContextCompat.getColor(context,R.color.primaryDarkColor));
+        contourPaint.setColor(ContextCompat.getColor(getContext(),R.color.primaryDarkColor));
         contourPaint.setStrokeWidth(getResources().getDimension(R.dimen.selected_strokewidth));
         contourPaint.setStyle(Paint.Style.STROKE);
 
-        AppCompatActivity appCompatActivity = Div.unwrap(getContext());
-        elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, appCompatActivity);
-        pageViewModel.getLdPaintMode().observe(appCompatActivity, (b) -> {
-                    setListeners();
-                });
-
         addOnLayoutChangeListener(this);
+    }
 
+    public void setPageViewModel(@NonNull PageViewModel pageViewModel) {
+        this.pageViewModel = pageViewModel;
+        if (this.imageElementViewModel != null) {
+            AppCompatActivity appCompatActivity = Div.unwrap(getContext());
+            elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, appCompatActivity);
+            pageViewModel.getLdPaintMode().observe(appCompatActivity, (b) -> {
+                setListeners();
+            });
+        }
+    }
+
+    public void setImageElementViewModel(@NonNull ImageElementViewModel imageElementViewModel) {
         this.imageElementViewModel = imageElementViewModel;
-
+        if (this.pageViewModel != null) {
+            AppCompatActivity appCompatActivity = Div.unwrap(getContext());
+            elementMoveDragListener = new ElementMoveDragListener(pageViewModel, imageElementViewModel, appCompatActivity);
+            pageViewModel.getLdPaintMode().observe(appCompatActivity, (b) -> {
+                setListeners();
+            });
+        }
     }
 
     private void setListeners() {
@@ -80,6 +109,9 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
     }
 
     public void setEditMode(boolean editMode) {
+        assert pageViewModel != null;
+        assert imageElementViewModel != null;
+
         this.isEditMode = editMode;
         setListeners();
     }
@@ -107,9 +139,6 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         if (getDrawable() == null) {
             return;
         }
-        if ((imageElementViewModel.getOffsetX().getValue() == null) || (imageElementViewModel.getOffsetY().getValue() == null) || (imageElementViewModel.getZoom().getValue() == null)) {
-            return;
-        }
         final float viewWidth = getWidth();
         final float viewHeight = getHeight();
         final int drawableWidth = getDrawable().getIntrinsicWidth();
@@ -121,8 +150,8 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
         matrix.postScale(scale, scale);
         matrix.postTranslate((viewWidth - drawableWidth * scale) / 2F,
                 (viewHeight - drawableHeight * scale) / 2F);
-        matrix.postTranslate(imageElementViewModel.getOffsetX().getValue()*viewWidth/100f,imageElementViewModel.getOffsetY().getValue()*viewHeight/100f);
-        matrix.postScale(imageElementViewModel.getZoom().getValue()/100f,imageElementViewModel.getZoom().getValue()/100f);
+        matrix.postTranslate(offsetX*viewWidth/100f,offsetY*viewHeight/100f);
+        matrix.postScale(zoom/100f,zoom/100f);
         setImageMatrix(matrix);
     }
 
@@ -130,19 +159,27 @@ public class ImageElementView extends AppCompatImageView implements View.OnLayou
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
         // update matrix if style Zoom_offset
-        if ((imageElementViewModel.getTransformType().getValue() != null) && (imageElementViewModel.getTransformType().getValue().equals(ImageElement.ZOOM_OFFSET))) {
-            updateMatrix();
-        }
+        updateMatrix();
     }
 
     @Override
     public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int
             oldRight, int oldBottom) {
         // update matrix if style Zoom_offset
-        if ((imageElementViewModel.getTransformType().getValue() != null) && (imageElementViewModel.getTransformType().getValue().equals(ImageElement.ZOOM_OFFSET))) {
-            if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
-                updateMatrix();
-            }
+        if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
+            updateMatrix();
         }
+    }
+
+    public void setOffsetX(int offsetX) {
+        this.offsetX = offsetX;
+    }
+
+    public void setOffsetY(int offsetY) {
+        this.offsetY = offsetY;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
     }
 }

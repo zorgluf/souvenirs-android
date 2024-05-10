@@ -94,7 +94,7 @@ public class ShowAlbumFragment extends Fragment {
         pageListRecyclerView = v.findViewById(R.id.page_list);
 
         //fill recyclerview
-        pageListAdapter =  new ShowPageListAdapter(albumVM.getLdPages(),this,albumVM);
+        pageListAdapter =  new ShowPageListAdapter(albumVM.getLdPages(),this, albumVM);
         pageListRecyclerView.setAdapter(pageListAdapter);
         albumVM.getLdPages().observe(getViewLifecycleOwner(), PageViewModels -> pageListAdapter.updateList(PageViewModels));
         albumVM.getName().observe(getViewLifecycleOwner(), s -> {

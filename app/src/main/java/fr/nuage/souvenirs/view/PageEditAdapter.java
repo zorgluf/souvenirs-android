@@ -71,7 +71,7 @@ public class PageEditAdapter extends RecyclerView.Adapter<PageEditAdapter.ViewHo
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         PageViewModel pageViewModel = pages.get(position);
         PageView pageView = viewHolder.getPageView();
-        pageView.setPageViewModel(pageViewModel);
+        pageView.setViewModels(pageViewModel, albumViewModel);
         //set drag listener (element move)
         pageView.setOnDragListener((v, event) -> {
             String dragType = (String)event.getLocalState();

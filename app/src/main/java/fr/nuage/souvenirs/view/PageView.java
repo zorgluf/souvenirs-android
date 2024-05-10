@@ -19,9 +19,13 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LifecycleOwner;
 
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.databinding.ImageElementViewBinding;
 import fr.nuage.souvenirs.databinding.PageViewBinding;
+import fr.nuage.souvenirs.databinding.PaintElementViewBinding;
+import fr.nuage.souvenirs.databinding.TextElementViewBinding;
 import fr.nuage.souvenirs.view.helpers.Div;
 import fr.nuage.souvenirs.view.helpers.ViewGenerator;
+import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.AudioElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 import fr.nuage.souvenirs.viewmodel.ImageElementViewModel;
@@ -36,6 +40,7 @@ public class PageView extends ConstraintLayout {
     public static final int SWING_DIRECTION_DOWN = 2;
 
     private PageViewModel pageViewModel;
+    private AlbumViewModel albumViewModel;
     private boolean editMode;
 
     public PageView(@NonNull Context context) {
@@ -63,54 +68,73 @@ public class PageView extends ConstraintLayout {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setPageViewModel(PageViewModel pageViewModel) {
+    public void setViewModels(PageViewModel pageViewModel, AlbumViewModel albumViewModel) {
         this.pageViewModel = pageViewModel;
+        this.albumViewModel = albumViewModel;
         initView();
     }
 
     private void initView() {
-        if (pageViewModel != null) {
+        removeAllViews();
+        if ((pageViewModel != null) && (albumViewModel != null)) {
             PageViewBinding binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.page_view,this,true);
             binding.setPage(pageViewModel);
 
             setTransitionName(pageViewModel.getId().toString());
-
 
             ConstraintLayout pageLayout = binding.pageLayout;
             //listen to elements changes
             LifecycleOwner lifecycleOwner = (LifecycleOwner) Div.unwrap(getContext());
             pageViewModel.getLdElements().observe(lifecycleOwner, elementViewModels -> {
                 //remove all
-                pageLayout.removeAllViewsInLayout();
+                pageLayout.removeAllViews();
                 //rebuild layout
                 if (elementViewModels != null) {
-                    LayoutInflater inflater1 = LayoutInflater.from(pageLayout.getContext());
+                    LayoutInflater inflater = LayoutInflater.from(pageLayout.getContext());
                     for (ElementViewModel e : elementViewModels) {
                         if (e.getClass() == TextElementViewModel.class) {
                             TextElementViewModel et = (TextElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, et, pageLayout, lifecycleOwner,editMode);
-                        } else if (e.getClass() == ImageElementViewModel.class) {
-                            ImageElementViewModel ei = (ImageElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ei, pageLayout, lifecycleOwner, editMode);
+                            //load xml layout and bind data
+                            TextElementViewBinding elBinding = DataBindingUtil.inflate(inflater, R.layout.text_element_view, pageLayout,false);
+                            elBinding.setLifecycleOwner(lifecycleOwner);
+                            elBinding.setElement(et);
+                            elBinding.setAlbum(albumViewModel);
+                            elBinding.executePendingBindings();
+                            elBinding.textElement.setPageViewModel(pageViewModel);
+                            elBinding.textElement.setTextElementViewModel(et);
+                            elBinding.textElement.setEditMode(editMode);
+                            pageLayout.addView(elBinding.getRoot());
+                        } else if ((e.getClass() == ImageElementViewModel.class) || (e.getClass() == VideoElementViewModel.class)) {
+                            ImageElementViewModel ei = (ImageElementViewModel)e;
+                            //load xml layout and bind data
+                            ImageElementViewBinding elBinding = DataBindingUtil.inflate(inflater, R.layout.image_element_view, pageLayout,false);
+                            elBinding.setLifecycleOwner(lifecycleOwner);
+                            elBinding.setElement(ei);
+                            elBinding.setAlbum(albumViewModel);
+                            elBinding.executePendingBindings();
+                            elBinding.imageImageview.setPageViewModel(pageViewModel);
+                            elBinding.imageImageview.setImageElementViewModel(ei);
+                            elBinding.imageImageview.setEditMode(editMode);
+                            pageLayout.addView(elBinding.getRoot());
                         } else if (e.getClass() == PaintElementViewModel.class) {
-                            PaintElementViewModel ep = (PaintElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, lifecycleOwner, editMode);
-                        } else if (e.getClass() == VideoElementViewModel.class) {
-                            VideoElementViewModel ep = (VideoElementViewModel) e;
-                            ViewGenerator.generateView(pageViewModel, ep, pageLayout, lifecycleOwner, editMode);
+                            PaintElementViewModel ep = (PaintElementViewModel)e;
+                            //load xml layout and bind data
+                            PaintElementViewBinding elBinding = DataBindingUtil.inflate(inflater, R.layout.paint_element_view, pageLayout,false);
+                            elBinding.setLifecycleOwner(lifecycleOwner);
+                            elBinding.setElement(ep);
+                            elBinding.executePendingBindings();
+                            elBinding.paintImageview.setViewModels(pageViewModel, ep);
+                            pageLayout.addView(elBinding.getRoot());
                         } else if (e.getClass() == AudioElementViewModel.class) {
                             continue;
                         } else {
                                 //unknown element : display default view
-                                inflater1.inflate(R.layout.unknown_element_view, pageLayout, true);
+                                inflater.inflate(R.layout.unknown_element_view, pageLayout, true);
                         }
                     }
                 }
             });
-        } else {
-            removeAllViewsInLayout();
         }
-
     }
 
 

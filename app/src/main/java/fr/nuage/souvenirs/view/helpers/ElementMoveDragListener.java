@@ -38,6 +38,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
     private boolean isZooming = false;
     private boolean isPaning = false;
     private int activePointerId = MotionEvent.INVALID_POINTER_ID;
+    public static int RESIZE_DRAG_AMPLIFIER_FACTOR = 2;
 
     public ElementMoveDragListener(PageViewModel page, ElementViewModel el, AppCompatActivity activity) {
         pageVM = page;
@@ -101,6 +102,40 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
         imageElementViewModel.setOffset(newOffsetX,newOffsetY);
     }
 
+    private void updateOffsetOnDrag(View view, DragEvent dragEvent) {
+        String dragType = (String)dragEvent.getLocalState();
+        if (dragType.equals(RESIZE_DRAG_RIGHT_BOTTOM)) {
+            //change height/width of image
+            float x = dragEvent.getX();
+            float y = dragEvent.getY();
+            int height = ((View)(view.getParent().getParent())).getHeight();
+            int width = ((View)(view.getParent().getParent())).getWidth();
+            elVM.setPosition(
+                    elVM.getTop().getValue(),
+                    elVM.getLeft().getValue(),
+                    elVM.getBottom().getValue() + (int)((y - initialY) * 100 * RESIZE_DRAG_AMPLIFIER_FACTOR)/height,
+                    elVM.getRight().getValue() + (int)((x - initialX) * 100 * RESIZE_DRAG_AMPLIFIER_FACTOR)/width
+            );
+            initialX = x;
+            initialY = y;
+        }
+        if (dragType.equals(RESIZE_DRAG_LEFT_TOP)) {
+            //change height/width of image
+            float x = dragEvent.getX();
+            float y = dragEvent.getY();
+            int height = ((View)(view.getParent().getParent())).getHeight();
+            int width = ((View)(view.getParent()).getParent()).getWidth();
+            elVM.setPosition(
+                    elVM.getTop().getValue() + (int)((y - initialY) * 100 * RESIZE_DRAG_AMPLIFIER_FACTOR)/height,
+                    elVM.getLeft().getValue() + (int)((x - initialX) * 100 * RESIZE_DRAG_AMPLIFIER_FACTOR)/width,
+                    elVM.getBottom().getValue(),
+                    elVM.getRight().getValue()
+            );
+            //initialX = x;
+            //initialY = y;
+        }
+    }
+
     @Override
     public boolean onDrag(View view, DragEvent dragEvent) {
 
@@ -141,29 +176,14 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                     initialY = dragEvent.getY();
                     return true;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    if (activateMoveViewId == 0) {
+                    if ((activateMoveViewId == 0) || (activePointerId == view.getId())) {
                         activateMoveViewId = view.getId();
                         return true;
                     }
                     return false;
                 case DragEvent.ACTION_DRAG_LOCATION:
                     if (activateMoveViewId == view.getId()) {
-                        if (dragType.equals(RESIZE_DRAG_RIGHT_BOTTOM)) {
-                            //change height/width of image
-                            float x = dragEvent.getX();
-                            float y = dragEvent.getY();
-                            view.setRight(Math.round(view.getRight()+x- initialX));
-                            view.setBottom(Math.round(view.getBottom()+y- initialY));
-                            initialX = x;
-                            initialY = y;
-                        }
-                        if (dragType.equals(RESIZE_DRAG_LEFT_TOP)) {
-                            //change height/width of image
-                            float x = dragEvent.getX();
-                            float y = dragEvent.getY();
-                            view.setLeft(Math.round(view.getLeft()+x- initialX));
-                            view.setTop(Math.round(view.getTop()+y- initialY));
-                        }
+                        updateOffsetOnDrag(view, dragEvent);
                     }
                     return true;
                 case DragEvent.ACTION_DRAG_EXITED:
@@ -171,15 +191,6 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                 case DragEvent.ACTION_DRAG_ENDED:
                     if (activateMoveViewId == view.getId()) {
                         activateMoveViewId = 0;
-                        //set new element coordinate
-                        int parentX = ((View)view.getParent()).getWidth();
-                        int parentY = ((View)view.getParent()).getHeight();
-                        int top = Math.round(view.getY()/parentY*100);
-                        int left = Math.round(view.getX()/parentX*100);
-                        int bottom = Math.round((view.getY()+view.getHeight())/parentY*100);
-                        int right = Math.round((view.getX()+view.getWidth())/parentX*100);
-                        elVM.setPosition(top,left,bottom,right);
-                        //elVM.bringToFront();
                     }
                     return true;
                 default:
@@ -246,7 +257,7 @@ public class ElementMoveDragListener implements View.OnDragListener, View.OnLong
                         if (dragAction != null) {
                             //do drag
                             //move view to front before drag
-                            view.bringToFront();
+                            ((View)view.getParent()).bringToFront();
                             //start drag
                             view.startDragAndDrop(null, new View.DragShadowBuilder() {
                                 @Override

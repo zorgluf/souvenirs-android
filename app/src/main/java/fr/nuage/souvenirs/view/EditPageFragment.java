@@ -167,7 +167,7 @@ public class EditPageFragment extends Fragment {
             //set new page on UI
             PageViewModel pageVM = albumVM.getPage(uuid);
             binding.setPage(pageVM);
-            binding.pageViewEdit.setPageViewModel(pageVM);
+            binding.pageViewEdit.setViewModels(pageVM, albumVM);
             //binding.executePendingBindings();
             if (pageVM != null) {
                 //listen for audiomode change to change menu

@@ -46,7 +46,7 @@
             android:onClick="@{(view) -> fragment.onClickPageMenu(page,view)}"
             android:focusable="true" />
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/page_layout"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -58,7 +58,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/page_audio_status"

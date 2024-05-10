@@ -151,7 +151,7 @@ public class PdfPrepareAlbumFragment extends Fragment {
         for (PageViewModel pageViewModel : pageViewModels) {
             getActivity().runOnUiThread(() -> {
                 PageView pageView = new PageView(getContext());
-                pageView.setPageViewModel(pageViewModel);
+                pageView.setViewModels(pageViewModel, albumVM);
                 mainLayout.removeAllViewsInLayout();
                 mainLayout.addView(pageView);
             });

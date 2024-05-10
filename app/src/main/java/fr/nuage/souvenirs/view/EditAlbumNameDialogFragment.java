@@ -13,6 +13,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.slider.Slider;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -26,6 +27,7 @@ public class EditAlbumNameDialogFragment extends DialogFragment {
 
     private final AlbumViewModel albumViewModel;
     private Date selectedDate;
+    private int selectedMargin;
 
     public EditAlbumNameDialogFragment(AlbumViewModel albumViewModel) {
         super();
@@ -42,13 +44,17 @@ public class EditAlbumNameDialogFragment extends DialogFragment {
         albumEditText.setText(albumViewModel.getAlbum().getName());
         CalendarView calendarView = createLayout.findViewById(R.id.calendarViewAlbum);
         calendarView.setDate(albumViewModel.getAlbum().getDate().getTime());
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(year,month,day);
-                selectedDate = new Date(calendar.getTimeInMillis());
-            }
+        selectedDate = albumViewModel.getAlbum().getDate();
+        calendarView.setOnDateChangeListener((calendarView1, year, month, day) -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year,month,day);
+            selectedDate = new Date(calendar.getTimeInMillis());
+        });
+        Slider slider = createLayout.findViewById(R.id.marginSliderViewAlbum);
+        slider.setValue(albumViewModel.getAlbum().getElementMargin());
+        selectedMargin = albumViewModel.getAlbum().getElementMargin();
+        slider.addOnChangeListener((s, value, fromUser) -> {
+            selectedMargin = (int)value;
         });
         //build dialog with accept button
         builder.setTitle(R.string.dialog_edit_album_msg)
@@ -57,6 +63,7 @@ public class EditAlbumNameDialogFragment extends DialogFragment {
                     String albumName = albumEditText.getText().toString();
                     albumViewModel.getAlbum().setName(albumName);
                     albumViewModel.getAlbum().setDate(selectedDate);
+                    albumViewModel.getAlbum().setElementMargin(selectedMargin);
                     dismiss();
                 })
                 .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
