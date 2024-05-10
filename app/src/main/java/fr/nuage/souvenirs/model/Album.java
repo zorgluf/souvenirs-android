@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -95,7 +96,9 @@ public class Album {
             json.put("id",id.toString());
             JSONArray jPages = new JSONArray();
             ArrayList<Page> mPages = pages;
-            for( Page p: mPages ) {
+            Iterator<Page> iterator = mPages.iterator();
+            while(iterator.hasNext()){
+                Page p = iterator.next();
                 jPages.put(p.toJSON());
             }
             json.put("pages",jPages);
@@ -215,6 +218,8 @@ public class Album {
             }
             if (json.has("elementMargin")) {
                 setElementMargin(json.getInt("elementMargin"));
+            } else {
+                setElementMargin(0);
             }
         } catch (JSONException e) {
             Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath,e);
