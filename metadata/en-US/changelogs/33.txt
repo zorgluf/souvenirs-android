@@ -1,0 +1,4 @@
+Change: better page editing interface
+New feature: space between images and elements in general : can be changed in each album settings
+Change: better ui flow when editing pages and image deletions
+
