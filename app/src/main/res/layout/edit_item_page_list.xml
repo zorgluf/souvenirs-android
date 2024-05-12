@@ -11,46 +11,27 @@
             type="fr.nuage.souvenirs.view.EditAlbumFragment"/>
     </data>
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/mtrl_card_spacing"
-        android:layout_marginTop="@dimen/mtrl_card_spacing"
-        android:layout_marginRight="@dimen/mtrl_card_spacing"
-        android:layout_marginBottom="@dimen/mtrl_card_spacing">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/page_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/mtrl_card_spacing"
-        android:layout_marginTop="@dimen/mtrl_card_spacing"
-        android:layout_marginRight="@dimen/mtrl_card_spacing"
-        android:layout_marginBottom="@dimen/mtrl_card_spacing"
         android:tag="@{page.id.toString()}"
         android:clickable="true"
         android:onClick="@{fragment::openPageEdition}"
         android:focusable="true">
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/page_menu_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/page_layout"
-            app:layout_constraintEnd_toEndOf="@+id/page_layout"
-            app:srcCompat="@drawable/ic_baseline_menu_24"
-            android:onClick="@{(view) -> fragment.onClickPageMenu(page,view)}"
-            android:focusable="true" />
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/page_layout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
             app:layout_constraintDimensionRatio="1:1"
@@ -59,6 +40,18 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/del_imageview"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="-8dp"
+            android:layout_marginBottom="-8dp"
+            android:alpha="0.5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:srcCompat="@drawable/ic_delete_forever_black_24dp"
+            android:onClick="@{() -> page.delete()}"/>
 
         <ImageView
             android:id="@+id/page_audio_status"
@@ -74,8 +67,5 @@
             app:srcCompat="@{(page.ldAudioMode == page.AUDIO_MODE_ON) ? @drawable/ic_baseline_audiotrack_24 : @drawable/ic_noaudio }" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    </com.google.android.material.card.MaterialCardView>
 
 </layout>

@@ -34,7 +34,7 @@ import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.PageViewModel;
 
-public class EditAlbumFragment extends Fragment implements SelectPageStyleFragment.OnSelectPageStyleListener {
+public class EditAlbumFragment extends Fragment {
 
     private static final String DIALOG_CHANGE_STYLE = "DIALOG_CHANGE_STYLE";
 
@@ -42,7 +42,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
     private AlbumViewModel albumVM;
     private String albumPath;
     private UUID initialPageFocusId;
-    private int colNb = 1;
+    private int colNb = 3;
 
     private PageViewModel lastOperationPage;
 
@@ -71,7 +71,6 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
 
         //inflateview
         FragmentEditAlbumBinding binding = DataBindingUtil.inflate(inflater,R.layout.fragment_edit_album,container,false);
-        binding.setFragment(this);
 
         //set recyclerview
         RecyclerView pageListRecyclerView = binding.pageList;
@@ -93,6 +92,7 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
             AlbumViewModel albumVM = albumListViewModel.getAlbum(albumPath);
             if (albumVM != null) {
                 setAlbumVM(albumVM);
+                binding.setAlbum(albumVM);
                 albumVM.getLdPages().observe(lifecycleOwner, PageViewModels -> editPageListAdapter.updateList(PageViewModels));
                 getActivity().setTitle(albumVM.getName().getValue());
                 albumVM.getName().observe(lifecycleOwner, s -> getActivity().setTitle(albumVM.getName().getValue()));
@@ -119,13 +119,6 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         Navigation.findNavController(getView()).navigate(action);
     }
 
-    public void onSwitchLayout(PageViewModel p) {
-        //save page
-        lastOperationPage = p;
-        //launch select style dialog
-        SelectPageStyleDialogFragment dialog = SelectPageStyleDialogFragment.newInstance(this,-1,-1);
-        dialog.show(getParentFragmentManager(),DIALOG_CHANGE_STYLE);
-    }
 
     public void openPageEdition(View v) {
         String pageId = (String)v.getTag();
@@ -134,20 +127,6 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
         Navigation.findNavController(getView()).navigate(action);
     }
 
-
-    @Override
-    public void onStyleSelected(int style) {
-        //check which dialog was launched
-        Fragment dialogChangeStyle = getParentFragmentManager().findFragmentByTag(DIALOG_CHANGE_STYLE);
-        if (dialogChangeStyle != null) {
-            //dismiss dialog
-            DialogFragment df = (DialogFragment) dialogChangeStyle;
-            df.dismiss();
-            //switch style
-            albumVM.switchStyle(lastOperationPage,style);
-        }
-
-    }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
@@ -165,57 +144,8 @@ public class EditAlbumFragment extends Fragment implements SelectPageStyleFragme
             onAddPage(albumVM.getPage(-1));
             return true;
         });
-        //set listener to switch display
-        MenuItem displayColunmItem = menu.findItem(R.id.display_column_edit_album);
-        displayColunmItem.setOnMenuItemClickListener(menuItem -> {
-            //change columns
-            colNb = (colNb == 1) ? 2 : 1;
-            //change layout of recyclerview
-            RecyclerView pageListRecyclerView = getView().findViewById(R.id.page_list);
-            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), colNb);
-            pageListRecyclerView.setLayoutManager(mLayoutManager);
-            getActivity().invalidateOptionsMenu();
-            return true;
-        });
-    }
-
-    @Override
-    public void onPrepareOptionsMenu (@NonNull Menu menu) {
-        if (colNb != 1) {
-            menu.findItem(R.id.display_column_edit_album).setIcon(R.drawable.ic_view_one_column_24dp);
-        } else {
-            menu.findItem(R.id.display_column_edit_album).setIcon(R.drawable.ic_view_column_black_24dp);
-        }
     }
 
     public AlbumViewModel getAlbumVM() { return albumVM; }
 
-    public void onClickPageMenu(PageViewModel pageViewModel, View view) {
-        PopupMenu popupMenu = new PopupMenu(getContext(),view, Gravity.END);
-        popupMenu.inflate(R.menu.page_edit_menu);
-        popupMenu.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.menu_page_edit_insert:
-                    onAddPage(pageViewModel);
-                    return true;
-                case R.id.menu_page_edit_dispo:
-                    onSwitchLayout(pageViewModel);
-                    return true;
-                case R.id.menu_page_edit_delete:
-                    pageViewModel.delete();
-                    return true;
-                case R.id.menu_page_edit_move_up:
-                    pageViewModel.moveUp();
-                    return true;
-                case R.id.menu_page_edit_move_down:
-                    pageViewModel.moveDown();
-                    return true;
-            }
-            return false;
-        });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            popupMenu.setForceShowIcon(true);
-        }
-        popupMenu.show();
-    }
 }

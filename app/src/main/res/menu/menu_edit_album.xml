@@ -12,9 +12,4 @@
         android:icon="@drawable/ic_note_add_page_black_24dp"
         android:title="@string/action_menu_add_page"
         app:showAsAction="always|collapseActionView" />
-    <item
-        android:id="@+id/display_column_edit_album"
-        android:icon="@drawable/ic_view_column_black_24dp"
-        android:title="@string/action_menu_display_column"
-        app:showAsAction="always|collapseActionView" />
 </menu>
