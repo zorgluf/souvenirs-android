@@ -81,4 +81,11 @@
     <string name="edit_page_audio_stop">Arrêter le son</string>
     <string name="dialog_edit_album_msg">Modifier le nom de l\'album et la date</string>
     <string name="add_file">Ajouter un fichier</string>
+    <string name="action_menu_image_move_back">Déplacer à l\'arrière-plan</string>
+    <string name="edit_page_micro">Enregistrer le son</string>
+    <string name="ask_record_perm_toast">L\'applications Souvenirs a besoin d\'accéder à votre micro pour enregistrer du son. Merci d\'autoriser ce droit à la page suivante.</string>
+    <string name="record_sound_textView">Appuyer pour arrêter l\'enregistrement</string>
+    <string name="record_sound_onair_textView">En cours d\'enregistrement...</string>
+    <string name="string_album_margin_settings">Taille de la marge entre chaque éléments</string>
+    <string name="empty_album">L\'album est vide.</string>
 </resources>
