@@ -16,7 +16,7 @@
         android:layout_marginBottom="@{element.bottom - album.ldElementMargin}"
         android:layout_marginStart="@{element.left + album.ldElementMargin}"
         android:layout_marginEnd="@{element.right - album.ldElementMargin}"
-        android:onLayoutChange="@{(view, a, b, c, d, e, f, g, h) -> DataBindingAdapters.onLayoutChange(view, element.left + album.ldElementMargin, element.top + album.ldElementMargin, element.right - album.ldElementMargin, element.bottom - album.ldElementMargin)}"
+        android:onLayoutChange="@{(view, a, b, c, d, e, f, g, h) -> DataBindingAdapters.onLayoutChange(view, element, album)}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

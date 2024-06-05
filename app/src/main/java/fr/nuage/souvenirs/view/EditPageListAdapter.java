@@ -111,10 +111,10 @@ public class EditPageListAdapter extends RecyclerView.Adapter<EditPageListAdapte
                         ImageElementViewModel ei = (ImageElementViewModel)e;
                         //load xml layout and bind data
                         ImageElementViewBinding binding = DataBindingUtil.inflate(inflater, R.layout.image_element_view, layout,false);
-                        binding.setLifecycleOwner(lifecycleOwner);
                         binding.setElement(ei);
                         binding.setAlbum(albumViewModel);
                         layout.addView(binding.getRoot());
+                        binding.setLifecycleOwner(lifecycleOwner);
                         binding.executePendingBindings();
                     } else if (e.getClass() == AudioElementViewModel.class) {
                         continue;

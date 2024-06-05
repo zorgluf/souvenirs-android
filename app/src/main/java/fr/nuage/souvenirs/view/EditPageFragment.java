@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,24 +22,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.content.PermissionChecker;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 
@@ -49,7 +42,6 @@ import java.util.UUID;
 
 import fr.nuage.souvenirs.R;
 import fr.nuage.souvenirs.databinding.FragmentEditPageBinding;
-import fr.nuage.souvenirs.model.AudioElement;
 import fr.nuage.souvenirs.model.Page;
 import fr.nuage.souvenirs.model.TilePageBuilder;
 import fr.nuage.souvenirs.view.helpers.Div;
@@ -89,6 +81,10 @@ public class EditPageFragment extends Fragment {
             String pageId = EditPageFragmentArgs.fromBundle(getArguments()).getPageId();
             //load view model
             albumVM = new ViewModelProvider(requireActivity(),new AlbumListViewModelFactory(requireActivity().getApplication())).get(AlbumListViewModel.class).getAlbum(albumPath);
+            if (albumVM == null) {
+                Log.e(getClass().getName(),"Unable to load album at "+albumPath);
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
             PageViewModel pageVM = albumVM.getPage(UUID.fromString(pageId));
             //set focus on that page
             albumVM.setFocusPage(pageVM);

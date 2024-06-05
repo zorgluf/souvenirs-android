@@ -21,7 +21,9 @@ import java.io.File;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import fr.nuage.souvenirs.R;
+import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.ImageElement;
+import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
 
 public class DataBindingAdapters {
@@ -129,8 +131,17 @@ public class DataBindingAdapters {
         }
     }
 
-    public static void onLayoutChange(View view, int left, int top, int right, int bottom) {
-        setLayoutMarginLeft(view, left, top, right, bottom);
+    public static void onLayoutChange(View view, ElementViewModel element, AlbumViewModel album) {
+        if ((element != null) && (album != null)) {
+            if ((element.getLeft().getValue() != null) && (element.getRight().getValue() != null) && (element.getTop().getValue() != null) && (element.getBottom().getValue() != null)) {
+                if (album.getLdElementMargin().getValue() != null) {
+                    setLayoutMarginLeft(view, element.getLeft().getValue() + album.getLdElementMargin().getValue(),
+                            element.getTop().getValue() + album.getLdElementMargin().getValue(),
+                            element.getRight().getValue() - album.getLdElementMargin().getValue(),
+                            element.getBottom().getValue() - album.getLdElementMargin().getValue());
+                }
+            }
+        }
     }
 
     @BindingAdapter("is_selected")
