@@ -95,10 +95,8 @@ public class Album {
             json.put("name",name);
             json.put("id",id.toString());
             JSONArray jPages = new JSONArray();
-            ArrayList<Page> mPages = pages;
-            Iterator<Page> iterator = mPages.iterator();
-            while(iterator.hasNext()){
-                Page p = iterator.next();
+            ArrayList<Page> mPages = new ArrayList<>(pages);
+            for (Page p: mPages) {
                 jPages.put(p.toJSON());
             }
             json.put("pages",jPages);
