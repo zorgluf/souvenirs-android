@@ -1,0 +1,1 @@
+Fix: Concurrent access on album save
