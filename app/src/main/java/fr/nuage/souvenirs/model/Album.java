@@ -21,10 +21,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -33,23 +33,23 @@ public class Album {
     public static final String DATA_DIR = "data";
     public static final String CONFFILE = "album.json";
 
-    private String albumPath;
-    private MutableLiveData<String> ldName = new MutableLiveData<>();
+    private final String albumPath;
+    private final MutableLiveData<String> ldName = new MutableLiveData<>();
     private String name;
-    private MutableLiveData<ArrayList<Page>> ldPages = new MutableLiveData<>();
+    private final MutableLiveData<ArrayList<Page>> ldPages = new MutableLiveData<>();
     private ArrayList<Page> pages = new ArrayList<Page>();
     private Date pagesLastEditDate;
-    private MutableLiveData<Date> ldPagesLastEditDate = new MutableLiveData<>();
+    private final MutableLiveData<Date> ldPagesLastEditDate = new MutableLiveData<>();
     private Date pagesLastSyncDate;
     private Date date;
-    private MutableLiveData<Date> ldDate = new MutableLiveData<>();
+    private final MutableLiveData<Date> ldDate = new MutableLiveData<>();
     private Date lastEditDate;
-    private MutableLiveData<Date> ldLastEditDate = new MutableLiveData<>();
+    private final MutableLiveData<Date> ldLastEditDate = new MutableLiveData<>();
     private UUID id;
     private String albumImage;
-    private MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
+    private final MutableLiveData<String> ldAlbumImage = new MutableLiveData<>();
     private int elementMargin = 1;
-    private MutableLiveData<Integer> ldElementMargin = new MutableLiveData<>();
+    private final MutableLiveData<Integer> ldElementMargin = new MutableLiveData<>();
     private boolean unsavedModifications = false;
 
 
@@ -136,7 +136,7 @@ public class Album {
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            json = new JSONObject(new String(buffer, "UTF-8"));
+            json = new JSONObject(new String(buffer, StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
             Log.w(this.getClass().getSimpleName(),"File "+this.albumPath+"/"+CONFFILE+" not found.");
             return false;

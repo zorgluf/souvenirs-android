@@ -142,6 +142,10 @@ public class Albums {
         newAlbum.setID(albumId);
         //set empty pages
         newAlbum.setPages(new ArrayList<>());
+        //set date
+        newAlbum.setDate(new Date());
+        //update livedata
+        newAlbum.updateAllLiveDataObject();
         //update list
         albumList.add(newAlbum);
         setAlbumList(albumList);

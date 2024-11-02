@@ -402,29 +402,36 @@ public class EditPageFragment extends Fragment {
         switch (requestCode) {
             case ACTIVITY_ADD_FILE:
                 if (resultCode == Activity.RESULT_OK) {
-                    ArrayList<Uri> uris = new ArrayList<>();
-                    ClipData clipdata = data.getClipData();
-                    if (clipdata == null) {
-                        uris.add(data.getData());
-                    } else {
-                        //handle multiple uri
-                        for (int i = 0; i < clipdata.getItemCount(); i++) {
-                            uris.add(clipdata.getItemAt(i).getUri());
+                    //TODO : make UI wheels
+                    Thread thread = new Thread() {
+                        @Override
+                        public void run() {
+                            ArrayList<Uri> uris = new ArrayList<>();
+                            ClipData clipdata = data.getClipData();
+                            if (clipdata == null) {
+                                uris.add(data.getData());
+                            } else {
+                                //handle multiple uri
+                                for (int i = 0; i < clipdata.getItemCount(); i++) {
+                                    uris.add(clipdata.getItemAt(i).getUri());
+                                }
+                            }
+                            for (Uri uri: uris) {
+                                InputStream input = TilePageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
+                                String mime = requireActivity().getContentResolver().getType(uri);
+                                //extract name and size
+                                Div.NameSize nameSize = getNameAndSizeFromUri(uri,getActivity().getContentResolver());
+                                if (mime.startsWith("image")) {
+                                    albumVM.getFocusPage().addImage(input,mime,nameSize.name,nameSize.size);
+                                } else if (mime.startsWith("video")) {
+                                    albumVM.getFocusPage().addVideo(input,mime,nameSize.name,nameSize.size);
+                                } else if (mime.startsWith("audio")) {
+                                    albumVM.getFocusPage().addAudio(input,mime);
+                                }
+                            }
                         }
-                    }
-                    for (Uri uri: uris) {
-                        InputStream input = TilePageBuilder.getInputStreamFromUri(requireActivity().getContentResolver(), uri);
-                        String mime = requireActivity().getContentResolver().getType(uri);
-                        //extract name and size
-                        Div.NameSize nameSize = getNameAndSizeFromUri(uri,getActivity().getContentResolver());
-                        if (mime.startsWith("image")) {
-                            albumVM.getFocusPage().addImage(input,mime,nameSize.name,nameSize.size);
-                        } else if (mime.startsWith("video")) {
-                            albumVM.getFocusPage().addVideo(input,mime,nameSize.name,nameSize.size);
-                        } else if (mime.startsWith("audio")) {
-                            albumVM.getFocusPage().addAudio(input,mime);
-                        }
-                    }
+                    };
+                    thread.start();
                 }
                 break;
             case ACTIVITY_ADD_PHOTO:
