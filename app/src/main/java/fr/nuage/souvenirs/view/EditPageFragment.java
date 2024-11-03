@@ -20,11 +20,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
@@ -402,6 +404,11 @@ public class EditPageFragment extends Fragment {
         switch (requestCode) {
             case ACTIVITY_ADD_FILE:
                 if (resultCode == Activity.RESULT_OK) {
+                    //launch progress dialog
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.getActivity());
+                    AlertDialog dialog = alertBuilder.setCancelable(false)
+                            .setView(new ProgressBar(this.getActivity(),null,android.R.attr.progressBarStyleLarge)).create();
+                    dialog.show();
                     //TODO : make UI wheels
                     Thread thread = new Thread() {
                         @Override
@@ -429,6 +436,7 @@ public class EditPageFragment extends Fragment {
                                     albumVM.getFocusPage().addAudio(input,mime);
                                 }
                             }
+                            dialog.dismiss();
                         }
                     };
                     thread.start();
