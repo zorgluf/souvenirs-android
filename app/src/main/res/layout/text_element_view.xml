@@ -7,6 +7,7 @@
         <variable name="element" type="fr.nuage.souvenirs.viewmodel.TextElementViewModel"/>
         <variable name="album" type="fr.nuage.souvenirs.viewmodel.AlbumViewModel" />
         <import type="fr.nuage.souvenirs.view.DataBindingAdapters" />
+        <import type="android.graphics.Typeface" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,9 +29,11 @@
             android:id="@+id/text_element"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@{element.text}"
+            android:text='@{ element.text.equals("") ? @string/text_element_hint : element.text }'
             android:textAlignment="center"
             android:textAppearance="@style/AppTheme.AlbumTextDefault"
+            android:typeface='@{Typeface.defaultFromStyle(element.text.equals("") ? Typeface.ITALIC : Typeface.NORMAL)}'
+            android:textColor='@{ element.text.equals("") ? @color/textHint : @color/textDefault }'
             app:autoSizeMinTextSize="2sp"
             app:autoSizeMaxTextSize="1000sp"
             app:autoSizeTextType="uniform"
@@ -40,7 +43,6 @@
             app:layout_constraintTop_toBottomOf="parent"
             is_selected="@{element.isSelected}"
             android:tag="@{element.id}"
-            android:hint="@string/text_element_hint"
             tools:text="texte">
 
         </fr.nuage.souvenirs.view.TextElementView>
