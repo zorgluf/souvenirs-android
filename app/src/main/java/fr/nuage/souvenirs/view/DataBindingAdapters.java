@@ -54,6 +54,19 @@ public class DataBindingAdapters {
         }
     }
 
+    @BindingAdapter(value = { "srcCompat"}, requireAll=false)
+    public static void setSrcCompatZoomOffset(ImageView view, String imagePath) {
+        if (imagePath != null) {
+            if (imagePath.equals("")) {
+                view.setImageDrawable(ContextCompat.getDrawable(view.getContext(),R.drawable.ic_image_black_24dp));
+            } else {
+                Glide.with(view.getContext()).load(new File(imagePath)).into(view);
+            }
+        } else {
+            view.setImageDrawable(null);
+        }
+    }
+
     @BindingAdapter(value = { "srcCompat" }, requireAll=false)
     public static void setSrcCompatZoomOffset(PaintElementView view, String imagePath) {
         if (imagePath != null) {

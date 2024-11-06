@@ -26,6 +26,14 @@
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="parent">
 
+        <ImageView
+            android:id="@+id/image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.2"
+            app:srcCompat="@{element.zoom >= 100 ? null : element.imagePath}"
+            tools:visibility="visible" />
+
         <fr.nuage.souvenirs.view.ImageElementView
             android:id="@+id/image_imageview"
             android:layout_width="match_parent"
