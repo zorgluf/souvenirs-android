@@ -7,6 +7,7 @@
         <import type="fr.nuage.souvenirs.model.ImageElement" />
         <import type="fr.nuage.souvenirs.viewmodel.VideoElementViewModel" />
         <import type="android.view.View"/>
+        <import type="android.widget.ImageView"/>
         <variable name="element" type="fr.nuage.souvenirs.viewmodel.VideoElementViewModel"/>
         <variable name="album" type="fr.nuage.souvenirs.viewmodel.AlbumViewModel" />
         <import type="fr.nuage.souvenirs.view.DataBindingAdapters" />
@@ -26,6 +27,15 @@
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="parent"
         >
+
+        <ImageView
+            android:id="@+id/image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.2"
+            android:scaleType="centerCrop"
+            app:srcCompat="@{element.zoom >= 100 ? null : element.imagePath}"
+            tools:visibility="visible" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -51,14 +61,9 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:alpha="0.5"
-            android:visibility="@{(element instanceof VideoElementViewModel) ? View.VISIBLE : View.GONE }"
             app:layout_constraintDimensionRatio="h,1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:scaleType="@{element.transformType}"
-            android:scaleX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.zoom : null }'
-            android:scrollX='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetX : null }'
-            android:scrollY='@{element.transformType.equals(ImageElement.ZOOM_OFFSET) ? element.offsetY : null }'
             app:srcCompat="@drawable/ic_baseline_videocam_24"
             app:tint="@color/secondaryColor"
             tools:visibility="visible" />

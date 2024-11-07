@@ -15,13 +15,11 @@ import androidx.databinding.BindingAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import fr.nuage.souvenirs.R;
-import fr.nuage.souvenirs.model.Element;
 import fr.nuage.souvenirs.model.ImageElement;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.ElementViewModel;
@@ -54,8 +52,11 @@ public class DataBindingAdapters {
         }
     }
 
-    @BindingAdapter(value = { "srcCompat"}, requireAll=false)
-    public static void setSrcCompatZoomOffset(ImageView view, String imagePath) {
+    @BindingAdapter(value = { "srcCompat" }, requireAll=false)
+    public static void setSrcCompat(ImageView view, String imagePath) {
+        if (view instanceof ImageElementView) {
+            return;
+        }
         if (imagePath != null) {
             if (imagePath.equals("")) {
                 view.setImageDrawable(ContextCompat.getDrawable(view.getContext(),R.drawable.ic_image_black_24dp));
