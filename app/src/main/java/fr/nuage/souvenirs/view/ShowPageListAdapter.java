@@ -145,6 +145,7 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                         binding.imageVideoview.setScaleX(1f / scaleX);
                                         binding.imageVideoview.setScaleY(1f / scaleX);
                                     }
+                                    binding.imageVideoview.setOnPreparedListener(null);
                                 });
                             } else {
                                 binding.imageVideoview.setOnPreparedListener(null);
