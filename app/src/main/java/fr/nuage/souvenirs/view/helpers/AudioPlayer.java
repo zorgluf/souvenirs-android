@@ -69,8 +69,12 @@ public class AudioPlayer implements View.OnScrollChangeListener {
             RecyclerView.LayoutManager layoutManager = ((RecyclerView)view).getLayoutManager();
             if (layoutManager instanceof LinearLayoutManager) {
                 int firstPos = ((LinearLayoutManager)layoutManager).findFirstCompletelyVisibleItemPosition();
+                int lastPos = ((LinearLayoutManager)layoutManager).findLastCompletelyVisibleItemPosition();
                 if (firstPos == -1) {
                     return;
+                }
+                if (lastPos == albumViewModel.getSize()-1) {
+                    firstPos = lastPos;
                 }
                 //for audio
                 if ((lastPosition < firstPos) || (firstPos == 0)) {
