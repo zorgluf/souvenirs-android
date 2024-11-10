@@ -12,11 +12,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -70,6 +75,10 @@ public class ShowAlbumFragment extends Fragment {
         //init audio player
         audioPlayer = new AudioPlayer(albumVM);
         pageListRecyclerView.setOnScrollChangeListener(audioPlayer);
+        //hide status bar
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(getActivity().getWindow(), getActivity().getWindow().getDecorView());
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars());
     }
 
     @Override
@@ -80,6 +89,10 @@ public class ShowAlbumFragment extends Fragment {
         if (getActivity().getClass().equals(AlbumListActivity.class)) {
             ((AlbumListActivity)getActivity()).transparentAppbar(false);
         }
+        //restore status bar
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(getActivity().getWindow(), getActivity().getWindow().getDecorView());
+        windowInsetsController.show(WindowInsetsCompat.Type.statusBars());
         super.onStop();
     }
 
@@ -157,7 +170,7 @@ public class ShowAlbumFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_show_album, menu);
         if (!albumVM.hasNCAlbum()) {
             MenuItem shareMenu = menu.findItem(R.id.share_via_nextcloud);
