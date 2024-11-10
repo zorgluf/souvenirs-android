@@ -45,6 +45,7 @@ public class AlbumListViewModel extends AndroidViewModel {
         //albumViewModels = new CopyOnWriteArrayList<>(new ArrayList<>());
         albumViewModels = new ArrayList<>();
         //build livedata and load album list
+        updateAlbumList();
         albumList.addSource(albums.getLiveDataAlbumList(), albums -> updateAlbumList());
         //load NC albums
         NCUtils.getIsNCEnable().observeForever(aBoolean -> {
@@ -138,19 +139,19 @@ public class AlbumListViewModel extends AndroidViewModel {
             }
         }
         //check if some album are deleted
-        Iterator<AlbumViewModel> itAVM = albumViewModels.iterator();
-        while (itAVM.hasNext()) {
-            AlbumViewModel avm = itAVM.next();
+        ArrayList<AlbumViewModel> aVM = new ArrayList<>(albumViewModels);
+        for(int i = 0; i<aVM.size(); i++) {
+            AlbumViewModel avm = aVM.get(i);
             if ((avm.getAlbum()!=null) && (!albums.isInAlbumList(avm.getAlbum().getId()))) {
-                avm.setAlbum(null);
+                albumViewModels.get(i).setAlbum(null);
             }
             if (albumsNC != null) {
                 if ((avm.getAlbumNC()!=null) && (!albumsNC.isInAlbumList(avm.getAlbumNC().getId()))) {
-                    avm.setAlbumNC(null);
+                    albumViewModels.get(i).setAlbum(null);
                 }
             }
             if ((avm.getAlbum() == null) && (avm.getAlbumNC() == null))  {
-                    itAVM.remove();
+                    albumViewModels.remove(i);
             }
         }
         sortAlbumList();
