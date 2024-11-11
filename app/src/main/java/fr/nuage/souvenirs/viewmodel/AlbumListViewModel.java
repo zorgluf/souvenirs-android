@@ -99,7 +99,8 @@ public class AlbumListViewModel extends AndroidViewModel {
         for (Album a: albums.getAlbumList()) {
             //check if exists in list
             boolean albumExists = false;
-            for (AlbumViewModel avm: albumViewModels) {
+            for(int i = 0; i<albumViewModels.size(); i++) {
+                AlbumViewModel avm = albumViewModels.get(i);
                 if (a.getId().equals(avm.getId())) {
                     albumExists = true;
                     //check if album is present in VM
@@ -147,7 +148,7 @@ public class AlbumListViewModel extends AndroidViewModel {
             }
             if (albumsNC != null) {
                 if ((avm.getAlbumNC()!=null) && (!albumsNC.isInAlbumList(avm.getAlbumNC().getId()))) {
-                    albumViewModels.get(i).setAlbum(null);
+                    albumViewModels.get(i).setAlbumNC(null);
                 }
             }
             if ((avm.getAlbum() == null) && (avm.getAlbumNC() == null))  {

@@ -3,6 +3,7 @@ package fr.nuage.souvenirs.viewmodel;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -51,6 +52,7 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
         } else {
             album.setSyncInProgress(true);
         }
+        nBuilder = createNotification();
     }
 
     @Override
@@ -311,15 +313,23 @@ public class SyncToNextcloudAsyncTask extends AsyncTask<Void, Integer, Integer> 
     protected void onPreExecute() {
         //show progress bar in notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        nBuilder = new NotificationCompat.Builder(context, AlbumListActivity.CHANNEL_ID);
-        nBuilder.setContentTitle(context.getString(R.string.sync_to_nextcloud,albumVM.getName().getValue()))
+        nBuilder.setProgress(1, 0, true);
+        notificationManager.notify(notificationId, nBuilder.build());
+        Log.i(getClass().getName(),context.getString(R.string.sync_to_nextcloud,albumVM.getName().getValue()));
+    }
+
+    private NotificationCompat.Builder createNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, AlbumListActivity.CHANNEL_ID);
+        builder.setContentTitle(context.getString(R.string.sync_to_nextcloud,albumVM.getName().getValue()))
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_sync_black_24dp);
-        nBuilder.setProgress(1, 0, true);
-        notificationManager.notify(notificationId, nBuilder.build());
-        Log.i(getClass().getName(),context.getString(R.string.sync_to_nextcloud,albumVM.getName().getValue()));
+        return builder;
+    }
+
+    public Notification getNotification() {
+        return nBuilder.build();
     }
 
     @Override

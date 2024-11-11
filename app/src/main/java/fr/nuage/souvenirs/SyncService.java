@@ -1,8 +1,17 @@
 package fr.nuage.souvenirs;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+
 import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
+import android.os.IBinder;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.ServiceCompat;
 
 import java.util.UUID;
 
@@ -10,29 +19,14 @@ import fr.nuage.souvenirs.viewmodel.AlbumListViewModelFactory;
 import fr.nuage.souvenirs.viewmodel.AlbumViewModel;
 import fr.nuage.souvenirs.viewmodel.SyncToNextcloudAsyncTask;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * helper methods.
- */
-public class SyncService extends IntentService {
+public class SyncService extends Service {
 
     // IntentService can perform
     private static final String ACTION_SYNC = "fr.nuage.souvenirs.action.SYNC";
 
     private static final String EXTRA_PARAM_ALBUMID = "fr.nuage.souvenirs.extra.PARAM_ALBUMID";
 
-    public SyncService() {
-        super("SyncService");
-    }
 
-    /**
-     * Starts this service to perform action sync with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
     public static void startSync(Context context, AlbumViewModel albumViewModel) {
         Intent intent = new Intent(context, SyncService.class);
         intent.setAction(ACTION_SYNC);
@@ -41,28 +35,40 @@ public class SyncService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand (Intent intent,
+                               int flags,
+                               int startId) {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_SYNC.equals(action)) {
-                final String albumId = intent.getStringExtra(EXTRA_PARAM_ALBUMID);
-                handleActionSync(albumId);
+                //check id
+                UUID id = UUID.fromString(intent.getStringExtra(EXTRA_PARAM_ALBUMID));
+                if (id != null) {
+                    AlbumViewModel albumViewModel = AlbumListViewModelFactory.getAlbumListViewModel().getAlbum(id);
+                    SyncToNextcloudAsyncTask task = new SyncToNextcloudAsyncTask(getApplication().getApplicationContext(),albumViewModel);
+                    //make forground
+                    int type = 0;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        type = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+                    }
+                    ServiceCompat.startForeground(
+                            this,
+                            100,
+                            task.getNotification(),
+                            type
+                    );
+                    //start sync to nextcloud task
+                    task.execute();
+                }
             }
         }
+        return START_NOT_STICKY;
     }
 
-    /**
-     * Handle action Sync in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionSync(String albumId) {
-        UUID id = UUID.fromString(albumId);
-        if (id != null) {
-            AlbumViewModel albumViewModel = AlbumListViewModelFactory.getAlbumListViewModel().getAlbum(id);
-            //start sync to nextcloud task
-            SyncToNextcloudAsyncTask task = new SyncToNextcloudAsyncTask(getApplication().getApplicationContext(),albumViewModel);
-            task.execute();
-        }
-    }
 
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 }
