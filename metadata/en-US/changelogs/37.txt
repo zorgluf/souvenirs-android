@@ -1,0 +1,9 @@
+Change: remove status bar in album view mode
+Fix: Album disposition of element on a fresh new album
+Fix: Multiple panoramic photo in one album
+Fix: Spinning wheel on large file share into album
+Fix: Background sync job killed. Now using frontend service
+Fix: Video scale in view mode
+Fix: Crash on sharing media to Souvenir app
+Fix: Blurred background if image/video smaller than element
+Fix: Video playing if last page of an album
