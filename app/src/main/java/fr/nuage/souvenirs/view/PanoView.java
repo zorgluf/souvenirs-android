@@ -88,7 +88,7 @@ public class PanoView extends WebView {
         return ("/image/" + tempPanoFile.getName());
     }
 
-    private static class LocalContentWebViewClient extends WebViewClientCompat {
+    private class LocalContentWebViewClient extends WebViewClientCompat {
 
         private final WebViewAssetLoader mAssetLoader;
 
@@ -104,7 +104,7 @@ public class PanoView extends WebView {
 
     }
 
-    public static class WebAppInterface {
+    public class WebAppInterface {
 
         PanoView panoView;
 
@@ -114,12 +114,7 @@ public class PanoView extends WebView {
 
         @JavascriptInterface
         public void fullScreen() {
-            new Handler(Looper.getMainLooper()).post(new Runnable(){
-                @Override
-                public void run() {
-                    panoView.performClick();
-                }
-            });
+            new Handler(Looper.getMainLooper()).post(() -> panoView.performClick());
 
         }
     }
