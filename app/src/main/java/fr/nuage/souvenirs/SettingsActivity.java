@@ -104,7 +104,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             try {
                 AccountImporter.onActivityResult(requestCode, resultCode, data, this, account -> {
-                    SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
+                    SingleAccountHelper.commitCurrentAccount(getActivity(), account.name);
                     SingleSignOnAccount ssoAccount = null;
                     try {
                         ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getContext());

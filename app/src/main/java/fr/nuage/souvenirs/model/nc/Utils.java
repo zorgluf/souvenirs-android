@@ -36,7 +36,7 @@ public class Utils {
             OutputStream outputStream = null;
             try {
                 byte[] fileReader = new byte[4096];
-                inputStream = APIProvider.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+                inputStream = APIProvider.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody();
                 outputStream = new FileOutputStream(new File(localFolderPath,localFileName));
                 while (true) {
                     int read = inputStream.read(fileReader);
@@ -72,7 +72,7 @@ public class Utils {
                     .setUrl(Uri.encode("/remote.php/webdav/"+remoteFile,"/"))
                     .setRequestBodyAsStream(inputStream)
                     .build();
-            APIProvider.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            APIProvider.getNextcloudApi().performNetworkRequestV2(nextcloudRequest);
             return true;
         } catch (Exception e) {
             Log.w("Download file",e);
