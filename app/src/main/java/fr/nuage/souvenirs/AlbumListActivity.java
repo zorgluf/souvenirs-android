@@ -18,7 +18,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.chooser.ChooserTarget;
+import android.view.View;
+import android.view.WindowInsets;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -28,7 +31,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -71,6 +76,17 @@ public class AlbumListActivity extends AppCompatActivity  {
         setSupportActionBar(toolbar);
         NavigationUI.setupWithNavController(toolbar,navController);
 
+        findViewById(R.id.appbarlayout).setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsets onApplyWindowInsets(@NonNull View view, @NonNull WindowInsets windowInsets) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    android.graphics.Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    view.setPadding(0, systemBars.top, 0, 0);
+                }
+                return windowInsets;
+            }
+        });
     }
 
     private void updateShorcuts() {
