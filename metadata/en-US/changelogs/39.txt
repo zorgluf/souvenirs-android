@@ -1,0 +1,1 @@
+Fix: API 35 (android 15) application bar display
