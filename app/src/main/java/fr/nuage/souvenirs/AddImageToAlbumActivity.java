@@ -1,13 +1,19 @@
 package fr.nuage.souvenirs;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.widget.ProgressBar;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDeepLinkBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -76,7 +82,16 @@ public class AddImageToAlbumActivity extends AppCompatActivity implements Albums
             onListFragmentInteraction(album,false,false);
         } else {
             //set content view
+            EdgeToEdge.enable(this,
+                    SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+                    SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+            );
             setContentView(R.layout.activity_add_image_to_album);
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.add_image_to_album_layout), (v, windowInsets) -> {
+                Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return windowInsets;
+            });
             //link to adapter
             RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));

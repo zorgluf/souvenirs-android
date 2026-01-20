@@ -21,6 +21,8 @@ import android.service.chooser.ChooserTarget;
 import android.view.View;
 import android.view.WindowInsets;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -76,13 +78,17 @@ public class AlbumListActivity extends AppCompatActivity  {
         setSupportActionBar(toolbar);
         NavigationUI.setupWithNavController(toolbar,navController);
 
+        EdgeToEdge.enable(this,
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+        );
         findViewById(R.id.appbarlayout).setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @NonNull
             @Override
             public WindowInsets onApplyWindowInsets(@NonNull View view, @NonNull WindowInsets windowInsets) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                     android.graphics.Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    view.setPadding(0, systemBars.top, 0, 0);
+                    view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
                 }
                 return windowInsets;
             }
