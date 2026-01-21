@@ -1,0 +1,3 @@
+New Feature: "vignette" disposition for 2 elements
+Fix: Notifications on nextcloud sync background task
+Fix: System bar color
