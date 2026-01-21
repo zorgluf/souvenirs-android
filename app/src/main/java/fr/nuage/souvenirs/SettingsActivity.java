@@ -63,7 +63,7 @@ public class SettingsActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root_settings), (v, windowInsets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.appbarlayout), (v, windowInsets) -> {
             Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return windowInsets;
