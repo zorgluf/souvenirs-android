@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:context=".AddImageToAlbumActivity">
+    tools:context=".AddImageToAlbumActivity"
+    android:id="@+id/add_image_to_album_layout">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout

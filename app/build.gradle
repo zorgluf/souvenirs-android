@@ -8,19 +8,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.7.7"
     }
 }
 
 android {
-    compileSdk 35
+    compileSdkVersion 35
     defaultConfig {
         applicationId "fr.nuage.souvenirs"
         minSdkVersion 24
         targetSdkVersion 35
-        versionCode 39
-        versionName "2.9.5"
+        versionCode 40
+        versionName "2.10.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "souvenirs-$versionName")
     }
@@ -78,6 +78,6 @@ dependencies {
 
 buildscript {
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
     }
 }

@@ -4,7 +4,6 @@ import static fr.nuage.souvenirs.view.helpers.Div.getNameAndSizeFromUri;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +45,17 @@ public class TilePageBuilder {
                     // 2 H
                     { 0, 0, 50, 100 },
                     { 50, 0, 100, 100 }
+            },
+            {
+                    // 2 vignette
+                    { 0, 0, 100, 100 },
+                    { 50, 0, 100, 50 }
+            },
+            {
+                    // 2 vignette R
+                    { 50, 0, 100, 50 },
+                    { 0, 0, 100, 100 }
+
             },
             {
                     // 3 1H + 2H
@@ -90,15 +100,15 @@ public class TilePageBuilder {
         cs.clone(pageView);
         for (Object[] elDef: getPageStyleMap()[style]) {
             ConstraintLayout elView = (ConstraintLayout) inflater.inflate(R.layout.element_preview,pageView,false);
-            ImageView im = (ImageView) elView.findViewById(R.id.preview_el_image);
+            ImageView im = elView.findViewById(R.id.preview_el_image);
             im.setImageDrawable(ContextCompat.getDrawable(parentView.getContext(),R.drawable.ic_image_black_24dp));
-            Guideline left = (Guideline) elView.findViewById(R.id.guideline_left);
+            Guideline left = elView.findViewById(R.id.guideline_left);
             left.setGuidelinePercent(((Integer)elDef[0]).floatValue()/100);
-            Guideline top = (Guideline) elView.findViewById(R.id.guideline_top);
+            Guideline top = elView.findViewById(R.id.guideline_top);
             top.setGuidelinePercent(((Integer)elDef[1]).floatValue()/100);
-            Guideline right = (Guideline) elView.findViewById(R.id.guideline_right);
+            Guideline right = elView.findViewById(R.id.guideline_right);
             right.setGuidelinePercent(((Integer)elDef[2]).floatValue()/100);
-            Guideline bottom = (Guideline) elView.findViewById(R.id.guideline_bottom);
+            Guideline bottom = elView.findViewById(R.id.guideline_bottom);
             bottom.setGuidelinePercent(((Integer)elDef[3]).floatValue()/100);
             elView.setId(View.generateViewId());
             pageView.addView(elView);
@@ -168,14 +178,14 @@ public class TilePageBuilder {
         int defStyle = getDefaultStyle(page);
         if (defStyle == -1) {
             //if no default, grid style
-            int columns=(int)Math.ceil(Math.sqrt((double)page.getElements().size()));
+            int columns=(int)Math.ceil(Math.sqrt(page.getElements().size()));
             int rows=(int)Math.ceil((double)page.getElements().size()/(double)columns);
             for (int i=0;i<page.getElements().size();i++) {
                 Element el = page.getElements().get(i);
                 el.setTop((int)((double)(i/columns)*100/rows));
                 el.setBottom((int)((((double)(i/columns))+1)*100/rows));
-                el.setLeft((int)((double)(i%columns)*(100/columns)));
-                el.setRight((int)((double)((i%columns)+1)*(100/columns)));
+                el.setLeft((int)((double)(i%columns)*((double) 100 /columns)));
+                el.setRight((int)((double)((i%columns)+1)*((double) 100 /columns)));
             }
         } else {
             applyStyle(defStyle,page);
