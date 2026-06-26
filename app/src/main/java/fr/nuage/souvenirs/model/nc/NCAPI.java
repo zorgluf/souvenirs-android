@@ -32,7 +32,7 @@ public interface NCAPI {
         Call<String> deleteAlbum(@Path("id") String id);
 
         @POST("album/{id}")
-        Call<String> modifyAlbum(@Path("id") String id, @Body APIProvider.AlbumResp albumResp);
+        Call<APIProvider.EditDatesResp> modifyAlbum(@Path("id") String id, @Body APIProvider.AlbumResp albumResp);
 
         @GET("album/{id}/clean")
         Call<String> cleanAlbum(@Path("id") String id);
@@ -45,16 +45,16 @@ public interface NCAPI {
                                                         @Query("asset_name") String assetName, @Query("asset_size") int asset_size);
 
         @PUT("album/{id}/page/{page_pos}")
-        Call<String> createPage(@Path("id") String id, @Path("page_pos") int pagePos, @Body APIProvider.PageResp page);
+        Call<APIProvider.EditDatesResp> createPage(@Path("id") String id, @Path("page_pos") int pagePos, @Body APIProvider.PageResp page);
 
         @POST("album/{id}/page/{page_id}")
-        Call<String> modifyPage(@Path("id") String id, @Path("page_id") String pageId, @Body APIProvider.PageResp page);
+        Call<APIProvider.EditDatesResp> modifyPage(@Path("id") String id, @Path("page_id") String pageId, @Body APIProvider.PageResp page);
 
         @DELETE("album/{id}/page/{page_id}")
-        Call<String> deletePage(@Path("id") String id, @Path("page_id") String pageId);
+        Call<APIProvider.EditDatesResp> deletePage(@Path("id") String id, @Path("page_id") String pageId);
 
         @POST("album/{id}/page/{page_id}/pos/{page_pos}")
-        Call<String> movePage(@Path("id") String id, @Path("page_id") String pageId, @Path("page_pos") int pagePos);
+        Call<APIProvider.EditDatesResp> movePage(@Path("id") String id, @Path("page_id") String pageId, @Path("page_pos") int pagePos);
 
         @POST("share")
         Call<String> createShare(@Field("albumId") String albumId);

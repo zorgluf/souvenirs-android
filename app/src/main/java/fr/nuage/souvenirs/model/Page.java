@@ -2,6 +2,7 @@ package fr.nuage.souvenirs.model;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import org.json.JSONArray;
@@ -22,7 +23,11 @@ public class Page {
     private ArrayList<Element> elementsList;
     private Album albumParent;
     private UUID id;
+    //token set exclusively by the nextcloud server, stored locally for sync comparison
     private Date lastEditDate;
+    //dirty flag: page content modified locally and not yet pushed to nextcloud
+    private boolean isEdited = false;
+    private final MutableLiveData<Boolean> ldIsEdited = new MutableLiveData<>();
 
 
     public Page() {
@@ -111,7 +116,10 @@ public class Page {
                 elements.put(p.toJSON());
             }
             json.put("elements",elements);
-            json.put("lastEditDate",new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(lastEditDate));
+            if (lastEditDate != null) {
+                json.put("lastEditDate",new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(lastEditDate));
+            }
+            json.put("isEdited", isEdited);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -143,9 +151,14 @@ public class Page {
             try {
                 setLastEditDate(new SimpleDateFormat("yyyyMMddHHmmss",Locale.FRANCE).parse(jsonObject.getString("lastEditDate")));
             } catch (Exception e) {
-                setLastEditDate(new Date());
+                setLastEditDate(null);
             }
+        } else {
+            setLastEditDate(null);
         }
+        //isEdited is absent from server payloads (PageNC), so a pulled page is clean
+        isEdited = jsonObject.optBoolean("isEdited", false);
+        ldIsEdited.postValue(isEdited);
     }
 
     public ArrayList<Element> getElements() {
@@ -178,10 +191,25 @@ public class Page {
     }
 
     public void onChange() {
-        setLastEditDate(new Date());
+        //page content modified locally: mark this page dirty, but NOT the album page array.
+        //lastEditDate is no longer stamped locally; it is a server-assigned token.
+        setEdited(true);
+    }
+
+    public boolean isEdited() {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited) {
+        isEdited = edited;
+        ldIsEdited.postValue(edited);
         if (albumParent != null) {
-            albumParent.onPageChange();
+            albumParent.onChange();
         }
+    }
+
+    public LiveData<Boolean> getLdIsEdited() {
+        return ldIsEdited;
     }
 
     public void moveUp() {

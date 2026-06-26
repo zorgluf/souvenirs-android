@@ -152,13 +152,13 @@ public class AlbumNC {
             albumResp.id = getId();
             albumResp.albumImage = getAlbumImage();
             albumResp.date = getDate();
-            albumResp.lastEditDate = getLastEditDate();
             albumResp.name = getName();
-            albumResp.pagesLastEditDate = getPagesLastEditDate();
             albumResp.defaultStyle = getDefaultStyle();
             albumResp.elementMargin = getElementMargin();
-            String result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
-            if ((result != null) && (result.equals("OK"))) {
+            //lastEditDate / pagesLastEditDate are server-managed: do not send them, read them back
+            APIProvider.EditDatesResp result = APIProvider.getApi().modifyAlbum(getId().toString(), albumResp).execute().body();
+            if (result != null) {
+                setLastEditDate(result.lastEditDate);
                 setState(STATE_OK);
                 return true;
             } else {
@@ -185,8 +185,9 @@ public class AlbumNC {
 
     public boolean delPage(PageNC pageNC) {
         try {
-            String result = APIProvider.getApi().deletePage(getId().toString(),pageNC.getId().toString()).execute().body();
-            if ((result != null) && (result.equals("OK"))) {
+            APIProvider.EditDatesResp result = APIProvider.getApi().deletePage(getId().toString(),pageNC.getId().toString()).execute().body();
+            if (result != null) {
+                setPagesLastEditDate(result.pageLastEditDate);
                 //update local object
                 ArrayList<PageNC> tmp = pages;
                 tmp.remove(pageNC);
@@ -226,8 +227,10 @@ public class AlbumNC {
             return false;
         }
         try {
-            String result = APIProvider.getApi().createPage(getId().toString(),index,pageNC.generatePageResp()).execute().body();
-            if ((result != null) && (result.equals("OK"))) {
+            APIProvider.EditDatesResp result = APIProvider.getApi().createPage(getId().toString(),index,pageNC.generatePageResp()).execute().body();
+            if (result != null) {
+                pageNC.setLastEditDate(result.lastEditDate);
+                setPagesLastEditDate(result.pageLastEditDate);
                 //update local object
                 pages.add(index, pageNC);
                 setState(STATE_OK);
@@ -422,8 +425,9 @@ public class AlbumNC {
 
     public boolean movePage(PageNC pageNC, int pos) {
         try {
-            String result = APIProvider.getApi().movePage(getId().toString(),pageNC.getId().toString(),pos).execute().body();
-            if ((result != null) && (result.equals("OK"))) {
+            APIProvider.EditDatesResp result = APIProvider.getApi().movePage(getId().toString(),pageNC.getId().toString(),pos).execute().body();
+            if (result != null) {
+                setPagesLastEditDate(result.pageLastEditDate);
                 //update local page list
                 ArrayList<PageNC> tmp = pages;
                 int old_pos = getIndex(pageNC);
@@ -505,8 +509,9 @@ public class AlbumNC {
 
         //save page content
         try {
-            String result = APIProvider.getApi().modifyPage(getId().toString(),remotePage.getId().toString(),remotePage.generatePageResp()).execute().body();
-            if ((result != null) && (result.equals("OK"))) {
+            APIProvider.EditDatesResp result = APIProvider.getApi().modifyPage(getId().toString(),remotePage.getId().toString(),remotePage.generatePageResp()).execute().body();
+            if (result != null) {
+                remotePage.setLastEditDate(result.lastEditDate);
                 Log.d(getClass().getName(),String.format("Page %1$s uploaded.",getId().toString()));
                 setState(STATE_OK);
                 return true;
