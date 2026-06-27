@@ -1,0 +1,1 @@
+Change: New sync logic with nextcloud server (need v2+ of souvenirs nextcloud app)
