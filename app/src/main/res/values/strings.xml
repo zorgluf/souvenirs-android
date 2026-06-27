@@ -12,6 +12,12 @@
     <string name="action_menu_image_delete">delete</string>
     <string name="channel_name">souvenir</string>
     <string name="channel_description">notification channel for souvenir application</string>
+    <string name="channel_alert_name">Souvenirs sync alerts</string>
+    <string name="channel_alert_description">Alerts that need your attention, such as Nextcloud sync conflicts</string>
+    <string name="nextcloud_conflict_title">Sync conflict: %1$s</string>
+    <string name="nextcloud_conflict_bigtext">\"%1$s\" was modified both on this device and on Nextcloud. Choose which version to keep — the other one will be overwritten.</string>
+    <string name="nextcloud_conflict_keep_local">Keep this device</string>
+    <string name="nextcloud_conflict_keep_remote">Keep Nextcloud</string>
     <string name="notification_pdf_creation_text_end">PDF is ready</string>
     <string name="edit_menu">Edit</string>
     <string name="text_element_hint">Insert your text here…</string>
@@ -38,6 +44,7 @@
     <string name="sync_create_remote_album">Create Nextcloud album</string>
     <string name="nextcloud_notification_err">Error with Nextcloud communications.</string>
     <string name="nextcloud_notification_finish_ok">Nextcloud album sync finished !</string>
+    <string name="nextcloud_notification_conflict">Sync conflict: album modified both locally and on Nextcloud. Needs resolution.</string>
     <string name="sync_album_info_to_nc">Sync local album info to nextcloud</string>
     <string name="sync_album_info_to_local">Sync album\'s info from nextcloud</string>
     <string name="sync_fetch_remote_album">Fetching Nextcloud album</string>

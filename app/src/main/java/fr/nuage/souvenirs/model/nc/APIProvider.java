@@ -87,6 +87,8 @@ public class APIProvider {
         String name;
         Date date;
         Date lastEditDate;
+        //server spells the page-array timestamp "pageLastEditDate" (singular)
+        @SerializedName("pageLastEditDate")
         Date pagesLastEditDate;
         String albumImage;
         boolean isShared;
@@ -94,6 +96,14 @@ public class APIProvider {
         String defaultStyle;
         List<PageResp> pages;
         int elementMargin;
+    }
+
+    //response body returned by every modification request: the server stamps the relevant
+    //timestamp(s) and returns them. Fields are null when not applicable to the request.
+    public static class EditDatesResp {
+        Date lastEditDate;
+        @SerializedName("pageLastEditDate")
+        Date pageLastEditDate;
     }
 
     public static class PageResp {

@@ -12,6 +12,12 @@
     <string name="action_menu_image_delete">Supprimer</string>
     <string name="channel_name">souvenir</string>
     <string name="channel_description">Chaîne de notification pour l\'application Souvenirs</string>
+    <string name="channel_alert_name">Alertes de synchronisation Souvenirs</string>
+    <string name="channel_alert_description">Alertes nécessitant votre attention, comme les conflits de synchronisation Nextcloud</string>
+    <string name="nextcloud_conflict_title">Conflit de synchronisation : %1$s</string>
+    <string name="nextcloud_conflict_bigtext">\"%1$s\" a été modifié à la fois sur cet appareil et sur Nextcloud. Choisissez la version à conserver — l\'autre sera écrasée.</string>
+    <string name="nextcloud_conflict_keep_local">Garder cet appareil</string>
+    <string name="nextcloud_conflict_keep_remote">Garder Nextcloud</string>
     <string name="notification_pdf_creation_text_end">Le PDF est prêt</string>
     <string name="edit_menu">Editer</string>
     <string name="add_page_in_album_ask">Sélectionnez l\'album cible :</string>
@@ -37,6 +43,7 @@
     <string name="dialog_delete_album_share_confirm">Voulez-vous supprimer le partage de l\'album \"%1$s\" ?</string>
     <string name="nextcloud_notification_err">Erreur de communication avec le serveur Nextcloud.</string>
     <string name="nextcloud_notification_finish_ok">Fin de la synchronisation de l\'album Nextcloud !</string>
+    <string name="nextcloud_notification_conflict">Conflit de synchronisation : album modifié localement et sur Nextcloud. Résolution nécessaire.</string>
     <string name="share_via_nextcloud_menu">Partager</string>
     <string name="sync_album_clean">Nettoyage de l\'album Nextcloud</string>
     <string name="sync_album_create_local_page">Création de la page locale %1$s</string>

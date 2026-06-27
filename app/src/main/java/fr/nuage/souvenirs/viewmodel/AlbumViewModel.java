@@ -18,7 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -55,6 +58,8 @@ public class AlbumViewModel extends AndroidViewModel {
     private final MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
     private final MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
     private int albumsNCState = AlbumsNC.STATE_NOT_LOADED;
+    //per-page isEdited LiveData currently wired into ldNCState, keyed by page id
+    private final HashMap<UUID, LiveData<Boolean>> pageEditSources = new HashMap<>();
 
     public AlbumViewModel(Application app) {
         super(app);
@@ -136,8 +141,11 @@ public class AlbumViewModel extends AndroidViewModel {
                     ldPages = new MutableLiveData<>();
                     ldAlbumImage.removeSource(oldAlbum.getLdAlbumImage());
                     ldElementMargin.removeSource(oldAlbum.getLiveDataElementMargin());
-                    ldNCState.removeSource(oldAlbum.getLdLastEditDate());
-                    ldNCState.removeSource(oldAlbum.getLdPageLastEditDate());
+                    //NC sync state now tracks the local dirty flags, not the edit dates
+                    ldNCState.removeSource(oldAlbum.getLdIsEdited());
+                    ldNCState.removeSource(oldAlbum.getLdIsPagesEdited());
+                    ldNCState.removeSource(oldAlbum.getLiveDataPages());
+                    clearPageEditSources();
                 }
                 if (album != null) {
                     ldHasAlbum.postValue(true);
@@ -158,17 +166,21 @@ public class AlbumViewModel extends AndroidViewModel {
                     ldElementMargin.addSource(album.getLiveDataElementMargin(), margin -> {
                         ldElementMargin.setValue(margin);
                     });
-                    ldNCState.addSource(album.getLdLastEditDate(), date -> {
+                    //recompute the NC sync state when the local dirty flags change
+                    ldNCState.addSource(album.getLdIsEdited(), edited -> {
                         ldNCState.postValue(getNCState());
                     });
-                    ldNCState.addSource(album.getLdPageLastEditDate(), date -> {
+                    ldNCState.addSource(album.getLdIsPagesEdited(), edited -> {
+                        ldNCState.postValue(getNCState());
+                    });
+                    //track each page's dirty flag (sources added/removed as pages come and go)
+                    ldNCState.addSource(album.getLiveDataPages(), pagesModel -> {
+                        syncPageEditSources(pagesModel);
                         ldNCState.postValue(getNCState());
                     });
                 } else {
                     ldHasAlbum.postValue(false);
-                    if (albumNC != null) { //reset date to trigger ldIsSyncNC
-                        albumNC.setLastEditDate(albumNC.getLastEditDate());
-                    }
+                    ldNCState.postValue(getNCState());
                 }
             }
         });
@@ -215,9 +227,7 @@ public class AlbumViewModel extends AndroidViewModel {
                 });
             } else {
                 ldHasAlbumNC.postValue(false);
-                if (album != null) { //reset date to trigger ldIsSyncNC
-                    album.setLastEditDate(album.getLastEditDate());
-                }
+                ldNCState.postValue(getNCState());
             }
         });
     }
@@ -226,11 +236,67 @@ public class AlbumViewModel extends AndroidViewModel {
         if ((albumNC == null) || (album == null)) {
             return false;
         }
-        if ((album.getLastEditDate().equals(albumNC.getLastEditDate())) && (album.getPagesLastEditDate().equals(albumNC.getPagesLastEditDate()))) {
-            return true;
-        } else {
-            return false;
+        return isLocallyInSync();
+    }
+
+    /**
+     * In sync = server tokens match the locally stored ones AND there is no pending local edit
+     * (album info, page array, or any page content). Tokens may be null (album never synced).
+     */
+    private boolean isLocallyInSync() {
+        if (!tokenEquals(album.getLastEditDate(), albumNC.getLastEditDate())) return false;
+        if (!tokenEquals(album.getPagesLastEditDate(), albumNC.getPagesLastEditDate())) return false;
+        if (album.isEdited() || album.isPagesEdited()) return false;
+        for (Page page : album.getPages()) {
+            if (page.isEdited()) return false;
         }
+        return true;
+    }
+
+    private static boolean tokenEquals(Date a, Date b) {
+        if (a == null) {
+            return b == null;
+        }
+        return a.equals(b);
+    }
+
+    /**
+     * Keep ldNCState observing the isEdited flag of every current page: add a source for newly
+     * appeared pages, drop sources for pages that were removed. Runs on the main thread (driven by
+     * the album pages LiveData).
+     */
+    private void syncPageEditSources(ArrayList<Page> pagesModel) {
+        //add sources for new pages
+        for (Page p : pagesModel) {
+            if (!pageEditSources.containsKey(p.getId())) {
+                LiveData<Boolean> source = p.getLdIsEdited();
+                pageEditSources.put(p.getId(), source);
+                ldNCState.addSource(source, edited -> ldNCState.postValue(getNCState()));
+            }
+        }
+        //remove sources for pages no longer present
+        Iterator<Map.Entry<UUID, LiveData<Boolean>>> it = pageEditSources.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, LiveData<Boolean>> entry = it.next();
+            boolean stillPresent = false;
+            for (Page p : pagesModel) {
+                if (p.getId().equals(entry.getKey())) {
+                    stillPresent = true;
+                    break;
+                }
+            }
+            if (!stillPresent) {
+                ldNCState.removeSource(entry.getValue());
+                it.remove();
+            }
+        }
+    }
+
+    private void clearPageEditSources() {
+        for (LiveData<Boolean> source : pageEditSources.values()) {
+            ldNCState.removeSource(source);
+        }
+        pageEditSources.clear();
     }
 
     private int getNCState() {
@@ -252,7 +318,7 @@ public class AlbumViewModel extends AndroidViewModel {
         if (syncInProgress) {
             return NC_STATE_SYNC_IN_PROGRESS;
         }
-        if ((album.getLastEditDate().equals(albumNC.getLastEditDate())) && (album.getPagesLastEditDate().equals(albumNC.getPagesLastEditDate()))) {
+        if (isLocallyInSync()) {
             return NC_STATE_SYNC;
         } else {
             return NC_STATE_NOSYNC;

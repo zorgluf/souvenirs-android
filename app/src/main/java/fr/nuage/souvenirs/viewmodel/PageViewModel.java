@@ -135,6 +135,11 @@ public class PageViewModel extends ViewModel {
         return page;
     }
 
+    /** Dirty flag of the underlying page (content edited locally, not yet synced to Nextcloud). */
+    public LiveData<Boolean> getLdIsEdited() {
+        return page.getLdIsEdited();
+    }
+
     public void addImage(InputStream input, String mime, String displayName, int size) {
         ImageElement imageElement = page.createImageElement();
         imageElement.setImage(input,mime);

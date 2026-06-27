@@ -59,6 +59,8 @@ import fr.nuage.souvenirs.viewmodel.utils.NCUtils;
 public class AlbumListActivity extends AppCompatActivity  {
 
     public static final String CHANNEL_ID = "1";
+    //high-importance channel for alerts needing user action (e.g. sync conflicts): heads-up + vibration + lights
+    public static final String CHANNEL_ID_ALERT = "2";
     public static final int DIRECT_SHARE_MAX_DAYS = 30;
     private static final int MAX_SHORTCUTS = 4;
 
@@ -144,6 +146,14 @@ public class AlbumListActivity extends AppCompatActivity  {
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+
+            //high-importance alert channel (heads-up, vibration and lights) for sync conflicts
+            NotificationChannel alertChannel = new NotificationChannel(CHANNEL_ID_ALERT,
+                    getString(R.string.channel_alert_name), NotificationManager.IMPORTANCE_HIGH);
+            alertChannel.setDescription(getString(R.string.channel_alert_description));
+            alertChannel.enableLights(true);
+            alertChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(alertChannel);
         }
     }
 

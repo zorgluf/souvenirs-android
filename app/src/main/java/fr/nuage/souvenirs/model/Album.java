@@ -40,7 +40,6 @@ public class Album {
     private ArrayList<Page> pages = new ArrayList<Page>();
     private Date pagesLastEditDate;
     private final MutableLiveData<Date> ldPagesLastEditDate = new MutableLiveData<>();
-    private Date pagesLastSyncDate;
     private Date date;
     private final MutableLiveData<Date> ldDate = new MutableLiveData<>();
     private Date lastEditDate;
@@ -51,6 +50,13 @@ public class Album {
     private int elementMargin = 1;
     private final MutableLiveData<Integer> ldElementMargin = new MutableLiveData<>();
     private boolean unsavedModifications = false;
+    //dirty flags: local modifications not yet pushed to nextcloud. Set on edit, cleared on sync.
+    //timestamps (lastEditDate, pagesLastEditDate, Page.lastEditDate) are now opaque tokens set
+    //exclusively by the nextcloud server and stored locally for sync comparison.
+    private boolean isEdited = false;
+    private boolean isPagesEdited = false;
+    private final MutableLiveData<Boolean> ldIsEdited = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ldIsPagesEdited = new MutableLiveData<>();
 
 
 
@@ -72,6 +78,8 @@ public class Album {
         ldDate.postValue(date);
         ldAlbumImage.postValue(albumImage);
         ldElementMargin.postValue(elementMargin);
+        ldIsEdited.postValue(isEdited);
+        ldIsPagesEdited.postValue(isPagesEdited);
     }
 
     public String getName(){
@@ -85,8 +93,7 @@ public class Album {
     public void setName(String name) {
         this.name = name;
         this.ldName.postValue(this.name);
-        this.save();
-        setLastEditDate(new Date());
+        setEdited(true);
     }
 
     public JSONObject toJSON() {
@@ -109,9 +116,8 @@ public class Album {
             if (getPagesLastEditDate() != null) {
                 json.put("pagesLastEditDate", new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(getPagesLastEditDate()));
             }
-            if (getPagesLastSyncDate() != null) {
-                json.put("pagesLastSyncDate", new SimpleDateFormat("yyyyMMddHHmmss", Locale.FRANCE).format(getPagesLastSyncDate()));
-            }
+            json.put("isEdited", isEdited);
+            json.put("isPagesEdited", isPagesEdited);
             if (getAlbumImage() != null) {
                 json.put("albumImage", Utils.getRelativePath(getAlbumPath(),getAlbumImage()));
             }
@@ -195,15 +201,8 @@ public class Album {
             } else {
                 pagesLastEditDate = new Date();
             }
-            if (json.has("pagesLastSyncDate")) {
-                try {
-                    pagesLastSyncDate = new SimpleDateFormat("yyyyMMddHHmmss",Locale.FRANCE).parse(json.getString("pagesLastSyncDate"));
-                } catch (Exception e) {
-                    pagesLastSyncDate = new Date();
-                }
-            } else {
-                pagesLastSyncDate = new Date();
-            }
+            isEdited = json.optBoolean("isEdited", false);
+            isPagesEdited = json.optBoolean("isPagesEdited", false);
             //if no albumimage defined, set last image as image album
             if ((albumImage == null)||(albumImage.equals(""))) {
                 for (Page p : getPages()) {
@@ -214,11 +213,13 @@ public class Album {
                     }
                 }
             }
+            //set field directly (not via setElementMargin) so loading does not mark the album edited
             if (json.has("elementMargin")) {
-                setElementMargin(json.getInt("elementMargin"));
+                this.elementMargin = json.getInt("elementMargin");
             } else {
-                setElementMargin(0);
+                this.elementMargin = 0;
             }
+            this.ldElementMargin.postValue(this.elementMargin);
         } catch (JSONException e) {
             Log.w(this.getClass().getSimpleName(),"Wrong file format for "+this.albumPath,e);
             return false;
@@ -238,8 +239,7 @@ public class Album {
     }
 
     public void onPageChange() {
-        setPagesLastEditDate(new Date());
-        onChange();
+        setPagesEdited(true);
     }
 
     public boolean save() {
@@ -287,9 +287,10 @@ public class Album {
         }
         ldPages.postValue(pages);
         if (updatePagesLastEditPate) {
-            setPagesLastEditDate(new Date());
+            setPagesEdited(true);
+        } else {
+            onChange();
         }
-        onChange();
     }
 
     public Page createPage(int position) {
@@ -443,10 +444,10 @@ public class Album {
     public void setDate(Date newDate) {
         date = newDate;
         ldDate.postValue(newDate);
-        setLastEditDate(new Date());
-        onChange();
+        setEdited(true);
     }
 
+    //token setter: lastEditDate is set exclusively by the nextcloud server and stored locally for sync.
     public void setLastEditDate(Date date) {
         lastEditDate = date;
         ldLastEditDate.postValue(date);
@@ -461,8 +462,7 @@ public class Album {
     public void setAlbumImage(String albumImage) {
         this.albumImage = albumImage;
         ldAlbumImage.postValue(albumImage);
-        setLastEditDate(new Date());
-        onChange();
+        setEdited(true);
     }
 
     public File createEmptyDataFile(String mimeType) {
@@ -510,25 +510,46 @@ public class Album {
         return pagesLastEditDate;
     }
 
+    //token setter: pagesLastEditDate is set exclusively by the nextcloud server and stored locally.
     public void setPagesLastEditDate(Date pagesLastEditDate) {
         this.pagesLastEditDate = pagesLastEditDate;
         ldPagesLastEditDate.postValue(pagesLastEditDate);
         onChange();
     }
 
-    public Date getPagesLastSyncDate() {
-        return pagesLastSyncDate;
+    //dirty flag for album infos (name, date, albumImage, elementMargin)
+    public boolean isEdited() {
+        return isEdited;
     }
 
-    public void setPagesLastSyncDate(Date pagesLastSyncDate) {
-        this.pagesLastSyncDate = pagesLastSyncDate;
+    public void setEdited(boolean edited) {
+        this.isEdited = edited;
+        ldIsEdited.postValue(edited);
         onChange();
+    }
+
+    public LiveData<Boolean> getLdIsEdited() {
+        return ldIsEdited;
+    }
+
+    //dirty flag for the page array (page create, move, delete)
+    public boolean isPagesEdited() {
+        return isPagesEdited;
+    }
+
+    public void setPagesEdited(boolean pagesEdited) {
+        this.isPagesEdited = pagesEdited;
+        ldIsPagesEdited.postValue(pagesEdited);
+        onChange();
+    }
+
+    public LiveData<Boolean> getLdIsPagesEdited() {
+        return ldIsPagesEdited;
     }
 
     public void setID(UUID id) {
         this.id = id;
-        setLastEditDate(new Date());
-        onChange();
+        setEdited(true);
     }
 
     public String getAlbumImage() {
@@ -554,7 +575,7 @@ public class Album {
     public void setElementMargin(int elementMargin) {
         this.elementMargin = elementMargin;
         this.ldElementMargin.postValue(elementMargin);
-        onChange();
+        setEdited(true);
     }
 
     public LiveData<Integer> getLiveDataElementMargin() { return ldElementMargin; }
