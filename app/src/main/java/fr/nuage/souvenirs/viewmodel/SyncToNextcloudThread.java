@@ -314,9 +314,14 @@ public class SyncToNextcloudThread extends Thread {
                 if (!pageNC.pullAssets(album.getAlbumPath(), albumNC)) {
                     return false;
                 }
-                Page page = album.createPage(index, false);
-                //update copies content and stores the page token; the pulled page is clean
-                page.update(pageNC);
+                //build the page fully (server id, content, token) BEFORE adding it to the album:
+                //once added, the pages LiveData exposes it to the UI, and its id must never change
+                Page page = new Page();
+                page.setAlbumParent(album);
+                if (!page.update(pageNC)) {
+                    return false;
+                }
+                album.addPage(page, index, false);
             }
         }
         //delete local pages that no longer exist remotely

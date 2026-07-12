@@ -58,8 +58,9 @@ public class AlbumViewModel extends AndroidViewModel {
     private final MediatorLiveData<Boolean> ldIsShared = new MediatorLiveData<>();
     private final MediatorLiveData<Integer> ldNCState = new MediatorLiveData<>();
     private int albumsNCState = AlbumsNC.STATE_NOT_LOADED;
-    //per-page isEdited LiveData currently wired into ldNCState, keyed by page id
-    private final HashMap<UUID, LiveData<Boolean>> pageEditSources = new HashMap<>();
+    //per-page isEdited LiveData currently wired into ldNCState,
+    //keyed by Page instance (identity), NOT page id: a page's id may be rewritten during a sync pull
+    private final HashMap<Page, LiveData<Boolean>> pageEditSources = new HashMap<>();
 
     public AlbumViewModel(Application app) {
         super(app);
@@ -268,23 +269,17 @@ public class AlbumViewModel extends AndroidViewModel {
     private void syncPageEditSources(ArrayList<Page> pagesModel) {
         //add sources for new pages
         for (Page p : pagesModel) {
-            if (!pageEditSources.containsKey(p.getId())) {
+            if (!pageEditSources.containsKey(p)) {
                 LiveData<Boolean> source = p.getLdIsEdited();
-                pageEditSources.put(p.getId(), source);
+                pageEditSources.put(p, source);
                 ldNCState.addSource(source, edited -> ldNCState.postValue(getNCState()));
             }
         }
-        //remove sources for pages no longer present
-        Iterator<Map.Entry<UUID, LiveData<Boolean>>> it = pageEditSources.entrySet().iterator();
+        //remove sources for pages no longer present (Page has no equals override, so this is identity)
+        Iterator<Map.Entry<Page, LiveData<Boolean>>> it = pageEditSources.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<UUID, LiveData<Boolean>> entry = it.next();
-            boolean stillPresent = false;
-            for (Page p : pagesModel) {
-                if (p.getId().equals(entry.getKey())) {
-                    stillPresent = true;
-                    break;
-                }
-            }
+            Map.Entry<Page, LiveData<Boolean>> entry = it.next();
+            boolean stillPresent = pagesModel.contains(entry.getKey());
             if (!stillPresent) {
                 ldNCState.removeSource(entry.getValue());
                 it.remove();
