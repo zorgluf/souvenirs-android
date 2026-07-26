@@ -140,19 +140,18 @@ public class AlbumListViewModel extends AndroidViewModel {
             }
         }
         //check if some album are deleted
-        ArrayList<AlbumViewModel> aVM = new ArrayList<>(albumViewModels);
-        for(int i = 0; i<aVM.size(); i++) {
-            AlbumViewModel avm = aVM.get(i);
+        for(Iterator<AlbumViewModel> iter = albumViewModels.iterator(); iter.hasNext();) {
+            AlbumViewModel avm = iter.next();
             if ((avm.getAlbum()!=null) && (!albums.isInAlbumList(avm.getAlbum().getId()))) {
-                albumViewModels.get(i).setAlbum(null);
+                avm.setAlbum(null);
             }
             if (albumsNC != null) {
                 if ((avm.getAlbumNC()!=null) && (!albumsNC.isInAlbumList(avm.getAlbumNC().getId()))) {
-                    albumViewModels.get(i).setAlbumNC(null);
+                    avm.setAlbumNC(null);
                 }
             }
             if ((avm.getAlbum() == null) && (avm.getAlbumNC() == null))  {
-                    albumViewModels.remove(i);
+                iter.remove();
             }
         }
         sortAlbumList();
