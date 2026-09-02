@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.annotations.SerializedName;
 import com.nextcloud.android.sso.api.NextcloudAPI;
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException;
@@ -65,9 +66,15 @@ public class APIProvider {
 
     public Gson getGson() {
 
+        //the web app may write fractional numbers into album.json (geometry, zoom/offsets);
+        //our model is integer percents, so round any number instead of failing to parse
+        JsonDeserializer<Integer> lenientInt = (json, typeOfT, context) ->
+                (int) Math.round(json.getAsDouble());
         return new GsonBuilder()
                 .setLenient()
                 .setDateFormat("yyyyMMddHHmmss")
+                .registerTypeAdapter(Integer.class, lenientInt)
+                .registerTypeAdapter(int.class, lenientInt)
                 .create();
     }
 

@@ -491,7 +491,9 @@ public class AlbumNC {
             } else {
                 albumResp = APIProvider.getApi().getAlbum(id.toString()).execute().body();
             }
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
+            //RuntimeException: a malformed album (e.g. JSON that does not fit the model)
+            //must fail the sync, not crash the sync thread
             Log.w(getClass().getName(),"Unable to load album from nextcloud.",e);
             return false;
         }
