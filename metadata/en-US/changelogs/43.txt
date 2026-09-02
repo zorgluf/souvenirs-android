@@ -1,0 +1,2 @@
+Fix: Crash on album list update during sync
+Fix: Sync failure on albums edited with the web app
