@@ -119,6 +119,13 @@ public class ShowAlbumFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        //recycle all page views so their pano webviews get destroyed
+        pageListRecyclerView.setAdapter(null);
+        super.onDestroyView();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit_album_show:

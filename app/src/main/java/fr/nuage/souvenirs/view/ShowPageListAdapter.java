@@ -43,6 +43,11 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private ShowItemPageListBinding mBinding;
+        private LiveData<ArrayList<ElementViewModel>> mObservedElements;
+        private Observer<ArrayList<ElementViewModel>> mElementsObserver;
+        //observers and pano webviews of the current page layout, released when the layout is rebuilt or the holder recycled
+        private final ArrayList<Runnable> mElementObserverRemovals = new ArrayList<>();
+        private final ArrayList<PanoView> mPanoViews = new ArrayList<>();
         public ViewHolder(ShowItemPageListBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
@@ -50,6 +55,37 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
         public void bind(AlbumViewModel album) {
             mBinding.setAlbum(album);
             mBinding.executePendingBindings();
+        }
+        private void observeElements(LiveData<ArrayList<ElementViewModel>> elements, Observer<ArrayList<ElementViewModel>> observer) {
+            mObservedElements = elements;
+            mElementsObserver = observer;
+            elements.observe(mFragment.getViewLifecycleOwner(), observer);
+        }
+        private <T> void observeElement(LiveData<T> liveData, Observer<T> observer) {
+            liveData.observe(mFragment.getViewLifecycleOwner(), observer);
+            mElementObserverRemovals.add(() -> liveData.removeObserver(observer));
+        }
+        private void addPanoView(PanoView panoView) {
+            mPanoViews.add(panoView);
+        }
+        private void releaseElements() {
+            for (Runnable removal : mElementObserverRemovals) {
+                removal.run();
+            }
+            mElementObserverRemovals.clear();
+            //webviews are not freed when removed from layout, and all share the same renderer process
+            for (PanoView panoView : mPanoViews) {
+                panoView.destroy();
+            }
+            mPanoViews.clear();
+        }
+        private void unbindPage() {
+            if (mObservedElements != null) {
+                mObservedElements.removeObserver(mElementsObserver);
+                mObservedElements = null;
+                mElementsObserver = null;
+            }
+            releaseElements();
         }
     }
 
@@ -83,12 +119,15 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
     @Override
     public void onBindViewHolder(@NonNull ShowPageListAdapter.ViewHolder holder, int position) {
         holder.bind(albumViewModel);
+        //stop listening to the page previously bound to this holder
+        holder.unbindPage();
 
         PageViewModel page = mPages.get(position);
         //listen to elements changes
-        page.getLdElements().observe(mFragment, elementViewModels -> {
+        holder.observeElements(page.getLdElements(), elementViewModels -> {
             //remove all view
             ViewGroup layout = holder.itemView.findViewById(R.id.page_layout);
+            holder.releaseElements();
             layout.removeAllViewsInLayout();
             //rebuild layout
             if (elementViewModels != null) {
@@ -108,8 +147,8 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                         binding.setLifecycleOwner(mFragment);
                         binding.setElement((VideoElementViewModel) e);
                         binding.executePendingBindings();
-                        ((VideoElementViewModel) e).getVideoPath().observe(mFragment, binding.imageVideoview::setVideoPath);
-                        ((VideoElementViewModel) e).getIsPlaying().observe(mFragment, isPlaying -> {
+                        holder.observeElement(((VideoElementViewModel) e).getVideoPath(), binding.imageVideoview::setVideoPath);
+                        holder.observeElement(((VideoElementViewModel) e).getIsPlaying(), isPlaying -> {
                             if (isPlaying) {
                                 if (binding.imageVideoview.isPlaying()) {
                                     binding.imageVideoview.resume();
@@ -131,7 +170,7 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             mFragment.getActivity().startActivity(intent);
                         });
                         //scale to fill/crop canvas
-                        ((VideoElementViewModel) e).getZoom().observe(mFragment.getViewLifecycleOwner(), integer -> {
+                        holder.observeElement(((VideoElementViewModel) e).getZoom(), integer -> {
                             if (integer == 100) {
                                 binding.imageVideoview.setOnPreparedListener(mp -> {
                                     float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
@@ -160,7 +199,8 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             binding.setLifecycleOwner(mFragment);
                             binding.setElement((ImageElementViewModel) e);
                             binding.executePendingBindings();
-                            ((ImageElementViewModel)e).getImagePath().observe(binding.getLifecycleOwner(), path -> {
+                            holder.addPanoView(binding.imagePanoview);
+                            holder.observeElement(((ImageElementViewModel)e).getImagePath(), path -> {
                                 binding.imagePanoview.setPanoUri(Uri.fromFile(new File(path)));
                             });
                             //do not listen to click if paintelement
@@ -211,6 +251,18 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
     }
 
 
+
+    @Override
+    public void onViewRecycled(@NonNull ShowPageListAdapter.ViewHolder holder) {
+        holder.unbindPage();
+    }
+
+    @Override
+    public boolean onFailedToRecycleView(@NonNull ShowPageListAdapter.ViewHolder holder) {
+        //holder is dropped instead of recycled : release it anyway
+        holder.unbindPage();
+        return false;
+    }
 
     @Override
     public int getItemCount() {

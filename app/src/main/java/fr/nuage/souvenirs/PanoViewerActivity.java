@@ -30,6 +30,8 @@ import fr.nuage.souvenirs.view.PanoView;
 
 public class PanoViewerActivity extends AppCompatActivity {
 
+    private PanoView panoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +46,18 @@ public class PanoViewerActivity extends AppCompatActivity {
             panoUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         }
 
-        PanoView panoView = new PanoView(this);
+        panoView = new PanoView(this);
 
         setContentView(panoView);
 
         panoView.setPanoUri(panoUri);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        panoView.destroy();
+        super.onDestroy();
     }
 
 }
