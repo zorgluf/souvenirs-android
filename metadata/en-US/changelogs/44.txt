@@ -1,0 +1,2 @@
+Fix: Menu bar overlapping the status bar when scrolling
+Fix: Memory leak in panorama viewer
