@@ -32,18 +32,8 @@ public class AlbumDiffUtilCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        boolean sameId = oldAlbums.get(oldItemPosition).getId().equals(newAlbums.get(newItemPosition).getId());
-        if (!sameId) {
-            return false;
-        }
-        boolean sameName = oldAlbums.get(oldItemPosition).getName().equals(newAlbums.get(newItemPosition).getName());
-        if (!sameName) {
-            return false;
-        }
-        if (oldAlbums.get(oldItemPosition).getDate() != null) {
-            return oldAlbums.get(oldItemPosition).getDate().equals(newAlbums.get(newItemPosition).getDate());
-        } else {
-            return false;
-        }
+        //both lists hold the same AlbumViewModel instances, and album views refresh themselves
+        //through their livedata bindings : a change event would only make the item flash
+        return true;
     }
 }

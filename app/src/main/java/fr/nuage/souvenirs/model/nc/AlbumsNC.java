@@ -43,45 +43,86 @@ public class AlbumsNC {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int page = 1;
-                String lastAlbumId = "";
-                ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
-                while (true) {
-                    List<String> albumIds;
-                    try {
-                        albumIds = APIProvider.getApi().getAlbums(page).execute().body();
-                        if (albumIds == null) {
-                            throw new Exception("Network error.");
-                        }
-                    } catch (Exception e) {
-                        Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
-                        setState(STATE_ERROR);
-                        return;
-                    }
-                    if (albumIds.size() == 0) {
-                        break;
-                    }
-                    if (albumIds.get(albumIds.size()-1).equals(lastAlbumId)) {  //in case pagination not supported by server (old version of nextcloud app)
-                        break;
-                    }
-                    for (String albumId: albumIds) {
-                        AlbumNC albumNC = new AlbumNC(UUID.fromString(albumId));
-                        newAlbumList.add(albumNC);
-                        setAlbumList(newAlbumList);
-                        lastAlbumId = albumId;
-                    }
-                    page += 1;
+                //get all albums with details in one request
+                Response<List<APIProvider.AlbumResp>> response;
+                try {
+                    response = APIProvider.getApi().getAlbumsDetails().execute();
+                } catch (Exception e) {
+                    Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
+                    setState(STATE_ERROR);
+                    return;
                 }
-                setState(STATE_OK);
-                for (AlbumNC albumNC: newAlbumList) {
-                    if (albumNC.load()) {
+                if (response.isSuccessful() && (response.body() != null)) {
+                    ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
+                    for (APIProvider.AlbumResp albumResp : response.body()) {
+                        if (albumResp.id == null) {
+                            Log.w(getClass().getName(),"Album without id in nextcloud album list.");
+                            continue;
+                        }
+                        AlbumNC albumNC = getOrCreateAlbumNC(albumResp.id);
+                        albumNC.load(albumResp);
                         albumNC.setState(AlbumNC.STATE_OK);
-                    } else {
-                        Log.w(getClass().getName(),"Wrong album id "+albumNC.getId().toString());
+                        newAlbumList.add(albumNC);
                     }
+                    //post list once all details are known, so it is displayed directly in its final order
+                    setAlbumList(newAlbumList);
+                    setState(STATE_OK);
+                } else {
+                    //server without the details endpoint : load the album list one by one
+                    Log.i(getClass().getName(),"Album details list not available (HTTP "+response.code()+"), loading albums one by one.");
+                    updateAlbumListByAlbum();
                 }
             }
         }).start();
+    }
+
+    private void updateAlbumListByAlbum() {
+        int page = 1;
+        String lastAlbumId = "";
+        ArrayList<AlbumNC> newAlbumList = new ArrayList<>();
+        while (true) {
+            List<String> albumIds;
+            try {
+                albumIds = APIProvider.getApi().getAlbums(page).execute().body();
+                if (albumIds == null) {
+                    throw new Exception("Network error.");
+                }
+            } catch (Exception e) {
+                Log.i(getClass().getName(),"Error on fetching nextcloud album list.",e);
+                setState(STATE_ERROR);
+                return;
+            }
+            if (albumIds.size() == 0) {
+                break;
+            }
+            if (albumIds.get(albumIds.size()-1).equals(lastAlbumId)) {  //in case pagination not supported by server (old version of nextcloud app)
+                break;
+            }
+            for (String albumId: albumIds) {
+                newAlbumList.add(getOrCreateAlbumNC(UUID.fromString(albumId)));
+                lastAlbumId = albumId;
+            }
+            page += 1;
+        }
+        setAlbumList(newAlbumList);
+        setState(STATE_OK);
+        for (AlbumNC albumNC: newAlbumList) {
+            if (albumNC.load()) {
+                albumNC.setState(AlbumNC.STATE_OK);
+            } else {
+                Log.w(getClass().getName(),"Wrong album id "+albumNC.getId().toString());
+            }
+        }
+    }
+
+    //reuse the album already known, so that views bound to it get the refreshed values
+    private AlbumNC getOrCreateAlbumNC(UUID id) {
+        for (AlbumNC albumNC : albumList) {
+            if (albumNC.getId().equals(id)) {
+                return albumNC;
+            }
+        }
+        return new AlbumNC(id);
     }
 
     public void setAlbumList(ArrayList<AlbumNC> al) {

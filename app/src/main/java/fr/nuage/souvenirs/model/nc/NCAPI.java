@@ -19,6 +19,10 @@ public interface NCAPI {
         @GET("album")
         Call<List<String>> getAlbums(@Query("page") int page);
 
+        //all albums with their details in one call, 404 on servers older than this endpoint
+        @GET("albums")
+        Call<List<APIProvider.AlbumResp>> getAlbumsDetails();
+
         @GET("album/{id}")
         Call<APIProvider.AlbumResp> getAlbum(@Path("id") String id);
 
