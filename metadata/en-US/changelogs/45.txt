@@ -1,0 +1,3 @@
+Change: Nextcloud album list loads in a single request and no longer flashes
+Fix: Video displayed on the whole page instead of its element bounds
+Fix: Panorama failing to load in some cases
