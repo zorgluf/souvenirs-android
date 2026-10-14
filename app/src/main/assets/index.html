@@ -13,17 +13,30 @@
 <div id="viewer" style="width: 100vw; height: 100vh;"></div>
 
 <script>
-  const viewer = new PhotoSphereViewer.Viewer({
-    container: document.querySelector('#viewer'),
-    panorama: injectedObject.getPanoUrl(),
-    navbar: [
-    'autorotate',
-    ],
-    autorotateDelay: 1,
-    defaultLong: 130,
-  });
-  viewer.on('dblclick', (e, data) => {
-     Android.fullScreen();
-  });
+  function createViewer() {
+    const viewer = new PhotoSphereViewer.Viewer({
+      container: document.querySelector('#viewer'),
+      panorama: injectedObject.getPanoUrl(),
+      navbar: [
+      'autorotate',
+      ],
+      autorotateDelay: 1,
+      defaultLong: 130,
+    });
+    viewer.on('dblclick', (e, data) => {
+       Android.fullScreen();
+    });
+  }
+  //the webview may not be laid out yet (0x0, e.g. page prefetched off screen) : the viewer loader
+  //then gets a negative size and the panorama load fails, so wait for the webview to get a size
+  //(polled, as resize event is not reliably fired when going out of 0x0)
+  function createViewerWhenSized() {
+    if (window.innerWidth > 0 && window.innerHeight > 0) {
+      createViewer();
+    } else {
+      setTimeout(createViewerWhenSized, 100);
+    }
+  }
+  createViewerWhenSized();
 </script>
 </body>
