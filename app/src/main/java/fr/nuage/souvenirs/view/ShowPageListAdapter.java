@@ -147,6 +147,8 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                         binding.setLifecycleOwner(mFragment);
                         binding.setElement((VideoElementViewModel) e);
                         binding.executePendingBindings();
+                        //needed by onLayoutChange to apply element margins once the view is attached to the page
+                        binding.setAlbum(albumViewModel);
                         holder.observeElement(((VideoElementViewModel) e).getVideoPath(), binding.imageVideoview::setVideoPath);
                         holder.observeElement(((VideoElementViewModel) e).getIsPlaying(), isPlaying -> {
                             if (isPlaying) {
