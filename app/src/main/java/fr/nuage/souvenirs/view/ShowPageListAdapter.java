@@ -174,8 +174,18 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                         //scale to fill/crop canvas
                         holder.observeElement(((VideoElementViewModel) e).getZoom(), integer -> {
                             if (integer == 100) {
-                                binding.imageVideoview.setOnPreparedListener(mp -> {
-                                    float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
+                                //memorize video size once known, and (re)apply the scaling only when
+                                //both the video is prepared and the view has been laid out (#38)
+                                final int[] videoSize = new int[2];
+                                final Runnable applyScale = () -> {
+                                    if ((videoSize[0] == 0) || (videoSize[1] == 0)) {
+                                        return;
+                                    }
+                                    if ((binding.imageVideoview.getWidth() == 0) || (binding.imageVideoview.getHeight() == 0)) {
+                                        //view is not laid out yet : retry on next layout change
+                                        return;
+                                    }
+                                    float videoRatio = videoSize[0] / (float) videoSize[1];
                                     float screenRatio = binding.imageVideoview.getWidth() / (float)
                                             binding.imageVideoview.getHeight();
                                     float scaleX = videoRatio / screenRatio;
@@ -186,10 +196,22 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                                         binding.imageVideoview.setScaleX(1f / scaleX);
                                         binding.imageVideoview.setScaleY(1f / scaleX);
                                     }
-                                    binding.imageVideoview.setOnPreparedListener(null);
+                                };
+                                binding.imageVideoview.setOnPreparedListener(mp -> {
+                                    videoSize[0] = mp.getVideoWidth();
+                                    videoSize[1] = mp.getVideoHeight();
+                                    applyScale.run();
+                                    //do not clear the listener : the view may not be laid out yet,
+                                    //and keeping it makes the scaling idempotent
                                 });
+                                //view dimensions are only valid after the first layout pass :
+                                //recompute the scaling whenever the video view is laid out again
+                                binding.imageVideoview.addOnLayoutChangeListener((v, left, top, right, bottom,
+                                        oldLeft, oldTop, oldRight, oldBottom) -> applyScale.run());
                             } else {
                                 binding.imageVideoview.setOnPreparedListener(null);
+                                binding.imageVideoview.setScaleX(1f);
+                                binding.imageVideoview.setScaleY(1f);
                             }
                         });
                         layout.addView(binding.getRoot());
