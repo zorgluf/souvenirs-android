@@ -3,6 +3,7 @@ package fr.nuage.souvenirs.view;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -172,47 +173,36 @@ public class ShowPageListAdapter extends RecyclerView.Adapter<ShowPageListAdapte
                             mFragment.getActivity().startActivity(intent);
                         });
                         //scale to fill/crop canvas
-                        holder.observeElement(((VideoElementViewModel) e).getZoom(), integer -> {
-                            if (integer == 100) {
-                                //memorize video size once known, and (re)apply the scaling only when
-                                //both the video is prepared and the view has been laid out (#38)
-                                final int[] videoSize = new int[2];
-                                final Runnable applyScale = () -> {
-                                    if ((videoSize[0] == 0) || (videoSize[1] == 0)) {
-                                        return;
-                                    }
-                                    if ((binding.imageVideoview.getWidth() == 0) || (binding.imageVideoview.getHeight() == 0)) {
-                                        //view is not laid out yet : retry on next layout change
-                                        return;
-                                    }
-                                    float videoRatio = videoSize[0] / (float) videoSize[1];
-                                    float screenRatio = binding.imageVideoview.getWidth() / (float)
-                                            binding.imageVideoview.getHeight();
-                                    float scaleX = videoRatio / screenRatio;
-                                    if (scaleX >= 1f) {
-                                        binding.imageVideoview.setScaleX(scaleX);
-                                        binding.imageVideoview.setScaleY(scaleX);
-                                    } else {
-                                        binding.imageVideoview.setScaleX(1f / scaleX);
-                                        binding.imageVideoview.setScaleY(1f / scaleX);
-                                    }
-                                };
-                                binding.imageVideoview.setOnPreparedListener(mp -> {
-                                    videoSize[0] = mp.getVideoWidth();
-                                    videoSize[1] = mp.getVideoHeight();
-                                    applyScale.run();
-                                    //do not clear the listener : the view may not be laid out yet,
-                                    //and keeping it makes the scaling idempotent
-                                });
-                                //view dimensions are only valid after the first layout pass :
-                                //recompute the scaling whenever the video view is laid out again
-                                binding.imageVideoview.addOnLayoutChangeListener((v, left, top, right, bottom,
-                                        oldLeft, oldTop, oldRight, oldBottom) -> applyScale.run());
-                            } else {
-                                binding.imageVideoview.setOnPreparedListener(null);
-                                binding.imageVideoview.setScaleX(1f);
-                                binding.imageVideoview.setScaleY(1f);
+                        //The VideoView is wrap_content : once the video size is known it shrinks to the
+                        //video aspect ratio (letterboxed), so the fill ratio must be computed against
+                        //its parent frame, which matches the element bounds (#38).
+                        final View videoFrame = (View) binding.imageVideoview.getParent();
+                        final int[] videoSize = new int[2];
+                        final boolean[] fillFrame = {false};
+                        final Runnable applyScale = () -> {
+                            float scale = 1f;
+                            if (fillFrame[0] && (videoSize[0] > 0) && (videoSize[1] > 0)
+                                    && (videoFrame.getWidth() > 0) && (videoFrame.getHeight() > 0)) {
+                                float videoRatio = videoSize[0] / (float) videoSize[1];
+                                float frameRatio = videoFrame.getWidth() / (float) videoFrame.getHeight();
+                                float ratio = videoRatio / frameRatio;
+                                scale = (ratio >= 1f) ? ratio : 1f / ratio;
                             }
+                            binding.imageVideoview.setScaleX(scale);
+                            binding.imageVideoview.setScaleY(scale);
+                        };
+                        binding.imageVideoview.setOnPreparedListener(mp -> {
+                            videoSize[0] = mp.getVideoWidth();
+                            videoSize[1] = mp.getVideoHeight();
+                            applyScale.run();
+                        });
+                        //frame dimensions are only valid after layout (and element margins are applied
+                        //in a later pass) : recompute the scaling whenever the frame is laid out
+                        videoFrame.addOnLayoutChangeListener((v, left, top, right, bottom,
+                                oldLeft, oldTop, oldRight, oldBottom) -> applyScale.run());
+                        holder.observeElement(((VideoElementViewModel) e).getZoom(), integer -> {
+                            fillFrame[0] = (integer != null) && (integer == 100);
+                            applyScale.run();
                         });
                         layout.addView(binding.getRoot());
                     } else if (e instanceof ImageElementViewModel) {
